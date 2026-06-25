@@ -1,0 +1,11 @@
+node_modules/
+dist/lib/
+.lazy-claudecode/
+.env
+.DS_Store
+*.tgz
+coverage/
+
+# MCP server dist/ bundles are committed because they're pre-built
+# from the upstream monorepo and can't be rebuilt locally.
+# src/*/dist/ — NOT ignored, these are tracked
