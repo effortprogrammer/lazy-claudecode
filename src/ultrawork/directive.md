@@ -149,7 +149,7 @@ state from the notepad; do not re-plan from scratch or re-run completed
 steps.
 
 ## 3. Register obsessive todos via `update_plan`
-The todo tool is Codex `update_plan` — your live, user-visible
+The todo tool is Claude Code `update_plan` — your live, user-visible
 checklist. Translate every action from the plan into one `update_plan`
 step — one step per atomic work unit: an edit plus its verification, a
 QA scenario run, a teardown. Keep each step small enough to finish
@@ -243,7 +243,7 @@ Until every success criterion PASSES with its evidence captured:
 Parallel-batch independent reads / searches / subagents within a step,
 but NEVER parallelise RED and GREEN of the same criterion.
 
-# Codex subagent reliability
+# Claude Code subagent reliability
 Every `multi_agent_v1.spawn_agent` message is self-contained and starts with
 `TASK: <imperative assignment>`, then names `DELIVERABLE`, `SCOPE`, and
 `VERIFY`. State that it is an executable assignment, not a context
@@ -317,7 +317,7 @@ Atomic, Conventional Commits (`<type>(<scope>): <imperative>` — feat /
 fix / refactor / test / docs / chore / build / ci / perf). One logical
 change per commit; each commit builds + tests green on its own. No WIP
 on the final branch. If a plan file exists, final commit footer:
-`Plan: .omo/plans/<slug>.md`. Do NOT auto-`git commit` unless the user
+`Plan: .claude/plans/<slug>.md`. Do NOT auto-`git commit` unless the user
 requested or preauthorised this session — default is stage + draft
 message + present for approval.
 

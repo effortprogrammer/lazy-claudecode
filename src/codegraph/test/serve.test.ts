@@ -106,14 +106,14 @@ describe("runCodegraphServe", () => {
 		expect(spawned).toEqual([{ args: ["codegraph.js", "serve", "--mcp"], command: nodeBin }]);
 	});
 
-	it("#given OMO_CODEGRAPH_BIN points at an explicit command #when local Node is unsupported #then serve trusts the configured command", async () => {
+	it("#given LAZY_CLAUDECODE_CODEGRAPH_BIN points at an explicit command #when local Node is unsupported #then serve trusts the configured command", async () => {
 		// given
 		const commandPath = "/opt/codegraph-node22/bin/codegraph";
 		const spawned: Array<{ readonly args: readonly string[]; readonly command: string }> = [];
 
 		// when
 		const exitCode = await runCodegraphServe({
-			env: { OMO_CODEGRAPH_BIN: commandPath },
+			env: { LAZY_CLAUDECODE_CODEGRAPH_BIN: commandPath },
 			nodeVersion: "26.3.0",
 			buildEnv: () => ({}),
 			commandExists: (candidate) => candidate === commandPath,
@@ -184,7 +184,7 @@ describe("runCodegraphServe", () => {
 		});
 	});
 
-	it("#given Windows OMO_CODEGRAPH_BIN is a Node script #when resolving serve invocation #then Node executes the script path", () => {
+	it("#given Windows LAZY_CLAUDECODE_CODEGRAPH_BIN is a Node script #when resolving serve invocation #then Node executes the script path", () => {
 		// given
 		const scriptPath = "C:\\Users\\runner\\codegraph-fake.cjs";
 
@@ -269,7 +269,7 @@ function runBuiltWrapper(entryPath: string, tempRoot: string): ReturnType<typeof
 			...process.env,
 			CODEGRAPH_ALLOW_UNSAFE_NODE: "1",
 			CODEGRAPH_FAKE_LOG: join(tempRoot, "invocations.log"),
-			OMO_CODEGRAPH_BIN: join(tempRoot, "codegraph-fake.cjs"),
+			LAZY_CLAUDECODE_CODEGRAPH_BIN: join(tempRoot, "codegraph-fake.cjs"),
 		},
 		timeout: 5000,
 	});

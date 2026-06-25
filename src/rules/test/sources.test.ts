@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { SOURCE_PRIORITY } from "@oh-my-opencode/rules-engine/engine";
-import { defaultConfig } from "@oh-my-opencode/rules-engine/engine";
-import { disabledSourcesFromConfig } from "@oh-my-opencode/rules-engine/engine";
-import type { PiRulesConfig } from "@oh-my-opencode/rules-engine/engine";
+import { SOURCE_PRIORITY } from "@effortprogrammer/rules-engine/engine";
+import { defaultConfig } from "@effortprogrammer/rules-engine/engine";
+import { disabledSourcesFromConfig } from "@effortprogrammer/rules-engine/engine";
+import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
 
 describe("rules source selection", () => {
 	it("#given default config #when disabled sources are derived #then opt-out sources stay disabled", () => {

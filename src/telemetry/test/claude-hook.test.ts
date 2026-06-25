@@ -5,7 +5,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type CodexSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
+import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
 import type { PostHogActivityReason, PostHogClient } from "../src/posthog.js";
 
 const CLI_PATH = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
@@ -36,7 +36,7 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<CodexSessionStartInput> = {}): CodexSessionStartInput {
+function makeSessionStartInput(overrides: Partial<ClaudeSessionStartInput> = {}): ClaudeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,
@@ -149,14 +149,14 @@ describe("runSessionStartHook", () => {
 });
 
 describe("telemetry CLI session-start hook (subprocess)", () => {
-	describe("#given OMO_DISABLE_POSTHOG=1 set in environment", () => {
+	describe("#given LAZY_CLAUDECODE_DISABLE_POSTHOG=1 set in environment", () => {
 		it("#when CLI receives valid SessionStart JSON #then exits 0 with no stdout output", async () => {
 			const payload = JSON.stringify(makeSessionStartInput());
 			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli(payload, {
-				OMO_DISABLE_POSTHOG: "1",
+				LAZY_CLAUDECODE_DISABLE_POSTHOG: "1",
 				XDG_DATA_HOME: dataDir,
 			});
 
@@ -174,7 +174,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 			});
 
 			const result = await runHookCliAt(path.join(snapshotRoot, "dist", "cli.js"), payload, {
-				OMO_DISABLE_POSTHOG: "1",
+				LAZY_CLAUDECODE_DISABLE_POSTHOG: "1",
 				XDG_DATA_HOME: dataDir,
 			});
 
@@ -184,14 +184,14 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 		});
 	});
 
-	describe("#given OMO_CODEX_SEND_ANONYMOUS_TELEMETRY=0 set in environment", () => {
+	describe("#given LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY=0 set in environment", () => {
 		it("#when CLI receives valid SessionStart JSON #then exits 0 with no stdout output", async () => {
 			const payload = JSON.stringify(makeSessionStartInput());
 			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli(payload, {
-				OMO_CODEX_SEND_ANONYMOUS_TELEMETRY: "0",
+				LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY: "0",
 				XDG_DATA_HOME: dataDir,
 			});
 
@@ -206,7 +206,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli("not-a-json-object", {
-				OMO_DISABLE_POSTHOG: "1",
+				LAZY_CLAUDECODE_DISABLE_POSTHOG: "1",
 				XDG_DATA_HOME: dataDir,
 			});
 
@@ -221,7 +221,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli("", {
-				OMO_DISABLE_POSTHOG: "1",
+				LAZY_CLAUDECODE_DISABLE_POSTHOG: "1",
 				XDG_DATA_HOME: dataDir,
 			});
 

@@ -1,7 +1,7 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-comment-checker",
 	"version": "4.13.0",
-	"description": "Codex plugin that runs comment-checker after edit-like PostToolUse hooks.",
+	"description": "Claude Code plugin that runs comment-checker after edit-like PostToolUse hooks.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
@@ -46,7 +46,7 @@
 		"@effortprogrammer/comment-checker": "^0.8.0"
 	},
 	"devDependencies": {
-		"@oh-my-opencode/comment-checker-core": "file:../../../../comment-checker-core",
+		"@effortprogrammer/comment-checker-core": "file:../../../../comment-checker-core",
 		"@biomejs/biome": "2.4.16",
 		"@types/node": "^25.9.3",
 		"typescript": "^6.0.3",

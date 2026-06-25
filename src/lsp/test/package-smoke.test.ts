@@ -15,8 +15,8 @@ describe("plugin package metadata", () => {
 		const hooksJson = readHooksJson("hooks/hooks.json");
 		const mcpJson = readMcpJson(".mcp.json");
 		const cliSource = readTextFile("src/cli.ts");
-		const codexHookCliSource = readTextFile("src/claude-hook-cli.ts");
-		const codexHookSource = readTextFile("src/claude-hook.ts");
+		const claudeHookCliSource = readTextFile("src/claude-hook-cli.ts");
+		const claudeHookSource = readTextFile("src/claude-hook.ts");
 		const sourceFiles = listDirectoryEntries("src");
 		const scripts = requireScripts(packageJson, "package.json");
 
@@ -33,7 +33,7 @@ describe("plugin package metadata", () => {
 			"../lsp-daemon/index.js": "file:../../../../lsp-daemon",
 		});
 		expect(packageJson.bin["omo-lsp"]).toBe("./dist/cli.js");
-		expect(packageJson.bin["codex-lsp"]).toBeUndefined();
+		expect(packageJson.bin["claude-lsp"]).toBeUndefined();
 		expect(scripts["build"]).toBe("node scripts/clean-dist.mjs && tsc -p tsconfig.build.json");
 		expect(scripts["pretest"]).toBe("npm run build --silent");
 		expect(cliSource.startsWith("#!/usr/bin/env node")).toBe(true);
@@ -45,10 +45,10 @@ describe("plugin package metadata", () => {
 		expect(cliSource).not.toContain("./lazy-lsp-mcp.js");
 		expect(cliSource).toContain("../lsp-daemon/cli.js");
 		expect(cliSource).not.toContain("../../../../../lsp-daemon/dist/cli.js");
-		expect(codexHookCliSource).toContain("../lsp-daemon/index.js");
-		expect(codexHookSource).toContain("../lsp-daemon/index.js");
-		expect(codexHookCliSource).not.toContain("../../../../../lsp-daemon");
-		expect(codexHookSource).not.toContain("../../../../../lsp-daemon");
+		expect(claudeHookCliSource).toContain("../lsp-daemon/index.js");
+		expect(claudeHookSource).toContain("../lsp-daemon/index.js");
+		expect(claudeHookCliSource).not.toContain("../../../../../lsp-daemon");
+		expect(claudeHookSource).not.toContain("../../../../../lsp-daemon");
 		expect(sourceFiles.filter((name) => name.startsWith("lazy-mcp") || name === "lazy-lsp-mcp.ts")).toEqual([]);
 	});
 

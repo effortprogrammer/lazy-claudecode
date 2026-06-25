@@ -24,7 +24,7 @@ export function parseHookOutput(output: string): UserPromptSubmitHookOutput {
 }
 
 export function writeContextPressureTranscript(): string {
-	const root = mkdtempSync(path.join(tmpdir(), "codex-ultrawork-context-pressure-"));
+	const root = mkdtempSync(path.join(tmpdir(), "claude-ultrawork-context-pressure-"));
 	tempDirectories.push(root);
 	const transcriptPath = path.join(root, "transcript.jsonl");
 	writeFileSync(
@@ -49,7 +49,7 @@ export function writeContextPressureTranscript(): string {
 }
 
 export function writeTranscript(...lines: string[]): string {
-	const root = mkdtempSync(path.join(tmpdir(), "codex-ultrawork-transcript-"));
+	const root = mkdtempSync(path.join(tmpdir(), "claude-ultrawork-transcript-"));
 	tempDirectories.push(root);
 	const transcriptPath = path.join(root, "transcript.jsonl");
 	writeFileSync(transcriptPath, `${lines.join("\n")}\n`);
@@ -57,7 +57,7 @@ export function writeTranscript(...lines: string[]): string {
 }
 
 export function writeCodexContextWindowTranscript(): string {
-	const root = mkdtempSync(path.join(tmpdir(), "codex-ultrawork-context-window-"));
+	const root = mkdtempSync(path.join(tmpdir(), "claude-ultrawork-context-window-"));
 	tempDirectories.push(root);
 	const transcriptPath = path.join(root, "transcript.jsonl");
 	writeFileSync(

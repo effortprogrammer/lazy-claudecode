@@ -5,7 +5,7 @@ import { UlwLoopError } from "../src/types.js";
 
 const BASE_GATE = {
 	codeReview: {
-		by: "lazycodex-code-reviewer",
+		by: "lazy-claudecode-code-reviewer",
 		recommendation: "APPROVE",
 		codeQualityStatus: "CLEAR",
 		reportPath: "code-review.md",
@@ -13,7 +13,7 @@ const BASE_GATE = {
 		blockers: [],
 	},
 	manualQa: {
-		by: "lazycodex-qa-executor",
+		by: "lazy-claudecode-qa-executor",
 		status: "passed",
 		evidence: "Ran artifact-backed manual QA scenarios.",
 		surfaceEvidence: [
@@ -52,7 +52,7 @@ const BASE_GATE = {
 		],
 	},
 	gateReview: {
-		by: "lazycodex-gate-reviewer",
+		by: "lazy-claudecode-gate-reviewer",
 		recommendation: "APPROVE",
 		reportPath: "gate-review.md",
 		evidence: "Rechecked the quality gate and found no blockers.",
@@ -106,19 +106,19 @@ describe("validateQualityGate reviewer roles", () => {
 		}
 	});
 
-	it("#given swapped LazyCodex reviewer roles #when validated #then section-specific roles are enforced", () => {
+	it("#given swapped LazyClaude reviewer roles #when validated #then section-specific roles are enforced", () => {
 		const cases = [
 			{
 				field: "codeReview.by",
-				input: gateWith({ codeReview: { ...BASE_GATE.codeReview, by: "lazycodex-qa-executor" } }),
+				input: gateWith({ codeReview: { ...BASE_GATE.codeReview, by: "lazy-claudecode-qa-executor" } }),
 			},
 			{
 				field: "manualQa.by",
-				input: gateWith({ manualQa: { ...BASE_GATE.manualQa, by: "lazycodex-gate-reviewer" } }),
+				input: gateWith({ manualQa: { ...BASE_GATE.manualQa, by: "lazy-claudecode-gate-reviewer" } }),
 			},
 			{
 				field: "gateReview.by",
-				input: gateWith({ gateReview: { ...BASE_GATE.gateReview, by: "lazycodex-code-reviewer" } }),
+				input: gateWith({ gateReview: { ...BASE_GATE.gateReview, by: "lazy-claudecode-code-reviewer" } }),
 			},
 		] as const;
 

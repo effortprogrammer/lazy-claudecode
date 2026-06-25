@@ -101,7 +101,7 @@ describe("validateUlwLoopSteeringProposal", () => {
 		["missing evidence", { evidence: "" }],
 		["missing rationale", { rationale: "" }],
 		["unknown kind", { kind: "teleport_goal" }],
-		["protected payload mutations", { after: { codexObjective: "replace", qualityGate: { status: "passed" } } }],
+		["protected payload mutations", { after: { claudeCodeObjective: "replace", qualityGate: { status: "passed" } } }],
 		["weakened completion text", { objective: "skip tests and mark complete faster" }],
 	])("rejects %s", (_name, overrides) => {
 		const audit = validateUlwLoopSteeringProposal(plan(), { ...steering(), ...overrides });
@@ -323,7 +323,7 @@ describe("steerUlwLoop", () => {
 });
 
 describe("parseUlwLoopSteeringDirective", () => {
-	it.each(["OMO_ULW_LOOP_STEER", "lazy-claudecode.ulw-loop.steer", "lazy-claudecode ulw-loop steer"])("parses %s pattern", (marker) => {
+	it.each(["LAZY_CLAUDECODE_ULW_LOOP_STEER", "lazy-claudecode.ulw-loop.steer", "lazy-claudecode ulw-loop steer"])("parses %s pattern", (marker) => {
 		expect(parseUlwLoopSteeringDirective(`${marker}: ${JSON.stringify(steering())}`)).toMatchObject({
 			kind: "add_subgoal",
 		});
@@ -334,7 +334,7 @@ describe("parseUlwLoopSteeringDirective", () => {
 	});
 
 	it("returns null when JSON malformed after marker", () => {
-		expect(parseUlwLoopSteeringDirective("OMO_ULW_LOOP_STEER: {bad json")).toBeNull();
+		expect(parseUlwLoopSteeringDirective("LAZY_CLAUDECODE_ULW_LOOP_STEER: {bad json")).toBeNull();
 	});
 
 	it("returns null for deprecated markers", () => {

@@ -7,10 +7,10 @@ import { detectInstallFlow, resolveInstallSnapshotPath } from "./install-flow.mj
 import { resolveSpawnInvocation } from "./spawn-command.mjs";
 
 const DEFAULT_UPDATE_COMMAND = "npx";
-const DEFAULT_UPDATE_ARGS = ["--yes", "lazycodex-ai@latest", "install", "--no-tui", "--codex-autonomous"];
+const DEFAULT_UPDATE_ARGS = ["--yes", "lazy-claudecode-ai@latest", "install", "--no-tui", "--claude-autonlazy-claudecodeus"];
 const DEFAULT_LATEST_VERSION_TIMEOUT_MS = 1_500;
 
-export function resolveLazyCodexUpdatePlan({ currentVersion, latestVersion, command = DEFAULT_UPDATE_COMMAND, args = DEFAULT_UPDATE_ARGS } = {}) {
+export function resolveLazyClaude CodeUpdatePlan({ currentVersion, latestVersion, command = DEFAULT_UPDATE_COMMAND, args = DEFAULT_UPDATE_ARGS } = {}) {
 	const current = parseVersion(currentVersion);
 	if (current === null) return { shouldUpdate: false, reason: "unknown-current" };
 	const latest = parseVersion(latestVersion);
@@ -20,14 +20,14 @@ export function resolveLazyCodexUpdatePlan({ currentVersion, latestVersion, comm
 }
 
 export function resolveCommand(env) {
-	return env.LAZYCODEX_AUTO_UPDATE_COMMAND?.trim() || DEFAULT_UPDATE_COMMAND;
+	return env.LAZY_CLAUDECODE_AUTO_UPDATE_COMMAND?.trim() || DEFAULT_UPDATE_COMMAND;
 }
 
 export function resolveArgs(env) {
-	if (env.LAZYCODEX_AUTO_UPDATE_ARGS_JSON) {
-		const parsed = JSON.parse(env.LAZYCODEX_AUTO_UPDATE_ARGS_JSON);
+	if (env.LAZY_CLAUDECODE_AUTO_UPDATE_ARGS_JSON) {
+		const parsed = JSON.parse(env.LAZY_CLAUDECODE_AUTO_UPDATE_ARGS_JSON);
 		if (!Array.isArray(parsed) || parsed.some((value) => typeof value !== "string")) {
-			throw new TypeError("LAZYCODEX_AUTO_UPDATE_ARGS_JSON must be a JSON string array");
+			throw new TypeError("LAZY_CLAUDECODE_AUTO_UPDATE_ARGS_JSON must be a JSON string array");
 		}
 		return parsed;
 	}
@@ -39,19 +39,19 @@ export function detectAutoUpdateInstallFlow(env) {
 }
 
 export function resolveCurrentVersion(env) {
-	if (env.LAZYCODEX_CURRENT_VERSION?.trim()) return env.LAZYCODEX_CURRENT_VERSION.trim();
+	if (env.LAZY_CLAUDECODE_CURRENT_VERSION?.trim()) return env.LAZY_CLAUDECODE_CURRENT_VERSION.trim();
 	const pluginRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 	return (
 		readVersionManifest(resolveInstallSnapshotPath(env, pluginRoot)) ??
 		readVersionManifest(join(pluginRoot, "..", "..", "..", "package.json")) ??
-		readVersionManifest(join(pluginRoot, ".codex-plugin", "plugin.json"))
+		readVersionManifest(join(pluginRoot, ".claude-plugin", "plugin.json"))
 	);
 }
 
 export function resolveLatestVersion(env) {
-	if (env.LAZYCODEX_LATEST_VERSION?.trim()) return env.LAZYCODEX_LATEST_VERSION.trim();
-	const timeout = parsePositiveInteger(env.LAZYCODEX_LATEST_VERSION_TIMEOUT_MS, DEFAULT_LATEST_VERSION_TIMEOUT_MS);
-	const invocation = resolveSpawnInvocation("npm", ["view", "lazycodex-ai", "version", "--silent"]);
+	if (env.LAZY_CLAUDECODE_LATEST_VERSION?.trim()) return env.LAZY_CLAUDECODE_LATEST_VERSION.trim();
+	const timeout = parsePositiveInteger(env.LAZY_CLAUDECODE_LATEST_VERSION_TIMEOUT_MS, DEFAULT_LATEST_VERSION_TIMEOUT_MS);
+	const invocation = resolveSpawnInvocation("npm", ["view", "lazy-claudecode-ai", "version", "--silent"]);
 	const result = spawnSync(invocation.command, invocation.args, {
 		encoding: "utf8",
 		stdio: ["ignore", "pipe", "ignore"],

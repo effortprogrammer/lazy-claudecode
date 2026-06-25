@@ -1,7 +1,7 @@
 import {
 	type TelemetryDiagnosticErrorKind,
 	type TelemetryDiagnosticEvent,
-} from "@oh-my-opencode/telemetry-core";
+} from "@effortprogrammer/telemetry-core";
 import {
 	createPluginPostHog,
 	getPostHogDistinctId,

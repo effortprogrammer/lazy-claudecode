@@ -1,1 +1,1 @@
-export { getString, isRecord } from "@oh-my-opencode/comment-checker-core";
+export { getString, isRecord } from "@effortprogrammer/comment-checker-core";

@@ -1,7 +1,7 @@
 # lazy-claudecode
 
 > Agent harness for **Claude Code** — hooks, skills, MCP servers, and systematic work modes.  
-> Ported from [LazyCodex](https://github.com/code-yeongyu/lazycodex) (OpenAI Codex CLI) to Claude Code's hook system.
+> Ported from [LazyClaude](https://github.com/code-yeongyu/lazycodex) (OpenAI Codex CLI) to Claude Code's hook system.
 
 ## What is this?
 

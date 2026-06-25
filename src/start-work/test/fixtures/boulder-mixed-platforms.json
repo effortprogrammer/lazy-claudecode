@@ -1,6 +1,6 @@
 {
 	"schema_version": 2,
-	"active_work_id": "codex_work",
+	"active_work_id": "claude_work",
 	"works": {
 		"opencode_work": {
 			"work_id": "opencode_work",
@@ -10,8 +10,8 @@
 			"started_at": "2026-05-28T00:00:00Z",
 			"session_ids": ["opencode:sess_abc"]
 		},
-		"codex_work": {
-			"work_id": "codex_work",
+		"claude_work": {
+			"work_id": "claude_work",
 			"active_plan": "/repo/.claude/plans/plan-with-unchecked.md",
 			"plan_name": "claude-code-plan",
 			"status": "paused",

@@ -1,21 +1,21 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-lsp",
 	"version": "4.13.0",
-	"description": "Codex plugin that exposes Language Server Protocol tools and post-edit diagnostics.",
+	"description": "Claude Code plugin that exposes Language Server Protocol tools and post-edit diagnostics.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
-	"homepage": "https://github.com/code-yeongyu/codex-lsp",
+	"homepage": "https://github.com/effortprogrammer/claude-lsp",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/code-yeongyu/codex-lsp.git"
+		"url": "git+https://github.com/effortprogrammer/claude-lsp.git"
 	},
 	"bugs": {
-		"url": "https://github.com/code-yeongyu/codex-lsp/issues"
+		"url": "https://github.com/effortprogrammer/claude-lsp/issues"
 	},
 	"keywords": [
-		"codex",
-		"codex-plugin",
+		"claude-code",
+		"claude-code-plugin",
 		"lsp",
 		"language-server-protocol",
 		"mcp",
@@ -28,7 +28,7 @@
 		"dist",
 		"hooks",
 		"skills",
-		".codex-plugin",
+		".claude-code-plugin",
 		".mcp.json",
 		"LICENSE",
 		"NOTICE",

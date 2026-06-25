@@ -4,26 +4,26 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ulwLoopCommand } from "../src/cli-commands.ts";
-import { ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE } from "../src/goal-status.js";
+import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../src/goal-status.js";
 import { QA_DIR, qualityGateJson } from "./fixtures/quality-gate-builder.js";
 
 let testDir: string;
 let out: string[];
 let err: string[];
-let originalCodexSessionId: string | undefined;
-let originalCodexThreadId: string | undefined;
+let originalClaudeSessionId: string | undefined;
+let originalClaudeThreadId: string | undefined;
 let originalOmoSessionId: string | undefined;
 
 beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-checkpoint-"));
 	out = [];
 	err = [];
-	originalCodexSessionId = process.env["CODEX_SESSION_ID"];
-	originalCodexThreadId = process.env["CODEX_THREAD_ID"];
-	originalOmoSessionId = process.env["OMO_ULW_LOOP_SESSION_ID"];
-	delete process.env["CODEX_SESSION_ID"];
-	delete process.env["CODEX_THREAD_ID"];
-	delete process.env["OMO_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -37,12 +37,12 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalCodexSessionId === undefined) delete process.env["CODEX_SESSION_ID"];
-	else process.env["CODEX_SESSION_ID"] = originalCodexSessionId;
-	if (originalCodexThreadId === undefined) delete process.env["CODEX_THREAD_ID"];
-	else process.env["CODEX_THREAD_ID"] = originalCodexThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["OMO_ULW_LOOP_SESSION_ID"];
-	else process.env["OMO_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 
@@ -55,8 +55,8 @@ function stdoutJson(): Record<string, unknown> {
 	return JSON.parse(out.join(""));
 }
 
-function codexSnapshot(status: "active" | "complete" = "active"): string {
-	return JSON.stringify({ goal: { objective: ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE, status } });
+function claudeSnapshot(status: "active" | "complete" = "active"): string {
+	return JSON.stringify({ goal: { objective: ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE, status } });
 }
 
 async function createPlan(brief = "- Goal A\n- Goal B"): Promise<Record<string, unknown>> {
@@ -98,7 +98,7 @@ describe("ulwLoopCommand checkpoint", () => {
 				"--evidence",
 				"x",
 				"--claude-code-goal-json",
-				codexSnapshot(),
+				claudeSnapshot(),
 			]),
 		).toBe(1);
 		expect(err.join("").toLowerCase()).toContain("criteria");
@@ -119,7 +119,7 @@ describe("ulwLoopCommand checkpoint", () => {
 				"--evidence",
 				"implementation done and validation passed",
 				"--claude-code-goal-json",
-				codexSnapshot(),
+				claudeSnapshot(),
 				"--json",
 			]),
 		).toBe(0);
@@ -142,7 +142,7 @@ describe("ulwLoopCommand checkpoint", () => {
 				"--evidence",
 				"implementation done and validation passed",
 				"--claude-code-goal-json",
-				codexSnapshot(),
+				claudeSnapshot(),
 				"--json",
 			]),
 		).toBe(0);
@@ -203,7 +203,7 @@ describe("ulwLoopCommand checkpoint", () => {
 				"--evidence",
 				"final implementation complete and quality gate passed",
 				"--claude-code-goal-json",
-				codexSnapshot("complete"),
+				claudeSnapshot("complete"),
 				"--quality-gate-json",
 				await qualityGateJson(testDir, `${QA_DIR}/missing.txt`),
 				"--json",

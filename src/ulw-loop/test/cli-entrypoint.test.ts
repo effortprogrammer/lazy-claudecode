@@ -16,9 +16,9 @@ type CliResult = {
 
 function sanitizedEnv(): NodeJS.ProcessEnv {
 	const env = { ...process.env };
-	delete env["CODEX_SESSION_ID"];
-	delete env["CODEX_THREAD_ID"];
-	delete env["OMO_ULW_LOOP_SESSION_ID"];
+	delete env["LAZY_CLAUDECODE_SESSION_ID"];
+	delete env["LAZY_CLAUDECODE_THREAD_ID"];
+	delete env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
 	return env;
 }
 

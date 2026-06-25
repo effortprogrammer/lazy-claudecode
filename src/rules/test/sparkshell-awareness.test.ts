@@ -86,9 +86,9 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given active Claude Code app server env with lazy-claudecode on PATH #when SessionStart runs #then emits Sparkshell guidance", async () => {
 		// given
 		const env = {
-			CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
-			CODEX_SHELL: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
+			LAZY_CLAUDECODE_SHELL: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 			PATH: omoOnPathDir,
 			HOME: emptyHomeDir,
 		};
@@ -110,9 +110,9 @@ describe("Claude Code Sparkshell awareness", () => {
 		// then
 		const context = parseAdditionalContext(output);
 		expectSparkshellFirstContract(context);
-		expect(context).toContain("OMO_SPARKSHELL_SESSION_CONTEXT");
-		expect(context).toContain("OMO_SPARKSHELL_CONDENSE");
-		expect(context).toContain("OMO_SPARKSHELL_SPARK");
+		expect(context).toContain("LAZY_CLAUDECODE_SPARKSHELL_SESSION_CONTEXT");
+		expect(context).toContain("LAZY_CLAUDECODE_SPARKSHELL_CONDENSE");
+		expect(context).toContain("LAZY_CLAUDECODE_SPARKSHELL_SPARK");
 		expect(context).toContain("[sparkshell caption]");
 		expect(context).toContain("never appends that context to command output");
 		expect(context).toContain("what the full output contained");
@@ -123,7 +123,7 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given inactive env #when SessionStart runs #then emits no Sparkshell guidance", async () => {
 		// given
 		const env = {
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 		};
 
 		// when
@@ -147,9 +147,9 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given Claude Code CLI appserver socket env #when SessionStart runs #then emits Sparkshell guidance", async () => {
 		// given
 		const env = {
-			OMO_SPARKSHELL_APP_SERVER_SOCKET: "/tmp/app-server-control.sock",
-			CODEX_THREAD_ID: "thread-sparkshell-cli",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_SPARKSHELL_APP_SERVER_SOCKET: "/tmp/app-server-control.sock",
+			LAZY_CLAUDECODE_THREAD_ID: "thread-sparkshell-cli",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 			PATH: omoOnPathDir,
 			HOME: emptyHomeDir,
 		};
@@ -175,9 +175,9 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given active Claude Code app env without a resolvable lazy-claudecode command #when SessionStart runs #then emits no Sparkshell guidance", async () => {
 		// given
 		const env = {
-			CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
-			CODEX_SHELL: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
+			LAZY_CLAUDECODE_SHELL: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 			PATH: join(fixtureRoot, "missing-path-entry"),
 			HOME: emptyHomeDir,
 		};
@@ -203,9 +203,9 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given lazy-claudecode only under HOME/.local/bin #when SessionStart runs #then emits guidance with the absolute lazy-claudecode path", async () => {
 		// given
 		const env = {
-			CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
-			CODEX_SHELL: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
+			LAZY_CLAUDECODE_SHELL: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 			PATH: join(fixtureRoot, "missing-path-entry"),
 			HOME: localBinHomeDir,
 		};
@@ -233,8 +233,8 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given explicit force-on env #when SessionStart runs #then emits Sparkshell guidance", async () => {
 		// given
 		const env = {
-			OMO_SPARKSHELL_AWARENESS: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_SPARKSHELL_AWARENESS: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 		};
 
 		// when
@@ -258,10 +258,10 @@ describe("Claude Code Sparkshell awareness", () => {
 	it("#given explicit force-off env with active Claude Code app context #when SessionStart runs #then emits no Sparkshell guidance", async () => {
 		// given
 		const env = {
-			OMO_SPARKSHELL_AWARENESS: "0",
-			CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
-			CODEX_SHELL: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_SPARKSHELL_AWARENESS: "0",
+			LAZY_CLAUDECODE_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
+			LAZY_CLAUDECODE_SHELL: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 		};
 
 		// when
@@ -286,9 +286,9 @@ describe("Claude Code Sparkshell awareness", () => {
 		// given
 		const pluginDataRoot = mkdtempSync(join(tmpdir(), "claude-code-sparkshell-awareness-"));
 		const env = {
-			CODEX_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
-			CODEX_SHELL: "1",
-			CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+			LAZY_CLAUDECODE_INTERNAL_ORIGINATOR_OVERRIDE: "Claude Code Desktop",
+			LAZY_CLAUDECODE_SHELL: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 			PATH: omoOnPathDir,
 			HOME: emptyHomeDir,
 		};

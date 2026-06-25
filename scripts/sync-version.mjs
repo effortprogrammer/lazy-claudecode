@@ -22,7 +22,7 @@ function normalizeVersion(version) {
 
 export async function resolveAuthoritativeVersion(options = {}) {
 	const env = options.env ?? process.env;
-	const explicit = normalizeVersion(options.version ?? env.LAZYCODEX_RELEASE_VERSION);
+	const explicit = normalizeVersion(options.version ?? env.LAZY_CLAUDECODE_RELEASE_VERSION);
 	if (explicit.length > 0) return explicit;
 
 	const repoRoot = options.repoRoot ?? defaultRepoRoot;
@@ -67,11 +67,11 @@ async function collectComponentManifests(pluginRoot) {
 }
 
 export function manifestTargets(pluginRoot, componentManifests) {
-	const omoCodexRoot = dirname(pluginRoot);
+	const lazy-claudecodeClaude CodeRoot = dirname(pluginRoot);
 	return [
-		join(omoCodexRoot, "package.json"),
+		join(lazy-claudecodeClaude CodeRoot, "package.json"),
 		join(pluginRoot, "package.json"),
-		join(pluginRoot, ".codex-plugin", "plugin.json"),
+		join(pluginRoot, ".claude-plugin", "plugin.json"),
 		...componentManifests,
 	];
 }
@@ -90,5 +90,5 @@ export async function syncVersion(options = {}) {
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
 	const result = await syncVersion();
-	console.log(`Synced OMO Codex manifests to version ${result.version} (${result.changed.length} updated)`);
+	console.log(`Synced LAZY_CLAUDECODE Claude Code manifests to version ${result.version} (${result.changed.length} updated)`);
 }

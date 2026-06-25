@@ -16,7 +16,7 @@ export { extractMutatedFilePaths } from "./mutated-file-paths.js";
 
 export type DiagnosticsRunner = (filePath: string) => Promise<string>;
 
-export interface CodexPostToolUseInput {
+export interface ClaudePostToolUseInput {
 	session_id?: unknown;
 	tool_name?: unknown;
 	tool_input?: unknown;
@@ -24,7 +24,7 @@ export interface CodexPostToolUseInput {
 	transcript_path?: unknown;
 }
 
-export interface CodexPostCompactInput {
+export interface ClaudePostCompactInput {
 	session_id?: unknown;
 }
 
@@ -65,7 +65,7 @@ export async function runLspDiagnosticsText(filePath: string): Promise<string> {
 }
 
 export async function runLspPostToolUseHook(
-	input: CodexPostToolUseInput,
+	input: ClaudePostToolUseInput,
 	runDiagnostics: DiagnosticsRunner = runLspDiagnosticsText,
 ): Promise<string> {
 	const sessionId = sessionIdFrom(input);
@@ -103,7 +103,7 @@ export async function runLspPostToolUseHook(
 	return `${JSON.stringify(output)}\n`;
 }
 
-export async function runLspPostCompactHook(input: CodexPostCompactInput): Promise<string> {
+export async function runLspPostCompactHook(input: ClaudePostCompactInput): Promise<string> {
 	markLspSessionCompacted(sessionIdFrom(input));
 	return "";
 }

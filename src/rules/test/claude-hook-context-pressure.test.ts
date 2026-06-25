@@ -7,7 +7,7 @@ import { runPostToolUseHook, runUserPromptSubmitHook } from "../src/claude-code-
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "AGENTS.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,.claude/rules",
 };
 const PROMPT_CONTEXT_PRESSURE_CASES = [
 	[

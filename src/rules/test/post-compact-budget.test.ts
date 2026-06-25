@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { withPostCompactBudget } from "../src/post-compact-budget.js";
-import type { PiRulesConfig } from "@oh-my-opencode/rules-engine/engine";
+import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
 
 const tempDirectories: string[] = [];
 const CONFIG: PiRulesConfig = {
@@ -90,7 +90,7 @@ describe("post-compact context budget", () => {
 
 	it("#given Claude Code canonical context-window marker after compaction #when resolving post-compact budget #then shrinks projected rule injection", () => {
 		// given
-		const transcriptPath = writeCompactedCodexContextWindowTranscript("small compacted summary");
+		const transcriptPath = writeCompactedClaudeContextWindowTranscript("small compacted summary");
 
 		// when
 		const budget = withPostCompactBudget(CONFIG, { model: "gpt-5.5", transcriptPath });
@@ -150,7 +150,7 @@ function writeCompactedPressureTranscript(retainedText: string): string {
 	return transcriptPath;
 }
 
-function writeCompactedCodexContextWindowTranscript(retainedText: string): string {
+function writeCompactedClaudeContextWindowTranscript(retainedText: string): string {
 	const root = mkdtempSync(path.join(tmpdir(), "post-compact-budget-"));
 	tempDirectories.push(root);
 	const transcriptPath = path.join(root, "transcript-claude-code-context-window.jsonl");

@@ -1,19 +1,19 @@
 {
-	"name": "@effortprogrammer/lazy-claudecode-lazycodex-executor-verify",
+	"name": "@effortprogrammer/lazy-claudecode-lazy-claudecode-executor-verify",
 	"version": "4.13.0",
-	"description": "Codex SubagentStop evidence verifier for LazyCodex executor completions.",
+	"description": "Claude Code SubagentStop evidence verifier for LazyClaude executor completions.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
 	"keywords": [
-		"codex",
-		"codex-plugin",
-		"lazycodex",
+		"claude-code",
+		"claude-code-plugin",
+		"lazy-claudecode",
 		"hooks",
 		"evidence"
 	],
 	"bin": {
-		"lazycodex-executor-verify": "./dist/cli.js"
+		"lazy-claudecode-executor-verify": "./dist/cli.js"
 	},
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",

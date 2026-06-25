@@ -77,15 +77,15 @@ describe("CodeGraph component runtime package metadata", () => {
 
 	it("#given third-party notices #when validating CodeGraph component notices #then aggregate Claude Code notices list CodeGraph as shipped", () => {
 		// given
-		const codexNotice = readFileSync(resolve(repoRoot, "packages/lazy-claudecode-claude-code/THIRD-PARTY-NOTICES.md"), "utf8");
+		const claudeNotice = readFileSync(resolve(repoRoot, "packages/lazy-claudecode-claude-code/THIRD-PARTY-NOTICES.md"), "utf8");
 
 		// when
-		const listsCodegraphComponent = codexNotice.includes("@sisyphuslabs/claudeCodegraph");
-		const listsUpstreamRuntime = codexNotice.includes("@colbymchenry/codegraph");
+		const listsCodegraphComponent = claudeNotice.includes("@effortprogrammer/claudeCodegraph");
+		const listsUpstreamRuntime = claudeNotice.includes("@colbymchenry/codegraph");
 
 		// then
 		expect(listsCodegraphComponent).toBe(true);
 		expect(listsUpstreamRuntime).toBe(true);
-		expect(codexNotice).not.toContain("not currently an lazy-claudecode-claude-code plugin component");
+		expect(claudeNotice).not.toContain("not currently an lazy-claudecode-claude-code plugin component");
 	});
 });

@@ -25,8 +25,8 @@ afterEach(() => {
 	for (const root of cleanupRoots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("lazycodex executor SubagentStop verifier", () => {
-	it("#given no evidence receipt #when lazycodex executor stops #then blocks with a strong directive", () => {
+describe("lazy-claudecode executor SubagentStop verifier", () => {
+	it("#given no evidence receipt #when lazy-claudecode executor stops #then blocks with a strong directive", () => {
 		// given
 		const cwd = createWorkspace();
 
@@ -37,12 +37,12 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		const parsed = parseBlockOutput(output);
 		expect(parsed.decision).toBe("block");
 		expect(parsed.reason).toContain("너는 방금 작업을 완료했다고 보고했고, 그건 거짓말이다.");
-		expect(parsed.reason).toContain(".omo/evidence/");
+		expect(parsed.reason).toContain(".claude/evidence/");
 		expect(parsed.reason).toContain("EVIDENCE_RECORDED: <path>");
 		expect(parsed.reason).not.toContain("2번째");
 	});
 
-	it("#given a prior blocked stop #when lazycodex executor stops again #then escalates the attempt count", () => {
+	it("#given a prior blocked stop #when lazy-claudecode executor stops again #then escalates the attempt count", () => {
 		// given
 		const cwd = createWorkspace();
 		runSubagentStopHook(createInput(cwd), nodeFileSystem);
@@ -55,7 +55,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parsed.reason).toContain("2번째");
 	});
 
-	it("#given turn_id is omitted #when lazycodex executor stops #then the hook still parses the payload", () => {
+	it("#given turn_id is omitted #when lazy-claudecode executor stops #then the hook still parses the payload", () => {
 		// given
 		const cwd = createWorkspace();
 
@@ -66,7 +66,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given an existing non-empty evidence receipt #when lazycodex executor stops #then exits and clears state", () => {
+	it("#given an existing non-empty evidence receipt #when lazy-claudecode executor stops #then exits and clears state", () => {
 		// given
 		const cwd = createWorkspace();
 		runSubagentStopHook(createInput(cwd), nodeFileSystem);
@@ -76,16 +76,16 @@ describe("lazycodex executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/receipt.txt" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt.txt" }),
 			nodeFileSystem,
 		);
 
 		// then
 		expect(output).toBe("");
-		expect(existsSync(join(cwd, ".omo", "lazycodex-executor-verify", "sess.1-agent_1.json"))).toBe(false);
+		expect(existsSync(join(cwd, ".omo", "lazy-claudecode-executor-verify", "sess.1-agent_1.json"))).toBe(false);
 	});
 
-	it("#given a zero-byte evidence receipt #when lazycodex executor stops #then blocks", () => {
+	it("#given a zero-byte evidence receipt #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		const artifactPath = join(cwd, ".omo", "evidence", "empty.txt");
@@ -94,7 +94,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/empty.txt" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/empty.txt" }),
 			nodeFileSystem,
 		);
 
@@ -102,14 +102,14 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given an evidence receipt directory inside evidence root #when lazycodex executor stops #then blocks", () => {
+	it("#given an evidence receipt directory inside evidence root #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		mkdirSync(join(cwd, ".omo", "evidence", "receipt-dir"), { recursive: true });
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/receipt-dir" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt-dir" }),
 			nodeFileSystem,
 		);
 
@@ -117,7 +117,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given an evidence receipt symlink targets outside evidence root #when lazycodex executor stops #then blocks", () => {
+	it("#given an evidence receipt symlink targets outside evidence root #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		const artifactPath = join(cwd, ".omo", "evidence", "passwd-link");
@@ -126,7 +126,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/passwd-link" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/passwd-link" }),
 			nodeFileSystem,
 		);
 
@@ -134,7 +134,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given an evidence receipt traverses a symlinked evidence subdirectory #when lazycodex executor stops #then blocks", () => {
+	it("#given an evidence receipt traverses a symlinked evidence subdirectory #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		const outsideRoot = createWorkspace();
@@ -146,7 +146,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/outside-dir/receipt.txt" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/outside-dir/receipt.txt" }),
 			nodeFileSystem,
 		);
 
@@ -154,7 +154,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given an existing absolute receipt outside evidence root #when lazycodex executor stops #then blocks", () => {
+	it("#given an existing absolute receipt outside evidence root #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		const receiptPath = existingAbsoluteReceiptOutsideEvidenceRoot();
@@ -169,7 +169,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given a parent traversal receipt outside cwd #when lazycodex executor stops #then blocks", () => {
+	it("#given a parent traversal receipt outside cwd #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const { cwd } = createWorkspaceWithParentOutsideReceipt();
 
@@ -183,7 +183,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given a traversal receipt escaping evidence root #when lazycodex executor stops #then blocks", () => {
+	it("#given a traversal receipt escaping evidence root #when lazy-claudecode executor stops #then blocks", () => {
 		// given
 		const cwd = createWorkspace();
 		mkdirSync(join(cwd, ".omo"), { recursive: true });
@@ -191,7 +191,7 @@ describe("lazycodex executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .omo/evidence/../outside.txt" }),
+			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/../outside.txt" }),
 			nodeFileSystem,
 		);
 
@@ -199,10 +199,10 @@ describe("lazycodex executor SubagentStop verifier", () => {
 		expect(parseBlockOutput(output).decision).toBe("block");
 	});
 
-	it("#given three prior attempts #when lazycodex executor stops #then exits and clears stale state", () => {
+	it("#given three prior attempts #when lazy-claudecode executor stops #then exits and clears stale state", () => {
 		// given
 		const cwd = createWorkspace();
-		const stateDir = join(cwd, ".omo", "lazycodex-executor-verify");
+		const stateDir = join(cwd, ".omo", "lazy-claudecode-executor-verify");
 		mkdirSync(stateDir, { recursive: true });
 		writeFileSync(join(stateDir, "sess.1-agent_1.json"), JSON.stringify({ attempts: 3 }));
 
@@ -270,7 +270,7 @@ const nodeFileSystem = {
 };
 
 function createWorkspace(): string {
-	const root = mkdtempSync(join(tmpdir(), "lazycodex-executor-verify-"));
+	const root = mkdtempSync(join(tmpdir(), "lazy-claudecode-executor-verify-"));
 	cleanupRoots.push(root);
 	return root;
 }
@@ -299,7 +299,7 @@ function existingReceiptTargetOutsideEvidenceRoot(): string {
 function createInput(cwd: string, overrides: Partial<SubagentStopInput> = {}): SubagentStopInput {
 	return {
 		hook_event_name: "SubagentStop",
-		agent_type: "lazycodex-executor",
+		agent_type: "lazy-claudecode-executor",
 		agent_id: "agent_1",
 		session_id: "sess.1",
 		cwd,
@@ -315,7 +315,7 @@ function createInput(cwd: string, overrides: Partial<SubagentStopInput> = {}): S
 function createUnknownEventInput(cwd: string): Record<string, string | boolean> {
 	return {
 		hook_event_name: "Stop",
-		agent_type: "lazycodex-executor",
+		agent_type: "lazy-claudecode-executor",
 		agent_id: "agent_1",
 		session_id: "sess.1",
 		cwd,

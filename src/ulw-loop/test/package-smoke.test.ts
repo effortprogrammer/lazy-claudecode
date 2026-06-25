@@ -123,7 +123,7 @@ describe("skills/ulw-loop/SKILL.md", () => {
 	it("#given Claude Code dollar hinting #when querying ulw-loop #then ulw-loop surfaces the ulw-loop alias", async () => {
 		const text = await readText("skills/ulw-loop/agents/openai.yaml");
 
-		expect(text).toContain('display_name: "(OmO) ulw-loop"');
+		expect(text).toContain('display_name: "(LazyClaude) ulw-loop"');
 		expect(text).not.toContain("ulw-loop / ulw-loop");
 		expect(text).toContain('short_description: "Goal-like ultrawork loop for systematic decomposition"');
 		expect(text).toContain("Use $ulw-loop");
@@ -143,8 +143,8 @@ describe("skills/ulw-loop/SKILL.md", () => {
 		try {
 			const badBin = join(root, "bad-bin");
 			const home = join(root, "home");
-			const codexHome = join(home, ".claude-code");
-			const cachedCli = join(codexHome, "plugins", "cache", "sisyphuslabs", "lazy-claudecode", "0.1.0", "components", "ulw-loop", "dist", "cli.js");
+			const claudeHome = join(home, ".claude-code");
+			const cachedCli = join(claudeHome, "plugins", "cache", "effortprogrammer", "lazy-claudecode", "0.1.0", "components", "ulw-loop", "dist", "cli.js");
 			await mkdir(badBin, { recursive: true });
 			await mkdir(dirname(cachedCli), { recursive: true });
 			await writeFile(join(badBin, "lazy-claudecode"), "#!/bin/sh\nprintf '%s\\n' \"error: unknown command 'ulw-loop'\" >&2\nexit 1\n");
@@ -167,7 +167,7 @@ describe("skills/ulw-loop/SKILL.md", () => {
 
 			const result = await runShell(`${bootstrap}\nomo ulw-loop status --json`, {
 				...process.env,
-				CODEX_HOME: codexHome,
+				LAZY_CLAUDECODE_HOME: claudeHome,
 				HOME: home,
 				PATH: `${badBin}:${process.env["PATH"] ?? ""}`,
 			});

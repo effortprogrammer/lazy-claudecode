@@ -93,7 +93,7 @@ describe("start-work continuation CLI", () => {
 		const source = readFileSync(cliPath, "utf8");
 
 		// then
-		expect(source).not.toContain("@oh-my-opencode/boulder-state");
+		expect(source).not.toContain("@effortprogrammer/boulder-state");
 		expect(source).not.toContain("../../boulder-state");
 	});
 });

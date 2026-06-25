@@ -159,7 +159,7 @@ Never reduce image count just for convenience if that harms quality.
 
 ---
 
-## 4. CODEX-SPECIFIC SECTION IMAGE RULE
+## 4. CLAUDE-CODE-SPECIFIC SECTION IMAGE RULE
 
 Inside Claude Code, do not compress too many website sections into one single image if that would make the text, spacing, buttons, or layout details too small to analyze properly.
 
@@ -365,7 +365,7 @@ Only after this deep analysis should you implement the frontend.
 
 ---
 
-## 10. IMAGE-FIRST CODEX WEBSITE WORKFLOW
+## 10. IMAGE-FIRST CLAUDE CODE WEBSITE WORKFLOW
 
 When this skill is used inside Claude Code or any environment that supports image generation plus implementation, default to an image-first workflow for website design tasks.
 

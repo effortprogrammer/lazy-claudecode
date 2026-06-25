@@ -4,8 +4,8 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostCompactInput,
-	type CodexSessionStartInput,
+	type ClaudePostCompactInput,
+	type ClaudeSessionStartInput,
 	runPostCompactHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
@@ -13,9 +13,9 @@ import {
 
 const tempDirectories: string[] = [];
 const PROJECT_RULES_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
-	CODEX_RULES_MAX_RESULT_CHARS: "50000",
-	CODEX_RULES_MAX_RULE_CHARS: "30000",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS: "50000",
+	LAZY_CLAUDECODE_RULES_MAX_RULE_CHARS: "30000",
 };
 
 afterEach(() => {
@@ -75,7 +75,7 @@ function makeOversizedProject(): { root: string; pluginData: string } {
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-post-compact-budget",
 		transcript_path: null,
@@ -87,7 +87,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function postCompactInput(root: string): CodexPostCompactInput {
+function postCompactInput(root: string): ClaudePostCompactInput {
 	return {
 		session_id: "session-post-compact-budget",
 		turn_id: "turn-compact",

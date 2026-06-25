@@ -4,13 +4,13 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostCompactInput,
-	type CodexSessionStartInput,
+	type ClaudePostCompactInput,
+	type ClaudeSessionStartInput,
 	runPostCompactHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
 } from "../src/claude-code-hook.js";
-import { createRuleDiscoveryCache, findRuleCandidates } from "@oh-my-opencode/rules-engine/engine";
+import { createRuleDiscoveryCache, findRuleCandidates } from "@effortprogrammer/rules-engine/engine";
 
 interface FixtureOptions {
 	readonly writeProjectDuplicate?: boolean;
@@ -25,19 +25,19 @@ interface Fixture {
 }
 
 const BUNDLED_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "plugin-bundled",
-	CODEX_RULES_MAX_RESULT_CHARS: "40000",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "plugin-bundled",
+	LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS: "40000",
 };
 
 const PROJECT_AND_BUNDLED_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: ".claude/rules,plugin-bundled",
-	CODEX_RULES_MAX_RESULT_CHARS: "40000",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules,plugin-bundled",
+	LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS: "40000",
 };
 
 const DISABLED_BUNDLED_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "plugin-bundled",
-	CODEX_RULES_MAX_RESULT_CHARS: "40000",
-	CODEX_RULES_DISABLE_BUNDLED: "1",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "plugin-bundled",
+	LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS: "40000",
+	LAZY_CLAUDECODE_RULES_DISABLE_BUNDLED: "1",
 };
 
 const BUNDLED_BODY = "Bundled craftsman baseline.";
@@ -93,7 +93,7 @@ function restoreEnv(name: string, value: string | undefined): void {
 	process.env[name] = value;
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-1",
 		transcript_path: null,
@@ -105,7 +105,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function postCompactInput(root: string): CodexPostCompactInput {
+function postCompactInput(root: string): ClaudePostCompactInput {
 	return {
 		session_id: "session-1",
 		turn_id: "turn-compact",
@@ -273,7 +273,7 @@ describe("plugin bundled rules", () => {
 		// when
 		const output = await runSessionStartHook(sessionStartInput(root), {
 			pluginDataRoot: pluginData,
-			env: { CODEX_RULES_ENABLED_SOURCES: ".claude/rules" },
+			env: { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules" },
 		});
 
 		// then

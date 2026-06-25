@@ -1,6 +1,6 @@
 export const MANAGED_KEYS = ["model", "model_context_window", "model_reasoning_effort", "plan_mode_reasoning_effort"];
 
-export function ensureCodexReasoningConfig(config, profile) {
+export function ensureClaude CodeReasoningConfig(config, profile) {
 	let next = replaceOrInsertRootSetting(config, "model", JSON.stringify(profile.model));
 	next = replaceOrInsertRootSetting(next, "model_context_window", profile.model_context_window.toString());
 	next = replaceOrInsertRootSetting(next, "model_reasoning_effort", JSON.stringify(profile.model_reasoning_effort));

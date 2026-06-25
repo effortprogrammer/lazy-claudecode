@@ -1,7 +1,7 @@
 {
   "name": "lazy-claudecode",
   "version": "0.1.0",
-  "description": "Agent harness for Claude Code — hooks, skills, MCP servers, and systematic work modes. Ported from LazyCodex.",
+  "description": "Agent harness for Claude Code — hooks, skills, MCP servers, and systematic work modes. Ported from LazyClaude.",
   "type": "module",
   "bin": {
     "lazy-claudecode": "./bin/lazy-claudecode.js"
@@ -21,7 +21,7 @@
     "hooks",
     "agent",
     "mcp",
-    "codex",
+    "claude-code",
     "ai",
     "developer-tools"
   ],

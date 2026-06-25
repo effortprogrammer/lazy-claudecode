@@ -21,29 +21,29 @@ import {
 	resolveCommand,
 	resolveCurrentVersion,
 	resolveLatestVersion,
-	resolveLazyCodexUpdatePlan,
+	resolveLazyClaude CodeUpdatePlan,
 } from "./auto-update-plan.mjs";
 import { formatMarketplaceFlowNotice, formatUpdateStartedNotice, resolveReleaseNotes } from "./auto-update-release-notes.mjs";
-import { migrateCodexConfig } from "./migrate-codex-config.mjs";
-import { migrateOmoSotConfig } from "./migrate-omo-sot.mjs";
+import { migrateClaude CodeConfig } from "./migrate-claude-config.mjs";
+import { migrateLazyClaudecodeSotConfig } from "./migrate-lazy-claudecode-sot.mjs";
 import { resolveSpawnInvocation } from "./spawn-command.mjs";
 
 const DEFAULT_INTERVAL_MS = 24 * 60 * 60 * 1_000;
 const DEFAULT_RETRY_INTERVAL_MS = 30 * 60 * 1_000;
 
-export { resolveLazyCodexUpdatePlan };
+export { resolveLazyClaude CodeUpdatePlan };
 
 export function resolveAutoUpdatePlan({ env = process.env, now = Date.now(), lastCheckedAt, lastAttemptedAt, lastStatus, installFlow } = {}) {
-	if (env.LAZYCODEX_AUTO_UPDATE_DISABLED === "1" || env.LAZY_CLAUDECODE_AUTO_UPDATE_DISABLED === "1") {
+	if (env.LAZY_CLAUDECODE_AUTO_UPDATE_DISABLED === "1" || env.LAZY_CLAUDECODE_AUTO_UPDATE_DISABLED === "1") {
 		return { shouldRun: false, reason: "disabled" };
 	}
 
-	const intervalMs = parsePositiveInteger(env.LAZYCODEX_AUTO_UPDATE_INTERVAL_MS, DEFAULT_INTERVAL_MS);
+	const intervalMs = parsePositiveInteger(env.LAZY_CLAUDECODE_AUTO_UPDATE_INTERVAL_MS, DEFAULT_INTERVAL_MS);
 	const successStatus = lastStatus === undefined || lastStatus === "success";
 	if (successStatus && typeof lastCheckedAt === "number" && intervalMs > 0 && now - lastCheckedAt < intervalMs) {
 		return { shouldRun: false, reason: "throttled" };
 	}
-	const retryIntervalMs = parsePositiveInteger(env.LAZYCODEX_AUTO_UPDATE_RETRY_INTERVAL_MS, DEFAULT_RETRY_INTERVAL_MS);
+	const retryIntervalMs = parsePositiveInteger(env.LAZY_CLAUDECODE_AUTO_UPDATE_RETRY_INTERVAL_MS, DEFAULT_RETRY_INTERVAL_MS);
 	if (!successStatus && typeof lastAttemptedAt === "number" && retryIntervalMs > 0 && now - lastAttemptedAt < retryIntervalMs) {
 		return { shouldRun: false, reason: "retry-throttled" };
 	}
@@ -53,7 +53,7 @@ export function resolveAutoUpdatePlan({ env = process.env, now = Date.now(), las
 
 	const currentVersion = resolveCurrentVersion(env);
 	const latestVersion = resolveLatestVersion(env);
-	const updatePlan = resolveLazyCodexUpdatePlan({
+	const updatePlan = resolveLazyClaude CodeUpdatePlan({
 		currentVersion,
 		latestVersion,
 		command: resolveCommand(env),
@@ -69,17 +69,17 @@ export function resolveAutoUpdatePlan({ env = process.env, now = Date.now(), las
 		latestVersion,
 		env: {
 			...env,
-			LAZYCODEX_AUTO_UPDATE_DISABLED: "1",
+			LAZY_CLAUDECODE_AUTO_UPDATE_DISABLED: "1",
 			LAZY_CLAUDECODE_AUTO_UPDATE_DISABLED: "1",
 		},
 	};
 }
 
-export async function runLazyCodexManualUpdate({ env = process.env, dryRun = false, log = console.log, runCommand } = {}) {
+export async function runLazyClaude CodeManualUpdate({ env = process.env, dryRun = false, log = console.log, runCommand } = {}) {
 	const commandRunner = runCommand ?? defaultRunCommandForManualUpdate;
 	const currentVersion = resolveCurrentVersion(env);
 	const latestVersion = resolveLatestVersion(env);
-	const plan = resolveLazyCodexUpdatePlan({
+	const plan = resolveLazyClaude CodeUpdatePlan({
 		currentVersion,
 		latestVersion,
 		command: resolveCommand(env),
@@ -88,8 +88,8 @@ export async function runLazyCodexManualUpdate({ env = process.env, dryRun = fal
 	if (!plan.shouldUpdate) {
 		const printableVersion = currentVersion ?? "unknown";
 		log(plan.reason === "up-to-date"
-			? `lazycodex-ai ${printableVersion} is already up to date.`
-			: `Unable to check lazycodex-ai updates (${plan.reason}).`);
+			? `lazy-claudecode-ai ${printableVersion} is already up to date.`
+			: `Unable to check lazy-claudecode-ai updates (${plan.reason}).`);
 		return plan.reason === "up-to-date" ? 0 : 1;
 	}
 	if (dryRun) {
@@ -135,7 +135,7 @@ export async function runAutoUpdateCheck({ env = process.env, now = Date.now() }
 		return { started: false, reason: plan.reason, notices };
 	}
 
-	const lockStaleMs = parsePositiveInteger(env.LAZYCODEX_AUTO_UPDATE_LOCK_STALE_MS, DEFAULT_LOCK_STALE_MS);
+	const lockStaleMs = parsePositiveInteger(env.LAZY_CLAUDECODE_AUTO_UPDATE_LOCK_STALE_MS, DEFAULT_LOCK_STALE_MS);
 	const lock = await acquireLock(resolveLockPath(env, statePath), now, lockStaleMs);
 	if (lock === null) {
 		await appendUpdateLog(env, now, "locked");
@@ -145,7 +145,7 @@ export async function runAutoUpdateCheck({ env = process.env, now = Date.now() }
 		await appendUpdateLog(env, now, "started", { command: plan.command, args: plan.args });
 		const pendingNotice = { fromVersion: plan.currentVersion, toVersion: plan.latestVersion, startedAt: now };
 		const releaseNotes = await resolveReleaseNotes({ env, latestVersion: plan.latestVersion });
-		if (env.LAZYCODEX_AUTO_UPDATE_WAIT === "1") {
+		if (env.LAZY_CLAUDECODE_AUTO_UPDATE_WAIT === "1") {
 			const invocation = resolveSpawnInvocation(plan.command, plan.args);
 			const result = spawnSync(invocation.command, invocation.args, {
 				env: plan.env,
@@ -187,7 +187,7 @@ async function settlePendingNotice({ env, now, statePath, state, notices }) {
 	delete nextState.pendingNotice;
 	await writeState(statePath, nextState);
 	if (current !== null && target !== null) {
-		notices.push(`[LazyCodex] Auto-update completed: v${pendingNotice.fromVersion} -> v${pendingNotice.toVersion}. This session is already running the new version. Tell the user the auto-update was applied.`);
+		notices.push(`[LazyClaude Code] Auto-update completed: v${pendingNotice.fromVersion} -> v${pendingNotice.toVersion}. This session is already running the new version. Tell the user the auto-update was applied.`);
 		await appendUpdateLog(env, now, "notified", {
 			kind: "update-completed",
 			fromVersion: pendingNotice.fromVersion,
@@ -209,15 +209,15 @@ async function recordUpdateStartedNotice({ env, now, notices, pendingNotice, rel
 function resolveUpdateContext({ env }) {
 	const currentVersion = resolveCurrentVersion(env);
 	const latestVersion = resolveLatestVersion(env);
-	const plan = resolveLazyCodexUpdatePlan({ currentVersion, latestVersion });
+	const plan = resolveLazyClaude CodeUpdatePlan({ currentVersion, latestVersion });
 	return { currentVersion, latestVersion, shouldUpdate: plan.shouldUpdate };
 }
 
 async function runConfigMigration({ env }) {
-	if (env.LAZYCODEX_CONFIG_MIGRATION_DISABLED === "1" || env.LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED === "1") return;
+	if (env.LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED === "1" || env.LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED === "1") return;
 	try {
-		await migrateOmoSotConfig({ env, seed: true });
-		await migrateCodexConfig({ env });
+		await migrateLazyClaudecodeSotConfig({ env, seed: true });
+		await migrateClaude CodeConfig({ env });
 	} catch (error) {
 		if (!(error instanceof Error)) throw error;
 		return;

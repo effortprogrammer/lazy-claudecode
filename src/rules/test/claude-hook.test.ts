@@ -6,9 +6,9 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostCompactInput,
-	type CodexPostToolUseInput,
-	type CodexSessionStartInput,
+	type ClaudePostCompactInput,
+	type ClaudePostToolUseInput,
+	type ClaudeSessionStartInput,
 	runPostCompactHook,
 	runPostToolUseHook,
 	runSessionStartHook,
@@ -55,19 +55,19 @@ function runHookCli(input: string, subcommand = "post-tool-use", env: NodeJS.Pro
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
 };
 
 const AGENTS_AND_RULES_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "AGENTS.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,.claude/rules",
 };
 
 const CLAUDE_AND_RULES_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CLAUDE.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CLAUDE.md,.claude/rules",
 };
 
 const RULES_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: ".claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules",
 };
 
 afterEach(() => {
@@ -102,7 +102,7 @@ function makeTempProject(): { root: string; pluginData: string } {
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-1",
 		transcript_path: null,
@@ -114,7 +114,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function postCompactInput(root: string): CodexPostCompactInput {
+function postCompactInput(root: string): ClaudePostCompactInput {
 	return {
 		session_id: "session-1",
 		turn_id: "turn-compact",
@@ -142,7 +142,7 @@ function userPromptSubmitInput(
 	};
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: "session-1",
 		turn_id: "turn-1",
@@ -614,7 +614,7 @@ describe("claude-code rules hooks", () => {
 			pluginDataRoot: pluginData,
 			env: {
 				...PROJECT_ONLY_ENV,
-				CODEX_RULES_MODE: "static",
+				LAZY_CLAUDECODE_RULES_MODE: "static",
 			},
 		});
 
@@ -632,7 +632,7 @@ describe("claude-code rules hooks", () => {
 			pluginDataRoot: pluginData,
 			env: {
 				...PROJECT_ONLY_ENV,
-				CODEX_RULES_DISABLED: "true",
+				LAZY_CLAUDECODE_RULES_DISABLED: "true",
 			},
 		});
 

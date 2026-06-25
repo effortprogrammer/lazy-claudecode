@@ -1,4 +1,4 @@
-import type { PiRulesConfig } from "@oh-my-opencode/rules-engine/engine";
+import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
 
 export function withDynamicBudget(config: PiRulesConfig): PiRulesConfig {
 	return {

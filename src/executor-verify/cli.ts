@@ -21,7 +21,7 @@ const subcommand = process.argv[3];
 if (command === "hook" && subcommand === "subagent-stop") {
 	await runHookCli();
 } else {
-	process.stderr.write("Usage: lazycodex-executor-verify hook subagent-stop\n");
+	process.stderr.write("Usage: lazy-claudecode-executor-verify hook subagent-stop\n");
 	process.exitCode = 1;
 }
 

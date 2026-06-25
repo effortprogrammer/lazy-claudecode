@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type CodexSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
+import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
 import type { PostHogClient } from "../src/posthog.js";
 import { getComponentTelemetryDiagnosticsFilePath } from "../src/product-identity.js";
 
@@ -22,7 +22,7 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<CodexSessionStartInput> = {}): CodexSessionStartInput {
+function makeSessionStartInput(overrides: Partial<ClaudeSessionStartInput> = {}): ClaudeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,

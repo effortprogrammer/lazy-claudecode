@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import type { CodexPostToolUseInput } from "../src/claude-code-hook.js";
+import type { ClaudePostToolUseInput } from "../src/claude-code-hook.js";
 
 const tempDirectories: string[] = [];
 
@@ -36,7 +36,7 @@ function makeTempProject(ruleCount: number): { root: string; pluginData: string;
 	return { root, pluginData, targetPath };
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: "session-1",
 		turn_id: "turn-1",
@@ -77,13 +77,13 @@ describe("claude-code rules hook performance", () => {
 			// when
 			const firstOutput = await runPostToolUseHook(postToolUseInput(root, targetPath), {
 				pluginDataRoot: pluginData,
-				env: { CODEX_RULES_ENABLED_SOURCES: ".claude/rules" },
+				env: { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules" },
 			});
 			const firstRunRuleFileReads = ruleFileReads;
 			ruleFileReads = 0;
 			const secondOutput = await runPostToolUseHook(postToolUseInput(root, targetPath), {
 				pluginDataRoot: pluginData,
-				env: { CODEX_RULES_ENABLED_SOURCES: ".claude/rules" },
+				env: { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules" },
 			});
 
 			// then

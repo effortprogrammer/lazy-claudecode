@@ -5,30 +5,30 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { addCodexCodegraphValues, hasOwn, isRecord, recordAt } from "./migrate-omo-sot/editor.mjs";
-import { parseJsonc } from "./migrate-omo-sot/jsonc.mjs";
-import { SCAFFOLD } from "./migrate-omo-sot/scaffold.mjs";
+import { addClaudeCodegraphValues, hasOwn, isRecord, recordAt } from "./migrate-lazy-claudecode-sot/editor.mjs";
+import { parseJsonc } from "./migrate-lazy-claudecode-sot/jsonc.mjs";
+import { SCAFFOLD } from "./migrate-lazy-claudecode-sot/scaffold.mjs";
 
 const CODEGRAPH_KEYS = ["auto_provision", "enabled", "install_dir", "telemetry"];
 const ENV_MAPPINGS = [
 	["auto_provision", "LAZY_CLAUDECODE_CODEGRAPH_AUTO_PROVISION", "boolean"],
-	["auto_provision", "CODEX_CODEGRAPH_AUTO_PROVISION", "boolean"],
+	["auto_provision", "LAZY_CLAUDECODE_CODEGRAPH_AUTO_PROVISION", "boolean"],
 	["enabled", "LAZY_CLAUDECODE_CODEGRAPH_ENABLED", "boolean"],
-	["enabled", "CODEX_CODEGRAPH_ENABLED", "boolean"],
+	["enabled", "LAZY_CLAUDECODE_CODEGRAPH_ENABLED", "boolean"],
 	["install_dir", "LAZY_CLAUDECODE_CODEGRAPH_INSTALL_DIR", "string"],
-	["install_dir", "CODEX_CODEGRAPH_INSTALL_DIR", "string"],
+	["install_dir", "LAZY_CLAUDECODE_CODEGRAPH_INSTALL_DIR", "string"],
 	["telemetry", "LAZY_CLAUDECODE_CODEGRAPH_TELEMETRY", "boolean"],
-	["telemetry", "CODEX_CODEGRAPH_TELEMETRY", "boolean"],
+	["telemetry", "LAZY_CLAUDECODE_CODEGRAPH_TELEMETRY", "boolean"],
 ];
 
-export async function migrateOmoSotConfig({ env = process.env, seed = false, configPath } = {}) {
-	const targetPath = configPath ?? join(resolveHomeDir(env), ".omo", "config.jsonc");
+export async function migrateLazyClaudecodeSotConfig({ env = process.env, seed = false, configPath } = {}) {
+	const targetPath = configPath ?? join(resolveHomeDir(env), ".lazy-claudecode", "config.jsonc");
 	if (!(await pathExists(targetPath))) {
 		if (!seed) return { changed: false, configPath: targetPath, seeded: false, warnings: [] };
 		const parsedScaffold = parseJsonc(SCAFFOLD);
 		if (!parsedScaffold.ok) throw parsedScaffold.error;
-		const additions = collectCodexAdditions(parsedScaffold.value, env);
-		const content = addCodexCodegraphValues(SCAFFOLD, parsedScaffold.value, additions);
+		const additions = collectClaudeAdditions(parsedScaffold.value, env);
+		const content = addClaudeCodegraphValues(SCAFFOLD, parsedScaffold.value, additions);
 		await mkdir(dirname(targetPath), { recursive: true });
 		await writeFile(targetPath, content);
 		return { changed: true, configPath: targetPath, seeded: true, warnings: [] };
@@ -41,16 +41,16 @@ export async function migrateOmoSotConfig({ env = process.env, seed = false, con
 			changed: false,
 			configPath: targetPath,
 			seeded: false,
-			warnings: [`Could not parse ${targetPath}; left existing OMO SOT untouched: ${parsed.error.message}`],
+			warnings: [`Could not parse ${targetPath}; left existing LAZY_CLAUDECODE SOT untouched: ${parsed.error.message}`],
 		};
 	}
 
-	const additions = collectCodexAdditions(parsed.value, env);
+	const additions = collectClaudeAdditions(parsed.value, env);
 	if (Object.keys(additions).length === 0) {
 		return { changed: false, configPath: targetPath, seeded: false, warnings: [] };
 	}
 
-	const edited = addCodexCodegraphValues(content, parsed.value, additions);
+	const edited = addClaudeCodegraphValues(content, parsed.value, additions);
 	if (edited === content) return { changed: false, configPath: targetPath, seeded: false, warnings: [] };
 	await writeFile(targetPath, edited);
 	return { changed: true, configPath: targetPath, seeded: false, warnings: [] };
@@ -71,26 +71,26 @@ async function pathExists(path) {
 	}
 }
 
-function collectCodexAdditions(config, env) {
-	const codexCodegraph = recordAt(recordAt(config, "[codex]"), "codegraph");
+function collectClaudeAdditions(config, env) {
+	const claudeCodegraph = recordAt(recordAt(config, "[claude-code]"), "codegraph");
 	const additions = {};
-	addSupportedCodegraphValues(additions, recordAt(config, "codegraph"), codexCodegraph);
+	addSupportedCodegraphValues(additions, recordAt(config, "codegraph"), claudeCodegraph);
 	for (const [key, envKey, kind] of ENV_MAPPINGS) {
 		const raw = env[envKey];
-		if (raw === undefined || hasOwn(codexCodegraph, key)) continue;
+		if (raw === undefined || hasOwn(claudeCodegraph, key)) continue;
 		const parsed = parseEnvValue(raw, kind);
 		if (parsed !== null) additions[key] = parsed;
 	}
 	for (const key of Object.keys(additions)) {
-		if (hasOwn(codexCodegraph, key)) delete additions[key];
+		if (hasOwn(claudeCodegraph, key)) delete additions[key];
 	}
 	return additions;
 }
 
-function addSupportedCodegraphValues(additions, baseCodegraph, codexCodegraph) {
+function addSupportedCodegraphValues(additions, baseCodegraph, claudeCodegraph) {
 	if (!isRecord(baseCodegraph)) return;
 	for (const key of CODEGRAPH_KEYS) {
-		if (hasOwn(codexCodegraph, key) || !hasOwn(baseCodegraph, key)) continue;
+		if (hasOwn(claudeCodegraph, key) || !hasOwn(baseCodegraph, key)) continue;
 		const value = baseCodegraph[key];
 		if (isValidCodegraphValue(key, value)) additions[key] = value;
 	}
@@ -110,7 +110,7 @@ function isValidCodegraphValue(key, value) {
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	migrateOmoSotConfig({ seed: process.argv.includes("--seed") })
+	migrateLazyClaudecodeSotConfig({ seed: process.argv.includes("--seed") })
 		.then((result) => {
 			for (const warning of result.warnings) process.stderr.write(`${warning}\n`);
 		})

@@ -1,17 +1,17 @@
 export const SCAFFOLD = `{
-  // Shared OMO settings. Harness override blocks below are additive.
+  // Shared lazy-claudecode settings. Harness override blocks below are additive.
   "codegraph": {
     // "enabled": true,
     // "auto_provision": true,
     // "telemetry": false,
-    // "install_dir": "~/.omo/codegraph"
+    // "install_dir": "~/.lazy-claudecode/codegraph"
   },
 
-  "[codex]": {
+  "[claude-code]": {
     "codegraph": {
       // "enabled": true,
       // "auto_provision": true,
-      // "install_dir": "~/.omo/codegraph",
+      // "install_dir": "~/.lazy-claudecode/codegraph",
       // "telemetry": false
     }
   },
@@ -20,7 +20,7 @@ export const SCAFFOLD = `{
     "codegraph": {
       // "enabled": true,
       // "auto_provision": true,
-      // "install_dir": "~/.omo/codegraph",
+      // "install_dir": "~/.lazy-claudecode/codegraph",
       // "telemetry": false,
       // "watch_debounce_ms": 250
     }

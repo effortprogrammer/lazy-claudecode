@@ -21,7 +21,7 @@ export function isClaudeCodeAppServerActive(env: RuntimeEnv = process.env): bool
 		shellActive &&
 		(originator.includes("claude-code desktop") ||
 			originator.includes("claude-code app") ||
-			bundleIdentifier === "com.openai.claude-code")
+			bundleIdentifier === "com.anthropic.claude")
 	);
 }
 

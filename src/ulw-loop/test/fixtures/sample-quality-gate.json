@@ -1,6 +1,6 @@
 {
 	"codeReview": {
-		"by": "lazycodex-code-reviewer",
+		"by": "lazy-claudecode-code-reviewer",
 		"recommendation": "APPROVE",
 		"codeQualityStatus": "CLEAR",
 		"reportPath": "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/code-review.md",
@@ -8,7 +8,7 @@
 		"blockers": []
 	},
 	"manualQa": {
-		"by": "lazycodex-qa-executor",
+		"by": "lazy-claudecode-qa-executor",
 		"status": "passed",
 		"evidence": "Executed CLI, HTTP, browser screenshot, and data-diff validation scenarios with artifact-backed outcomes.",
 		"surfaceEvidence": [
@@ -97,7 +97,7 @@
 		]
 	},
 	"gateReview": {
-		"by": "lazycodex-gate-reviewer",
+		"by": "lazy-claudecode-gate-reviewer",
 		"recommendation": "APPROVE",
 		"reportPath": "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/gate-review.md",
 		"evidence": "Rechecked reviewer reports, manual QA artifacts, and criteria coverage; gate is approved.",

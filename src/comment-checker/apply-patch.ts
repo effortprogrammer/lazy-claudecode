@@ -1,8 +1,8 @@
 import {
 	extractApplyPatchEdits,
 	getApplyPatchMetadataFiles,
-} from "@oh-my-opencode/comment-checker-core";
-import type { CheckerEdit as CoreApplyPatchEdit } from "@oh-my-opencode/comment-checker-core";
+} from "@effortprogrammer/comment-checker-core";
+import type { CheckerEdit as CoreApplyPatchEdit } from "@effortprogrammer/comment-checker-core";
 import type { CommentCheckRequest } from "./types.js";
 
 export function extractApplyPatchRequests(event: {

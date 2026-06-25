@@ -13,22 +13,22 @@ import {
 	detectInstallFlowFromEnvironment,
 	resolveBootstrapLockPath,
 	resolveBootstrapStatePath,
-	resolveCodexHome,
+	resolveClaudeHome,
 } from "../src/environment.ts";
 
 const componentRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const repoRoot = dirname(dirname(dirname(dirname(dirname(componentRoot)))));
 
 const GIT_SOURCE_CONFIG = [
-	"[marketplaces.sisyphuslabs]",
+	"[marketplaces.effortprogrammer]",
 	'last_updated = "2026-06-12T00:00:00Z"',
 	'source_type = "git"',
-	'source = "https://github.com/lazycodex-ai/lazycodex.git"',
+	'source = "https://github.com/lazy-claudecode-ai/lazy-claudecode.git"',
 	"",
 ].join("\n");
 
 const LOCAL_SOURCE_CONFIG = [
-	"[marketplaces.sisyphuslabs]",
+	"[marketplaces.effortprogrammer]",
 	'last_updated = "2026-06-12T00:00:00Z"',
 	'source_type = "local"',
 	'source = "/Users/someone/local-workspaces/lazy-claudecode"',
@@ -45,10 +45,10 @@ async function withTempDir<T>(prefix: string, run: (directory: string) => Promis
 }
 
 async function writePluginRoot(directory: string, options: { readonly withSnapshot: boolean }): Promise<string> {
-	const pluginRoot = join(directory, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2");
+	const pluginRoot = join(directory, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 	await mkdir(pluginRoot, { recursive: true });
 	if (options.withSnapshot) {
-		await writeFile(join(pluginRoot, "lazycodex-install.json"), '{"packageName":"lazycodex-ai","version":"4.9.2"}\n');
+		await writeFile(join(pluginRoot, "lazy-claudecode-install.json"), '{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n');
 	}
 	return pluginRoot;
 }
@@ -99,7 +99,7 @@ describe("detectInstallFlow", () => {
 	it("#given an unclassifiable marketplace source #when detecting #then reports unknown", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			const config = ['[marketplaces.sisyphuslabs]', 'source = "./relative/checkout"', ""].join("\n");
+			const config = ['[marketplaces.effortprogrammer]', 'source = "./relative/checkout"', ""].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("unknown");
 		});
 	});
@@ -107,12 +107,12 @@ describe("detectInstallFlow", () => {
 	it("#given a quoted marketplace header #when detecting #then the section is still recognized", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			const config = ['[marketplaces."sisyphuslabs"]', 'source = "https://github.com/lazycodex-ai/lazycodex"', ""].join("\n");
+			const config = ['[marketplaces."effortprogrammer"]', 'source = "https://github.com/lazy-claudecode-ai/lazy-claudecode"', ""].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("marketplace");
 		});
 	});
 
-	it("#given a config without the sisyphuslabs marketplace #when detecting #then only the snapshot signal decides", async () => {
+	it("#given a config without the effortprogrammer marketplace #when detecting #then only the snapshot signal decides", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
 			const config = ['[marketplaces.other]', 'source = "https://github.com/other/marketplace.git"', ""].join("\n");
@@ -123,7 +123,7 @@ describe("detectInstallFlow", () => {
 	it("#given a windows drive marketplace source #when detecting with a snapshot #then reports npx-local", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
-			const config = ["[marketplaces.sisyphuslabs]", 'source = "C:\\\\workspaces\\\\lazy-claudecode"', ""].join("\n");
+			const config = ["[marketplaces.effortprogrammer]", 'source = "C:\\\\workspaces\\\\lazy-claudecode"', ""].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("npx-local");
 		});
 	});
@@ -132,10 +132,10 @@ describe("detectInstallFlow", () => {
 describe("detectInstallFlowFromEnvironment", () => {
 	it("#given a claude-code store layout with a git marketplace config #when detecting from environment #then reports marketplace", async () => {
 		await withTempDir("lazy-claudecode-flow-env-", async (directory) => {
-			const codexHome = join(directory, ".claude-code");
-			const pluginRoot = join(codexHome, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2");
+			const claudeHome = join(directory, ".claude-code");
+			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 			await mkdir(pluginRoot, { recursive: true });
-			await writeFile(join(codexHome, "config.toml"), GIT_SOURCE_CONFIG);
+			await writeFile(join(claudeHome, "config.toml"), GIT_SOURCE_CONFIG);
 
 			const detection = await detectInstallFlowFromEnvironment({ env: {}, pluginRoot });
 
@@ -146,11 +146,11 @@ describe("detectInstallFlowFromEnvironment", () => {
 
 	it("#given a claude-code store layout with a local source and an install snapshot #when detecting from environment #then reports npx-local", async () => {
 		await withTempDir("lazy-claudecode-flow-env-", async (directory) => {
-			const codexHome = join(directory, ".claude-code");
-			const pluginRoot = join(codexHome, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2");
+			const claudeHome = join(directory, ".claude-code");
+			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 			await mkdir(pluginRoot, { recursive: true });
-			await writeFile(join(codexHome, "config.toml"), LOCAL_SOURCE_CONFIG);
-			await writeFile(join(pluginRoot, "lazycodex-install.json"), '{"packageName":"lazycodex-ai","version":"4.9.2"}\n');
+			await writeFile(join(claudeHome, "config.toml"), LOCAL_SOURCE_CONFIG);
+			await writeFile(join(pluginRoot, "lazy-claudecode-install.json"), '{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n');
 
 			const detection = await detectInstallFlowFromEnvironment({ env: {}, pluginRoot });
 
@@ -160,23 +160,23 @@ describe("detectInstallFlowFromEnvironment", () => {
 	});
 });
 
-describe("sync-lazycodex-marketplace output", () => {
+describe("sync-lazy-claudecode-marketplace output", () => {
 	it("#given a synced marketplace tree #when looking for the install snapshot #then it is absent and detection reports marketplace", async () => {
 		await withTempDir("lazy-claudecode-flow-sync-", async (directory) => {
 			const sourceRoot = join(directory, "source");
-			const lazycodexRoot = join(directory, "lazycodex");
+			const lazyClaudeRoot = join(directory, "lazy-claudecode");
 			await writeSyncSourceFixture(sourceRoot);
 
 			const sync = spawnSync(
 				process.execPath,
-				["run", join(repoRoot, "script", "sync-lazycodex-marketplace.ts"), sourceRoot, lazycodexRoot],
+				["run", join(repoRoot, "script", "sync-lazy-claudecode-marketplace.ts"), sourceRoot, lazyClaudeRoot],
 				{ encoding: "utf8" },
 			);
 			expect(sync.status).toBe(0);
 
-			const syncedPluginRoot = join(lazycodexRoot, "plugins", "lazy-claudecode");
+			const syncedPluginRoot = join(lazyClaudeRoot, "plugins", "lazy-claudecode");
 			expect(existsSync(syncedPluginRoot)).toBe(true);
-			expect(existsSync(join(syncedPluginRoot, "lazycodex-install.json"))).toBe(false);
+			expect(existsSync(join(syncedPluginRoot, "lazy-claudecode-install.json"))).toBe(false);
 			expect(await detectInstallFlowForTest(syncedPluginRoot)).toBe("marketplace");
 		});
 	}, 30_000);
@@ -184,16 +184,16 @@ describe("sync-lazycodex-marketplace output", () => {
 	it("#given the repo plugin source tree the sync copies #when looking for the install snapshot #then it never exists there", () => {
 		const pluginSourceRoot = join(repoRoot, "packages", "lazy-claudecode-claude-code", "plugin");
 		expect(existsSync(join(pluginSourceRoot, ".claude-code-plugin", "plugin.json"))).toBe(true);
-		expect(existsSync(join(pluginSourceRoot, "lazycodex-install.json"))).toBe(false);
+		expect(existsSync(join(pluginSourceRoot, "lazy-claudecode-install.json"))).toBe(false);
 	});
 });
 
-describe("resolveCodexHome", () => {
-	it("#given CODEX_HOME in the environment #when resolving #then the env value wins", async () => {
+describe("resolveClaudeHome", () => {
+	it("#given LAZY_CLAUDECODE_HOME in the environment #when resolving #then the env value wins", async () => {
 		await withTempDir("lazy-claudecode-home-", async (directory) => {
-			const resolution = await resolveCodexHome({
-				env: { CODEX_HOME: directory },
-				pluginRoot: join(directory, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2"),
+			const resolution = await resolveClaudeHome({
+				env: { LAZY_CLAUDECODE_HOME: directory },
+				pluginRoot: join(directory, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2"),
 			});
 			expect(resolution).toEqual({ path: directory, source: "env" });
 		});
@@ -201,14 +201,14 @@ describe("resolveCodexHome", () => {
 
 	it("#given a claude-code store layout #when resolving without env #then walking up finds the config.toml dir", async () => {
 		await withTempDir("lazy-claudecode-home-", async (directory) => {
-			const codexHome = join(directory, ".claude-code");
-			const pluginRoot = join(codexHome, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2");
+			const claudeHome = join(directory, ".claude-code");
+			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 			await mkdir(pluginRoot, { recursive: true });
-			await writeFile(join(codexHome, "config.toml"), GIT_SOURCE_CONFIG);
+			await writeFile(join(claudeHome, "config.toml"), GIT_SOURCE_CONFIG);
 
-			const resolution = await resolveCodexHome({ env: {}, pluginRoot });
+			const resolution = await resolveClaudeHome({ env: {}, pluginRoot });
 
-			expect(resolution).toEqual({ path: codexHome, source: "walk-up" });
+			expect(resolution).toEqual({ path: claudeHome, source: "walk-up" });
 		});
 	});
 
@@ -218,7 +218,7 @@ describe("resolveCodexHome", () => {
 			await mkdir(pluginRoot, { recursive: true });
 			await writeFile(join(directory, "config.toml"), "");
 
-			const resolution = await resolveCodexHome({ env: {}, pluginRoot });
+			const resolution = await resolveClaudeHome({ env: {}, pluginRoot });
 
 			expect(resolution).toEqual({ path: directory, source: "walk-up" });
 		});
@@ -230,7 +230,7 @@ describe("resolveCodexHome", () => {
 			await mkdir(pluginRoot, { recursive: true });
 			await writeFile(join(directory, "config.toml"), "");
 
-			const resolution = await resolveCodexHome({ env: {}, pluginRoot });
+			const resolution = await resolveClaudeHome({ env: {}, pluginRoot });
 
 			expect(resolution).toEqual({ path: join(homedir(), ".claude-code"), source: "default" });
 		});
@@ -238,10 +238,10 @@ describe("resolveCodexHome", () => {
 
 	it("#given no env and no config.toml ancestor #when resolving #then defaults to ~/.claude-code", async () => {
 		await withTempDir("lazy-claudecode-home-", async (directory) => {
-			const pluginRoot = join(directory, "plugins", "sisyphuslabs", "lazy-claudecode", "4.9.2");
+			const pluginRoot = join(directory, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 			await mkdir(pluginRoot, { recursive: true });
 
-			const resolution = await resolveCodexHome({ env: {}, pluginRoot });
+			const resolution = await resolveClaudeHome({ env: {}, pluginRoot });
 
 			expect(resolution).toEqual({ path: join(homedir(), ".claude-code"), source: "default" });
 		});
@@ -292,7 +292,7 @@ describe("bootstrapLocks", () => {
 		await withTempDir("lazy-claudecode-locks-", async (directory) => {
 			const pluginData = join(directory, "plugin-data");
 			const overridePath = join(directory, "custom-auto-update.lock");
-			const env = { LAZYCODEX_AUTO_UPDATE_LOCK_PATH: overridePath, PLUGIN_DATA: pluginData };
+			const env = { LAZY_CLAUDECODE_AUTO_UPDATE_LOCK_PATH: overridePath, PLUGIN_DATA: pluginData };
 
 			const handle = await bootstrapLocks({ env, pluginData });
 
@@ -306,9 +306,9 @@ describe("bootstrapLocks", () => {
 	});
 
 	it("#given the path helpers #when resolving state and lock paths #then they follow the PLUGIN_DATA bootstrap layout", () => {
-		expect(resolveBootstrapStatePath("/data/lazy-claudecode-sisyphuslabs")).toBe(join("/data/lazy-claudecode-sisyphuslabs", "bootstrap", "state.json"));
-		expect(resolveBootstrapLockPath("/data/lazy-claudecode-sisyphuslabs")).toBe(
-			join("/data/lazy-claudecode-sisyphuslabs", "bootstrap", "state.json.lock"),
+		expect(resolveBootstrapStatePath("/data/lazy-claudecode-effortprogrammer")).toBe(join("/data/lazy-claudecode-effortprogrammer", "bootstrap", "state.json"));
+		expect(resolveBootstrapLockPath("/data/lazy-claudecode-effortprogrammer")).toBe(
+			join("/data/lazy-claudecode-effortprogrammer", "bootstrap", "state.json.lock"),
 		);
 	});
 });
@@ -323,16 +323,16 @@ async function writeExecutableStub(path: string): Promise<void> {
 	await writeFile(path, "#!/usr/bin/env node\n");
 }
 
-// Mirrors the minimal source tree script/sync-lazycodex-marketplace.test.ts uses so the
+// Mirrors the minimal source tree script/sync-lazy-claudecode-marketplace.test.ts uses so the
 // real sync (including bundle validation) runs against a hermetic fixture.
 async function writeSyncSourceFixture(sourceRoot: string): Promise<void> {
 	const pluginSource = join(sourceRoot, "packages", "lazy-claudecode-claude-code", "plugin");
 	await writeJson(join(sourceRoot, "packages", "lazy-claudecode-claude-code", "marketplace.json"), {
-		name: "sisyphuslabs",
+		name: "effortprogrammer",
 		plugins: [{ name: "lazy-claudecode", source: "./plugins/lazy-claudecode" }],
 	});
 	await writeJson(join(pluginSource, ".claude-code-plugin", "plugin.json"), { name: "lazy-claudecode", version: "1.2.3" });
-	await writeJson(join(pluginSource, "package.json"), { name: "@sisyphuslabs/lazy-claudecode-claude-code-plugin", version: "1.2.3" });
+	await writeJson(join(pluginSource, "package.json"), { name: "@effortprogrammer/lazy-claudecode-claude-code-plugin", version: "1.2.3" });
 	const bootstrapSessionStart = {
 		hooks: {
 			SessionStart: [
@@ -342,7 +342,7 @@ async function writeSyncSourceFixture(sourceRoot: string): Promise<void> {
 							command: 'node "${PLUGIN_ROOT}/components/bootstrap/dist/cli.js" hook session-start',
 							commandWindows:
 								'powershell -NoProfile -ExecutionPolicy Bypass -File "${PLUGIN_ROOT}\\components\\bootstrap\\scripts\\bootstrap.ps1"',
-							statusMessage: "LazyCodex(1.2.3): Checking Bootstrap Provisioning",
+							statusMessage: "LazyClaude(1.2.3): Checking Bootstrap Provisioning",
 							timeout: 30,
 							type: "command",
 						},
@@ -360,9 +360,9 @@ async function writeSyncSourceFixture(sourceRoot: string): Promise<void> {
 			lsp: { args: ["../../lsp-daemon/dist/cli.js", "mcp"], command: "node", cwd: "." },
 		},
 	});
-	await mkdir(join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazycodex-repository", ".github", "workflows"), { recursive: true });
+	await mkdir(join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazy-claudecode-repository", ".github", "workflows"), { recursive: true });
 	await writeFile(
-		join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazycodex-repository", ".github", "workflows", "pr-source-guidance.yml"),
+		join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazy-claudecode-repository", ".github", "workflows", "pr-source-guidance.yml"),
 		"name: PR source guidance\n\non:\n  pull_request_target:\n",
 	);
 	await writeExecutableStub(join(pluginSource, "components", "bootstrap", "dist", "cli.js"));

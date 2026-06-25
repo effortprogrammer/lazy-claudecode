@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
 	cleanupTelemetryDiagnostics,
-} from "@oh-my-opencode/telemetry-core";
+} from "@effortprogrammer/telemetry-core";
 import {
 	getComponentTelemetryDiagnosticsFilePath,
 	getComponentTelemetryStateDir,

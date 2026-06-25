@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostToolUseInput,
+	type ClaudePostToolUseInput,
 	extractCodexCommentCheckRequests,
 	runCommentCheckerPostToolUse,
 } from "../src/claude-code-hook.ts";
@@ -49,7 +49,7 @@ function runHookCli(input: string): Promise<CliResult> {
 	});
 }
 
-function postToolUseInput(overrides: Partial<CodexPostToolUseInput> = {}): CodexPostToolUseInput {
+function postToolUseInput(overrides: Partial<ClaudePostToolUseInput> = {}): ClaudePostToolUseInput {
 	return {
 		session_id: "thread-1",
 		turn_id: "turn-1",

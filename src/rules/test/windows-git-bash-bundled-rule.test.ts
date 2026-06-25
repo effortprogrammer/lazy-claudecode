@@ -3,17 +3,17 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type CodexSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
-import { findPluginBundledCandidates } from "@oh-my-opencode/rules-engine/engine";
+import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
+import { findPluginBundledCandidates } from "@effortprogrammer/rules-engine/engine";
 
 const WINDOWS_RULE_DESCRIPTION = "Windows Git Bash guidance for Claude Code";
 const WINDOWS_RULE_PATH = "bundled-rules/windows-git-bash.md";
 const WINDOWS_GUIDANCE = "On Windows native Claude Code sessions, prefer Git Bash for shell commands.";
 const BUNDLED_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "plugin-bundled",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "plugin-bundled",
 };
 const PROJECT_AND_BUNDLED_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: ".claude/rules,plugin-bundled",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: ".claude/rules,plugin-bundled",
 };
 const tempDirectories: string[] = [];
 let originalPluginRoot: string | undefined;
@@ -35,7 +35,7 @@ function makeProject(): { readonly root: string; readonly pluginData: string } {
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-1",
 		transcript_path: null,
@@ -88,7 +88,7 @@ describe("Windows Git Bash bundled rule content", () => {
 		const body = readWindowsRuleBody();
 
 		expect(body).toContain("git_bash");
-		expect(body).toContain("OMO_CODEX_GIT_BASH_PATH");
+		expect(body).toContain("LAZY_CLAUDECODE_GIT_BASH_PATH");
 		expect(body).toContain("C:\\Program Files\\Git\\bin\\bash.exe");
 	});
 });

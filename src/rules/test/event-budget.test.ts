@@ -4,9 +4,9 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostToolUseInput,
-	type CodexSessionStartInput,
-	type CodexUserPromptSubmitInput,
+	type ClaudePostToolUseInput,
+	type ClaudeSessionStartInput,
+	type ClaudeUserPromptSubmitInput,
 	runPostToolUseHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
@@ -14,7 +14,7 @@ import {
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
 };
 
 afterEach(() => {
@@ -81,8 +81,8 @@ describe("claude-code rules per-event injection budgets", () => {
 			pluginDataRoot: pluginData,
 			env: {
 				...PROJECT_ONLY_ENV,
-				CODEX_RULES_DYNAMIC_MAX_RULE_CHARS: "1000",
-				CODEX_RULES_DYNAMIC_MAX_RESULT_CHARS: "1500",
+				LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RULE_CHARS: "1000",
+				LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RESULT_CHARS: "1500",
 			},
 		});
 
@@ -114,7 +114,7 @@ function makeProject(sizes: { staticRuleChars?: number; dynamicRuleChars?: numbe
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: `session-budget-${path.basename(root)}`,
 		transcript_path: null,
@@ -126,7 +126,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function userPromptSubmitInput(root: string): CodexUserPromptSubmitInput {
+function userPromptSubmitInput(root: string): ClaudeUserPromptSubmitInput {
 	return {
 		session_id: `session-budget-${path.basename(root)}`,
 		turn_id: "turn-1",
@@ -139,7 +139,7 @@ function userPromptSubmitInput(root: string): CodexUserPromptSubmitInput {
 	};
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: `session-budget-${path.basename(root)}`,
 		turn_id: "turn-tool",

@@ -5,13 +5,13 @@
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
-	"homepage": "https://github.com/code-yeongyu/lazy-claudecode",
+	"homepage": "https://github.com/effortprogrammer/lazy-claudecode",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/code-yeongyu/lazy-claudecode.git"
+		"url": "git+https://github.com/effortprogrammer/lazy-claudecode.git"
 	},
 	"bugs": {
-		"url": "https://github.com/code-yeongyu/lazy-claudecode/issues"
+		"url": "https://github.com/effortprogrammer/lazy-claudecode/issues"
 	},
 	"keywords": [
 		"claude-code",
@@ -43,7 +43,7 @@
 		"check": "tsc --noEmit && biome check . && npm run build"
 	},
 	"devDependencies": {
-		"@oh-my-opencode/telemetry-core": "file:../../../../telemetry-core",
+		"@effortprogrammer/telemetry-core": "file:../../../../telemetry-core",
 		"@biomejs/biome": "2.4.16",
 		"@types/node": "^25.9.3",
 		"typescript": "^6.0.3",

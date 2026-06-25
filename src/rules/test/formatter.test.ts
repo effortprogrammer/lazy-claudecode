@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDynamicBlock, formatStaticBlock } from "@oh-my-opencode/rules-engine/engine";
-import type { LoadedRule, MatchReason, RuleSource } from "@oh-my-opencode/rules-engine/engine";
+import { formatDynamicBlock, formatStaticBlock } from "@effortprogrammer/rules-engine/engine";
+import type { LoadedRule, MatchReason, RuleSource } from "@effortprogrammer/rules-engine/engine";
 
 const FORMAT_OPTIONS = {
 	maxRuleChars: 10_000,

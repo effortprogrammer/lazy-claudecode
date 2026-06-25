@@ -1,6 +1,6 @@
 # claude-code-telemetry
 
-Claude Code plugin component that emits a single anonymous daily-active event (`omo_codex_daily_active`) to PostHog whenever a Claude Code session starts.
+Claude Code plugin component that emits a single anonymous daily-active event (`lazy_claudecode_daily_active`) to PostHog whenever a Claude Code session starts.
 
 The event is sent **at most once per UTC day per machine**. It uses a SHA256-hashed installation identifier derived from `lazy-claudecode-claude-code:${hostname}` and never sends the raw hostname. PostHog person profiles are explicitly disabled.
 
@@ -32,7 +32,7 @@ The aggregate `plugin/hooks/hooks.json` mounts this hook alongside `rules` and `
 
 A single PostHog `capture` call with:
 
-- `event: "omo_codex_daily_active"`
+- `event: "lazy_claudecode_daily_active"`
 - `distinctId: sha256("lazy-claudecode-claude-code:" + hostname)`
 - `properties`:
   - `platform`, `product_name`, `package_name`, `package_version`
@@ -52,12 +52,12 @@ Set any of the following environment variables before launching Claude Code:
 
 ```bash
 # Claude Code-only opt-out
-export OMO_CODEX_DISABLE_POSTHOG=1
-export OMO_CODEX_SEND_ANONYMOUS_TELEMETRY=0
+export LAZY_CLAUDECODE_CODEX_DISABLE_POSTHOG=1
+export LAZY_CLAUDECODE_CODEX_SEND_ANONYMOUS_TELEMETRY=0
 
 # Global opt-out (covers both lazy-claudecode and lazy-claudecode-claude-code)
-export OMO_DISABLE_POSTHOG=1
-export OMO_SEND_ANONYMOUS_TELEMETRY=0
+export LAZY_CLAUDECODE_DISABLE_POSTHOG=1
+export LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY=0
 ```
 
 When any of these is set the component creates a no-op PostHog client and exits without any network call.
@@ -105,7 +105,7 @@ npm run build      # tsc -> dist/
 npm run check      # typecheck + biome + build
 ```
 
-The component shares its product identity constants with the `@oh-my-opencode/lazy-claudecode-claude-code` CLI installer. Drift between the two implementations is guarded by `packages/lazy-claudecode-claude-code/src/telemetry/cross-package-equivalence.test.ts`.
+The component shares its product identity constants with the `@effortprogrammer/lazy-claudecode-claude-code` CLI installer. Drift between the two implementations is guarded by `packages/lazy-claudecode-claude-code/src/telemetry/cross-package-equivalence.test.ts`.
 
 ## Privacy
 

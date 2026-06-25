@@ -4,8 +4,8 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostToolUseInput,
-	type CodexSessionStartInput,
+	type ClaudePostToolUseInput,
+	type ClaudeSessionStartInput,
 	runPostToolUseHook,
 	runSessionStartHook,
 } from "../src/claude-code-hook.js";
@@ -58,7 +58,7 @@ function makeAgentDocProject(): AgentDocProject {
 	return { root, pluginData, nestedSourceFile };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-1",
 		transcript_path: null,
@@ -70,7 +70,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: "session-1",
 		turn_id: "turn-1",
@@ -95,7 +95,7 @@ describe("agent doc sources", () => {
 			// when
 			const output = await runSessionStartHook(sessionStartInput(root), {
 				pluginDataRoot: pluginData,
-				env: { CODEX_RULES_ENABLED_SOURCES: sourceList },
+				env: { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: sourceList },
 			});
 
 			// then
@@ -110,7 +110,7 @@ describe("agent doc sources", () => {
 		// when
 		const output = await runPostToolUseHook(postToolUseInput(root, nestedSourceFile), {
 			pluginDataRoot: pluginData,
-			env: { CODEX_RULES_ENABLED_SOURCES: "AGENTS.md,CLAUDE.md" },
+			env: { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,CLAUDE.md" },
 		});
 
 		// then

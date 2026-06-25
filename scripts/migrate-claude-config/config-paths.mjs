@@ -3,8 +3,8 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
 export async function configPaths({ env, cwd }) {
-	const codexHome = resolve(env.CODEX_HOME?.trim() || join(homedir(), ".codex"));
-	const paths = new Set([join(codexHome, "config.toml")]);
+	const claudeHome = resolve(env.LAZY_CLAUDECODE_HOME?.trim() || join(homedir(), ".claude"));
+	const paths = new Set([join(claudeHome, "config.toml")]);
 	for (const projectConfig of projectConfigPaths({ cwd, stopAt: homedir() })) {
 		if (!(await isRegularFile(projectConfig))) continue;
 		if (!(await isRegularDirectory(dirname(projectConfig)))) continue;
@@ -18,7 +18,7 @@ function projectConfigPaths({ cwd, stopAt }) {
 	let current = resolve(cwd);
 	const stop = resolve(stopAt);
 	while (true) {
-		paths.push(join(current, ".codex", "config.toml"));
+		paths.push(join(current, ".claude", "config.toml"));
 		if (current === stop || current === dirname(current)) break;
 		current = dirname(current);
 	}

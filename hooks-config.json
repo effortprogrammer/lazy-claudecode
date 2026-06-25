@@ -233,7 +233,7 @@
 						"statusMessage": "(lazy-claudecode) Verifying Executor Evidence"
 					}
 				],
-				"matcher": "^lazycodex-executor$"
+				"matcher": "^lazy-claudecode-executor$"
 			}
 		]
 	}

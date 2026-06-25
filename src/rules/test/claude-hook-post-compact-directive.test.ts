@@ -4,10 +4,10 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostCompactInput,
-	type CodexPostToolUseInput,
-	type CodexSessionStartInput,
-	type CodexUserPromptSubmitInput,
+	type ClaudePostCompactInput,
+	type ClaudePostToolUseInput,
+	type ClaudeSessionStartInput,
+	type ClaudeUserPromptSubmitInput,
 	runPostCompactHook,
 	runPostToolUseHook,
 	runSessionStartHook,
@@ -16,7 +16,7 @@ import {
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
 };
 const SESSION_ID = "session-post-compact-directive";
 
@@ -109,7 +109,7 @@ describe("claude-code rules post-compaction read directive", () => {
 	it("#given bundled hephaestus rule dropped by compaction #when compact SessionStart recovers #then hephaestus body is re-injected in full alongside the directive", async () => {
 		// given
 		const { root, pluginData } = makeProject();
-		const env = { CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,plugin-bundled" };
+		const env = { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,plugin-bundled" };
 		await runSessionStartHook(sessionStartInput(root), { pluginDataRoot: pluginData, env });
 		const transcriptPath = writeCompactedTranscript(root, "summary that dropped every injected rule");
 		await runPostCompactHook(
@@ -148,7 +148,7 @@ function makeProject(): { root: string; pluginData: string } {
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: SESSION_ID,
 		transcript_path: null,
@@ -160,7 +160,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function compactSessionStartInput(root: string, transcriptPath: string): CodexSessionStartInput {
+function compactSessionStartInput(root: string, transcriptPath: string): ClaudeSessionStartInput {
 	return {
 		session_id: SESSION_ID,
 		transcript_path: transcriptPath,
@@ -172,7 +172,7 @@ function compactSessionStartInput(root: string, transcriptPath: string): CodexSe
 	};
 }
 
-function postCompactInput(root: string): CodexPostCompactInput {
+function postCompactInput(root: string): ClaudePostCompactInput {
 	return {
 		session_id: SESSION_ID,
 		turn_id: "turn-compact",
@@ -184,7 +184,7 @@ function postCompactInput(root: string): CodexPostCompactInput {
 	};
 }
 
-function userPromptSubmitInput(root: string, transcriptPath: string): CodexUserPromptSubmitInput {
+function userPromptSubmitInput(root: string, transcriptPath: string): ClaudeUserPromptSubmitInput {
 	return {
 		session_id: SESSION_ID,
 		turn_id: "turn-after-compact",
@@ -197,7 +197,7 @@ function userPromptSubmitInput(root: string, transcriptPath: string): CodexUserP
 	};
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: SESSION_ID,
 		turn_id: "turn-tool",

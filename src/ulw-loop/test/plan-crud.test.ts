@@ -62,7 +62,7 @@ function makePlan(goals: UlwLoopItem[]): UlwLoopPlan {
 		briefPath: ".claude/ulw-loop/brief.md",
 		goalsPath: ".claude/ulw-loop/goals.json",
 		ledgerPath: ".claude/ulw-loop/ledger.jsonl",
-		codexGoalMode: "aggregate",
+		claudeCodeGoalMode: "aggregate",
 		goals,
 	};
 }
@@ -130,11 +130,11 @@ describe("createUlwLoopPlan", () => {
 		await expect(createUlwLoopPlan(repoRoot, { brief: "second" })).rejects.toThrow("Refusing to overwrite");
 	});
 
-	it("aggregate is the default codexGoalMode", async () => {
+	it("aggregate is the default claudeCodeGoalMode", async () => {
 		const plan = await createUlwLoopPlan(await makeRepo(), { brief: "Ship the feature" });
 
-		expect(plan.codexGoalMode).toBe("aggregate");
-		expect(plan.codexObjective).toContain(".claude/ulw-loop/goals.json");
+		expect(plan.claudeCodeGoalMode).toBe("aggregate");
+		expect(plan.claudeCodeObjective).toContain(".claude/ulw-loop/goals.json");
 	});
 });
 

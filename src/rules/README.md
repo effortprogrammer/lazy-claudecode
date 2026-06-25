@@ -24,7 +24,7 @@ Project-level sources:
 - `.github/instructions/**/*.md`
 - `.github/copilot-instructions.md`
 
-User-home sources are also supported by the ported engine when available. `AGENTS.md` is not part of `auto` source selection because Claude Code already loads it as native project instructions, so re-injecting it through hooks duplicates context; opt into it explicitly with `CODEX_RULES_ENABLED_SOURCES` if you need hook-level migration behavior. Claude user-home sources (`~/.claude/rules`, `~/.claude/CLAUDE.md`) are also excluded from `auto` because they usually contain Claude Code runtime instructions rather than Claude Code rules; opt into them explicitly when you want that migration behavior.
+User-home sources are also supported by the ported engine when available. `AGENTS.md` is not part of `auto` source selection because Claude Code already loads it as native project instructions, so re-injecting it through hooks duplicates context; opt into it explicitly with `LAZY_CLAUDECODE_RULES_ENABLED_SOURCES` if you need hook-level migration behavior. Claude user-home sources (`~/.claude/rules`, `~/.claude/CLAUDE.md`) are also excluded from `auto` because they usually contain Claude Code runtime instructions rather than Claude Code rules; opt into them explicitly when you want that migration behavior.
 
 Markdown rule files may use frontmatter such as:
 
@@ -41,13 +41,13 @@ Prefer strict TypeScript and keep runtime imports ESM-compatible.
 ## Install Locally
 
 ```bash
-npx lazycodex-ai install
+npx lazy-claudecode-ai install
 ```
 
 The local installer builds the plugin and copies a clean cache entry to:
 
 ```text
-~/.claude-code/plugins/cache/sisyphuslabs/lazy-claudecode/0.1.0
+~/.claude-code/plugins/cache/effortprogrammer/lazy-claudecode/0.1.0
 ```
 
 It also enables:
@@ -59,21 +59,21 @@ plugin_hooks = true
 multi_agent = true
 child_agents_md = true
 
-[plugins."lazy-claudecode@sisyphuslabs"]
+[plugins."lazy-claudecode@effortprogrammer"]
 enabled = true
 ```
 
 ## Configuration
 
-Use `CODEX_RULES_*` environment variables:
+Use `LAZY_CLAUDECODE_RULES_*` environment variables:
 
 | Variable | Values | Default |
 | --- | --- | --- |
-| `CODEX_RULES_DISABLED` | `1`, `true`, `yes`, `on` | unset |
-| `CODEX_RULES_MODE` | `both`, `static`, `dynamic`, `off` | `both` |
-| `CODEX_RULES_MAX_RULE_CHARS` | positive integer | `12000` |
-| `CODEX_RULES_MAX_RESULT_CHARS` | positive integer | `40000` |
-| `CODEX_RULES_ENABLED_SOURCES` | comma-separated source names or `auto` | `auto` (excludes `AGENTS.md`, `~/.claude/rules`, `~/.claude/CLAUDE.md`) |
+| `LAZY_CLAUDECODE_RULES_DISABLED` | `1`, `true`, `yes`, `on` | unset |
+| `LAZY_CLAUDECODE_RULES_MODE` | `both`, `static`, `dynamic`, `off` | `both` |
+| `LAZY_CLAUDECODE_RULES_MAX_RULE_CHARS` | positive integer | `12000` |
+| `LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS` | positive integer | `40000` |
+| `LAZY_CLAUDECODE_RULES_ENABLED_SOURCES` | comma-separated source names or `auto` | `auto` (excludes `AGENTS.md`, `~/.claude/rules`, `~/.claude/CLAUDE.md`) |
 
 For migration from `pi-rules`, equivalent `PI_RULES_*` variables are accepted as fallbacks.
 

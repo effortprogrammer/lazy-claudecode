@@ -4,9 +4,9 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
-	type CodexPostCompactInput,
-	type CodexPostToolUseInput,
-	type CodexSessionStartInput,
+	type ClaudePostCompactInput,
+	type ClaudePostToolUseInput,
+	type ClaudeSessionStartInput,
 	runPostCompactHook,
 	runPostToolUseHook,
 	runSessionStartHook,
@@ -15,7 +15,7 @@ import {
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
 };
 
 afterEach(() => {
@@ -171,7 +171,7 @@ function makeTempProject(): { root: string; pluginData: string } {
 	return { root, pluginData };
 }
 
-function sessionStartInput(root: string): CodexSessionStartInput {
+function sessionStartInput(root: string): ClaudeSessionStartInput {
 	return {
 		session_id: "session-compact-dedup",
 		transcript_path: null,
@@ -183,7 +183,7 @@ function sessionStartInput(root: string): CodexSessionStartInput {
 	};
 }
 
-function compactSessionStartInput(root: string, transcriptPath: string): CodexSessionStartInput {
+function compactSessionStartInput(root: string, transcriptPath: string): ClaudeSessionStartInput {
 	return {
 		...sessionStartInput(root),
 		transcript_path: transcriptPath,
@@ -191,7 +191,7 @@ function compactSessionStartInput(root: string, transcriptPath: string): CodexSe
 	};
 }
 
-function postCompactInput(root: string): CodexPostCompactInput {
+function postCompactInput(root: string): ClaudePostCompactInput {
 	return {
 		session_id: "session-compact-dedup",
 		turn_id: "turn-compact",
@@ -216,7 +216,7 @@ function userPromptSubmitInput(root: string, transcriptPath: string): Parameters
 	};
 }
 
-function postToolUseInput(root: string, filePath: string): CodexPostToolUseInput {
+function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInput {
 	return {
 		session_id: "session-compact-dedup",
 		turn_id: "turn-after-compact",

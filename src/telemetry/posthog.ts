@@ -6,7 +6,7 @@ import {
 	type PostHogActivityCaptureState,
 	type TelemetryOsProvider,
 	type TelemetryTransportFactory,
-} from "@oh-my-opencode/telemetry-core";
+} from "@effortprogrammer/telemetry-core";
 
 import {
 	MACHINE_ID_PREFIX,

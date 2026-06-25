@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import { runPostToolUseHook } from "../src/claude-code-hook.js";
 
 describe("thread title PostToolUse guidance", () => {
-	it("#given codex_app.create_thread completed #when the hook runs #then it asks Claude Code to immediately set a descriptive title", () => {
+	it("#given claude_app.create_thread completed #when the hook runs #then it asks Claude Code to immediately set a descriptive title", () => {
 		// given
 		const output = runPostToolUseHook({
 			hook_event_name: "PostToolUse",
@@ -30,7 +30,7 @@ describe("thread title PostToolUse guidance", () => {
 		if (!isHookOutput(parsed)) return;
 		expect(parsed.hookSpecificOutput.hookEventName).toBe("PostToolUse");
 		expect(parsed.hookSpecificOutput.additionalContext).toBe(
-			"THREAD ID thread-123: CALL codex_app.set_thread_title NOW. USE THE REAL TASK/ROLE.",
+			"THREAD ID thread-123: CALL claude_app.set_thread_title NOW. USE THE REAL TASK/ROLE.",
 		);
 	});
 
@@ -67,7 +67,7 @@ describe("thread title PostToolUse guidance", () => {
 			cwd: "/repo",
 			model: "gpt-5.5",
 			permission_mode: "default",
-			tool_name: "codex_app.create_thread",
+			tool_name: "claude_app.create_thread",
 			tool_use_id: "tool-create-thread",
 			tool_input: {
 				prompt: "Fix CodeGraph provisioned launcher skip on Node 25",
@@ -89,7 +89,7 @@ describe("thread title PostToolUse guidance", () => {
 		expect(isHookOutput(parsed)).toBe(true);
 		if (!isHookOutput(parsed)) return;
 		expect(parsed.hookSpecificOutput.additionalContext).toBe(
-			"PENDING WORKTREE ID remote-control:env:test-worktree: CALL codex_app.set_thread_title AS SOON AS THREAD ID EXISTS. USE THE REAL TASK/ROLE.",
+			"PENDING WORKTREE ID remote-control:env:test-worktree: CALL claude_app.set_thread_title AS SOON AS THREAD ID EXISTS. USE THE REAL TASK/ROLE.",
 		);
 	});
 });

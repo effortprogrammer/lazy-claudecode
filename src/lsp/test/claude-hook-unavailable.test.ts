@@ -30,7 +30,7 @@ describe("codex PostToolUse unavailable LSP suppression", () => {
 	it("#given unavailable markdown LSP in one session #when PostToolUse repeats #then suppresses feedback and skips the cached extension", async () => {
 		// given
 		const pluginData = tempPluginData();
-		const input = postToolUseInput("session-unavailable", ".omo/ulw-loop/evidence/note.md");
+		const input = postToolUseInput("session-unavailable", ".claude/ulw-loop/evidence/note.md");
 		let calls = 0;
 
 		await withPluginData(pluginData, async () => {
@@ -54,7 +54,7 @@ describe("codex PostToolUse unavailable LSP suppression", () => {
 	it("#given cached unavailable LSP after PostCompact #when the next PostToolUse runs #then probes once and suppresses again", async () => {
 		// given
 		const pluginData = tempPluginData();
-		const input = postToolUseInput("session-compact", ".omo/ulw-loop/evidence/note.md");
+		const input = postToolUseInput("session-compact", ".claude/ulw-loop/evidence/note.md");
 		let calls = 0;
 
 		await withPluginData(pluginData, async () => {
@@ -97,7 +97,7 @@ describe("codex PostToolUse unavailable LSP suppression", () => {
 	it("#given cached unavailable LSP after PostCompact #when the probe is clean #then clears the unavailable cache", async () => {
 		// given
 		const pluginData = tempPluginData();
-		const input = postToolUseInput("session-compact-clean", ".omo/ulw-loop/evidence/note.md");
+		const input = postToolUseInput("session-compact-clean", ".claude/ulw-loop/evidence/note.md");
 		let calls = 0;
 
 		await withPluginData(pluginData, async () => {
@@ -151,7 +151,7 @@ describe("codex PostToolUse unavailable LSP suppression", () => {
 	it("#given a cached unavailable extension #when the post-compact probe hits a daemon outage #then the cache survives and the probe stays pending", async () => {
 		// given
 		const pluginData = tempPluginData();
-		const input = postToolUseInput("session-daemon-down-probe", ".omo/ulw-loop/evidence/note.md");
+		const input = postToolUseInput("session-daemon-down-probe", ".claude/ulw-loop/evidence/note.md");
 		let calls = 0;
 
 		await withPluginData(pluginData, async () => {

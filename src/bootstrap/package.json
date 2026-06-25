@@ -1,7 +1,7 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-bootstrap",
 	"version": "4.13.0",
-	"description": "Codex SessionStart bootstrap component that provisions LazyCodex runtime dependencies from a detached worker.",
+	"description": "Claude Code SessionStart bootstrap component that provisions LazyClaude runtime dependencies from a detached worker.",
 	"type": "module",
 	"private": true,
 	"files": [

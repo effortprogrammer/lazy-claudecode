@@ -38,7 +38,7 @@ Conventions for human contributors and AI agents working on this repository.
 ## Branding
 
 - Repo artifacts live under `.lazy-claudecode/ulw-loop/` paths.
-- Environment variables use the `OMO_ULW_LOOP_*` prefix.
+- Environment variables use the `LAZY_CLAUDECODE_ULW_LOOP_*` prefix.
 - CLI commands use the `lazy-claudecode ulw-loop` form.
 - Do not use any alternate legacy CLI alias anywhere.
 

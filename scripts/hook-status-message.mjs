@@ -1,24 +1,24 @@
-const PRODUCT_PREFIX = "(OmO)";
+const PRODUCT_PREFIX = "(LazyClaude)";
 
 const WORD_OVERRIDES = new Map([
 	["codegraph", "CodeGraph"],
-	["lazycodex", "LazyCodex"],
+	["lazy-claudecode", "LazyClaude Code"],
 	["lsp", "LSP"],
 	["mcp", "MCP"],
 	["ulw-loop", "Ulw-Loop"],
 ]);
 
-export function formatLazyCodexHookStatusMessage(version, label) {
+export function formatLazyClaude CodeHookStatusMessage(version, label) {
 	void version;
-	return `${PRODUCT_PREFIX} ${normalizeLazyCodexHookStatusLabel(label)}`;
+	return `${PRODUCT_PREFIX} ${normalizeLazyClaude CodeHookStatusLabel(label)}`;
 }
 
-export function normalizeLazyCodexHookStatusLabel(label) {
-	const parsed = parseLazyCodexHookStatusMessage(label);
+export function normalizeLazyClaude CodeHookStatusLabel(label) {
+	const parsed = parseLazyClaude CodeHookStatusMessage(label);
 	const rawLabel = parsed === null ? label : parsed.label;
 	const normalized = rawLabel
-		.replace(/^\(OmO\)\s*/i, " ")
-		.replace(/\bOMO\b/gi, " ")
+		.replace(/^\(LazyClaude\)\s*/i, " ")
+		.replace(/\bLAZY_CLAUDECODE\b/gi, " ")
 		.replace(/\s+/g, " ")
 		.trim();
 	if (normalized.length === 0) return "";
@@ -28,11 +28,11 @@ export function normalizeLazyCodexHookStatusLabel(label) {
 		.join(" ");
 }
 
-export function parseLazyCodexHookStatusMessage(message) {
+export function parseLazyClaude CodeHookStatusMessage(message) {
 	const trimmed = message.trim();
-	const current = /^\(OmO\)\s+(.+)$/.exec(trimmed);
+	const current = /^\(LazyClaude\)\s+(.+)$/.exec(trimmed);
 	if (current !== null) return { version: undefined, label: current[1] };
-	const legacy = /^LazyCodex\(([^)]+)\):\s+(.+)$/.exec(trimmed);
+	const legacy = /^LazyClaude Code\(([^)]+)\):\s+(.+)$/.exec(trimmed);
 	if (legacy === null) return null;
 	const [, version, label] = legacy;
 	return { version, label };

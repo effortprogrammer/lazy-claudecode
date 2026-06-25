@@ -31,7 +31,7 @@ describe("checkpointUlwLoop status=complete criteria gate", () => {
 			goalId: "G001",
 			status: "complete",
 			evidence: "implementation done and validation passed",
-			codexGoalJson: snapshot("active"),
+			claudeGoalJson: snapshot("active"),
 		});
 
 		expect(result.goal.status).toBe("complete");
@@ -57,7 +57,7 @@ describe("checkpointUlwLoop status=complete criteria gate", () => {
 					goalId: "G001",
 					status: "complete",
 					evidence: "implementation done and validation passed",
-					codexGoalJson: snapshot("active"),
+					claudeGoalJson: snapshot("active"),
 				}),
 			"ulw_loop_criteria_not_all_pass",
 		);
@@ -92,7 +92,7 @@ describe("checkpointUlwLoop status=complete criteria gate", () => {
 					goalId: "G001",
 					status: "complete",
 					evidence: "done",
-					codexGoalJson: snapshot("active"),
+					claudeGoalJson: snapshot("active"),
 				}),
 			"ulw_loop_criteria_not_all_pass",
 		);
@@ -105,7 +105,7 @@ describe("checkpointUlwLoop status=complete criteria gate", () => {
 			goalId: "G001",
 			status: "complete",
 			evidence: "implementation done and tests passed",
-			codexGoalJson: snapshot("active"),
+			claudeGoalJson: snapshot("active"),
 		});
 
 		expect(result.goal.status).toBe("complete");
@@ -122,7 +122,7 @@ describe("checkpointUlwLoop reconciliation (status=complete)", () => {
 				goalId: "G001",
 				status: "complete",
 				evidence: "work complete and validation passed",
-				codexGoalJson: snapshot("active"),
+				claudeGoalJson: snapshot("active"),
 			}),
 		).resolves.toMatchObject({ goal: { status: "complete" } });
 	});
@@ -136,9 +136,9 @@ describe("checkpointUlwLoop reconciliation (status=complete)", () => {
 					goalId: "G001",
 					status: "complete",
 					evidence: "work complete and validation passed",
-					codexGoalJson: snapshot("active", "wrong objective"),
+					claudeGoalJson: snapshot("active", "wrong objective"),
 				}),
-			"ulw_loop_codex_snapshot_mismatch",
+			"ulw_loop_claude_snapshot_mismatch",
 		);
 	});
 
@@ -151,9 +151,9 @@ describe("checkpointUlwLoop reconciliation (status=complete)", () => {
 					goalId: "G001",
 					status: "complete",
 					evidence: "work complete and validation passed",
-					codexGoalJson: snapshot("complete"),
+					claudeGoalJson: snapshot("complete"),
 				}),
-			"ulw_loop_codex_snapshot_mismatch",
+			"ulw_loop_claude_snapshot_mismatch",
 		);
 	});
 });

@@ -71,7 +71,7 @@ function preToolPayload(toolName: string, toolInput: unknown): PreToolUsePayload
 
 function payloadWithRuntimeEvent(hookEventName: string): UserPromptSubmitPayload {
 	const input = payload(
-		'OMO_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
+		'LAZY_CLAUDECODE_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
 		"/tmp",
 	);
 	Object.defineProperty(input, "hook_event_name", { value: hookEventName });
@@ -94,7 +94,7 @@ describe("parseUserPromptSubmitPayload", () => {
 		const raw = await readFile("test/fixtures/user-prompt-submit.json", "utf8");
 		const parsed = parseUserPromptSubmitPayload(raw);
 		expect(parsed?.hook_event_name).toBe("UserPromptSubmit");
-		expect(parsed?.prompt).toContain("OMO_ULW_LOOP_STEER");
+		expect(parsed?.prompt).toContain("LAZY_CLAUDECODE_ULW_LOOP_STEER");
 	});
 
 	it("returns null for empty input", () => {
@@ -111,11 +111,11 @@ describe("parseUserPromptSubmitPayload", () => {
 });
 
 describe("applyUserPromptUlwLoopSteering - LAZY_CLAUDECODE directive patterns", () => {
-	it("processes OMO_ULW_LOOP_STEER: prompt and returns audit text on success", async () => {
+	it("processes LAZY_CLAUDECODE_ULW_LOOP_STEER: prompt and returns audit text on success", async () => {
 		const repoRoot = await bootstrapPlanRepo();
 		const out = await applyUserPromptUlwLoopSteering(
 			payload(
-				'OMO_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
+				'LAZY_CLAUDECODE_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
 				repoRoot,
 			),
 		);
@@ -128,7 +128,7 @@ describe("applyUserPromptUlwLoopSteering - LAZY_CLAUDECODE directive patterns", 
 
 		const out = await applyUserPromptUlwLoopSteering(
 			payload(
-				'OMO_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
+				'LAZY_CLAUDECODE_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
 				repoRoot,
 			),
 		);
@@ -177,7 +177,7 @@ describe("applyUserPromptUlwLoopSteering - error swallowing", () => {
 		const repoRoot = await mkdtemp(join(tmpdir(), "ug-nohook-"));
 		const out = await applyUserPromptUlwLoopSteering(
 			payload(
-				'OMO_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
+				'LAZY_CLAUDECODE_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
 				repoRoot,
 			),
 		);
@@ -185,7 +185,7 @@ describe("applyUserPromptUlwLoopSteering - error swallowing", () => {
 	});
 
 	it("returns empty when steering proposal is malformed JSON after marker", async () => {
-		const out = await applyUserPromptUlwLoopSteering(payload("OMO_ULW_LOOP_STEER: {bad", "/tmp"));
+		const out = await applyUserPromptUlwLoopSteering(payload("LAZY_CLAUDECODE_ULW_LOOP_STEER: {bad", "/tmp"));
 		expect(out).toBe("");
 	});
 });
@@ -196,7 +196,7 @@ describe("runUlwLoopHookCli (stdin/stdout integration)", () => {
 		const stdin = Readable.from([
 			JSON.stringify(
 				payload(
-					'OMO_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
+					'LAZY_CLAUDECODE_ULW_LOOP_STEER: {"kind":"annotate_ledger","source":"user_prompt_submit","evidence":"x","rationale":"y"}',
 					repoRoot,
 				),
 			),

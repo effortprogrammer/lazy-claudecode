@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { expect } from "vitest";
 
-import { ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE } from "../../src/goal-status.js";
+import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../../src/goal-status.js";
 import { ulwLoopDir, ulwLoopLedgerPath } from "../../src/paths.js";
 import { writePlan } from "../../src/plan-io.js";
 import type { UlwLoopItem, UlwLoopLedgerEntry, UlwLoopPlan, UlwLoopSuccessCriterion } from "../../src/types.js";
@@ -49,8 +49,8 @@ export function plan(goals: UlwLoopItem[], overrides: Partial<UlwLoopPlan> = {})
 		briefPath: ".claude/ulw-loop/brief.md",
 		goalsPath: ".claude/ulw-loop/goals.json",
 		ledgerPath: ".claude/ulw-loop/ledger.jsonl",
-		codexGoalMode: "aggregate",
-		codexObjective: ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE,
+		claudeCodeGoalMode: "aggregate",
+		claudeCodeObjective: ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
 		goals,
 	};
 	Object.assign(result, overrides);
@@ -66,7 +66,7 @@ export async function repoWith(seed: UlwLoopPlan): Promise<string> {
 	return repo;
 }
 
-export function snapshot(status: "active" | "complete", objective = ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE): string {
+export function snapshot(status: "active" | "complete", objective = ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE): string {
 	return JSON.stringify({ goal: { objective, status } });
 }
 

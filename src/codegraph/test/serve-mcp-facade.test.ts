@@ -39,7 +39,7 @@ describe("runCodegraphServe MCP unavailable facade", () => {
 		// then
 		expect(exitCode).toBe(0);
 		expect(stderr).toEqual([
-			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set OMO_CODEGRAPH_BIN.\n",
+			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set LAZY_CLAUDECODE_CODEGRAPH_BIN.\n",
 		]);
 		expect(parseFirstJsonRpcBody(stdout)).toEqual({
 			id: 1,

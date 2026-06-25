@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE } from "../src/goal-status.js";
+import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../src/goal-status.js";
 import { ulwLoopDir, ulwLoopLedgerPath } from "../src/paths.js";
 import { writePlan } from "../src/plan-io.js";
 import { recordFinalReviewBlockers } from "../src/review-blockers.js";
@@ -12,7 +12,7 @@ import { UlwLoopError } from "../src/types.js";
 
 const NOW = "2026-05-23T00:00:00.000Z";
 const VALID_SNAPSHOT_JSON = JSON.stringify({
-	goal: { objective: ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE, status: "active" },
+	goal: { objective: ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE, status: "active" },
 });
 
 const validArgs = {
@@ -20,7 +20,7 @@ const validArgs = {
 	title: "Resolve final code-review blockers",
 	objective: "Address the BLOCK findings from the architect",
 	evidence: "review verdict: REQUEST_CHANGES (3 issues)",
-	codexGoalJson: VALID_SNAPSHOT_JSON,
+	claudeGoalJson: VALID_SNAPSHOT_JSON,
 };
 
 function makeCriterion(overrides: Partial<UlwLoopSuccessCriterion> = {}): UlwLoopSuccessCriterion {
@@ -57,8 +57,8 @@ function makePlan(overrides: Partial<UlwLoopPlan> = {}): UlwLoopPlan {
 		briefPath: ".claude/ulw-loop/brief.md",
 		goalsPath: ".claude/ulw-loop/goals.json",
 		ledgerPath: ".claude/ulw-loop/ledger.jsonl",
-		codexGoalMode: "aggregate",
-		codexObjective: ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE,
+		claudeCodeGoalMode: "aggregate",
+		claudeCodeObjective: ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
 		goals: [makeGoal({ status: "in_progress" })],
 		...overrides,
 	};
@@ -158,13 +158,13 @@ describe("recordFinalReviewBlockers error cases", () => {
 		);
 	});
 
-	it("throws ulw_loop_codex_snapshot_mismatch when objective mismatches", async () => {
+	it("throws ulw_loop_claude_snapshot_mismatch when objective mismatches", async () => {
 		const repo = await bootstrapRepo(finalPlan());
-		const codexGoalJson = JSON.stringify({ goal: { objective: "wrong", status: "active" } });
+		const claudeGoalJson = JSON.stringify({ goal: { objective: "wrong", status: "active" } });
 
 		await expectUlwLoopCode(
-			() => recordFinalReviewBlockers(repo, { ...validArgs, codexGoalJson }),
-			"ulw_loop_codex_snapshot_mismatch",
+			() => recordFinalReviewBlockers(repo, { ...validArgs, claudeGoalJson }),
+			"ulw_loop_claude_snapshot_mismatch",
 		);
 	});
 });

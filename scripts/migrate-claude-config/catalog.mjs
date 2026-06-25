@@ -36,7 +36,7 @@ export const FALLBACK_CATALOG = {
 
 export async function readModelCatalog(env = process.env) {
 	const catalogPath =
-		env.LAZYCODEX_MODEL_CATALOG_PATH?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "model-catalog.json");
+		env.LAZY_CLAUDECODE_MODEL_CATALOG_PATH?.trim() || join(dirname(fileURLToPath(import.meta.url)), "..", "model-catalog.json");
 	try {
 		return parseCatalog(JSON.parse(await readFile(catalogPath, "utf8"))) ?? FALLBACK_CATALOG;
 	} catch (error) {

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { matchRule, normalizeGlobs } from "@oh-my-opencode/rules-engine/engine";
-import type { RuleFrontmatter } from "@oh-my-opencode/rules-engine/engine";
+import { matchRule, normalizeGlobs } from "@effortprogrammer/rules-engine/engine";
+import type { RuleFrontmatter } from "@effortprogrammer/rules-engine/engine";
 
 function matchFrontmatter(
 	frontmatter: RuleFrontmatter,

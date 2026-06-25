@@ -39,9 +39,9 @@ function makePlan(overrides: Partial<UlwLoopPlan> = {}): UlwLoopPlan {
 		briefPath: ".claude/ulw-loop/brief.md",
 		goalsPath: ".claude/ulw-loop/goals.json",
 		ledgerPath: ".claude/ulw-loop/ledger.jsonl",
-		codexGoalMode: "aggregate",
-		codexObjective: STABLE_OBJECTIVE,
-		codexObjectiveAliases: [],
+		claudeCodeGoalMode: "aggregate",
+		claudeCodeObjective: STABLE_OBJECTIVE,
+		claudeCodeObjectiveAliases: [],
 		goals: [makeGoal()],
 		...overrides,
 	};
@@ -89,7 +89,7 @@ describe("readUlwLoopPlan", () => {
 
 		// then
 		expect(plan.version).toBe(1);
-		expect(plan.codexGoalMode).toBe("aggregate");
+		expect(plan.claudeCodeGoalMode).toBe("aggregate");
 		expect(plan.goals).toHaveLength(3);
 		expect(plan.goals[0]?.successCriteria).toHaveLength(3);
 	});
@@ -97,21 +97,21 @@ describe("readUlwLoopPlan", () => {
 	it("migrates legacy aggregate objective on read + writes aggregate_objective_migrated ledger entry + retains alias", async () => {
 		// given
 		const legacyObjective = "Complete all ulw-loop stories in .claude/ulw-loop/goals.json: G001 Build auth service";
-		await writeRawPlan(repoRoot, makePlan({ codexObjective: legacyObjective }));
+		await writeRawPlan(repoRoot, makePlan({ claudeCodeObjective: legacyObjective }));
 
 		// when
 		const plan = await readUlwLoopPlan(repoRoot);
 
 		// then
-		expect(plan.codexObjective).toBe(STABLE_OBJECTIVE);
-		expect(plan.codexObjectiveAliases).toContain(legacyObjective);
+		expect(plan.claudeCodeObjective).toBe(STABLE_OBJECTIVE);
+		expect(plan.claudeCodeObjectiveAliases).toContain(legacyObjective);
 		const persisted = JSON.parse(await readFile(ulwLoopGoalsPath(repoRoot), "utf8"));
-		expect(persisted).toMatchObject({ codexObjective: STABLE_OBJECTIVE, codexObjectiveAliases: [legacyObjective] });
+		expect(persisted).toMatchObject({ claudeCodeObjective: STABLE_OBJECTIVE, claudeCodeObjectiveAliases: [legacyObjective] });
 		const lines = await readLedgerLines(repoRoot);
 		expect(lines).toHaveLength(1);
 		expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({
 			kind: "aggregate_objective_migrated",
-			before: { codexObjective: legacyObjective },
+			before: { claudeCodeObjective: legacyObjective },
 		});
 	});
 });
@@ -133,14 +133,14 @@ describe("writePlan", () => {
 	it("overwrites existing file", async () => {
 		// given
 		const repoRoot = await makeRepo();
-		await writePlan(repoRoot, makePlan({ codexObjective: "first" }));
+		await writePlan(repoRoot, makePlan({ claudeCodeObjective: "first" }));
 
 		// when
-		await writePlan(repoRoot, makePlan({ codexObjective: "second" }));
+		await writePlan(repoRoot, makePlan({ claudeCodeObjective: "second" }));
 
 		// then
 		expect(JSON.parse(await readFile(ulwLoopGoalsPath(repoRoot), "utf8"))).toMatchObject({
-			codexObjective: "second",
+			claudeCodeObjective: "second",
 		});
 	});
 });

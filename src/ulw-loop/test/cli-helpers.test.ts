@@ -13,7 +13,7 @@ import {
 	readRepeated,
 	readValue,
 } from "../src/cli-arg-parser.js";
-import { normalizeCodexGoalMode, printStatus, ULW_LOOP_HELP } from "../src/cli-output.js";
+import { normalizeClaudeGoalMode, printStatus, ULW_LOOP_HELP } from "../src/cli-output.js";
 import type { UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.js";
 import { UlwLoopError } from "../src/types.js";
 
@@ -229,16 +229,16 @@ describe("printStatus", () => {
 	});
 });
 
-describe("normalizeCodexGoalMode", () => {
+describe("normalizeClaudeGoalMode", () => {
 	it("returns aggregate when undefined", () => {
-		expect(normalizeCodexGoalMode(undefined)).toBe("aggregate");
+		expect(normalizeClaudeGoalMode(undefined)).toBe("aggregate");
 	});
 
 	it("returns the explicit value when valid", () => {
-		expect(normalizeCodexGoalMode("per_story")).toBe("per_story");
+		expect(normalizeClaudeGoalMode("per_story")).toBe("per_story");
 	});
 
 	it("throws UlwLoopError when invalid", () => {
-		expect(() => normalizeCodexGoalMode("per-story")).toThrow(UlwLoopError);
+		expect(() => normalizeClaudeGoalMode("per-story")).toThrow(UlwLoopError);
 	});
 });

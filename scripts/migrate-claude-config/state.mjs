@@ -3,9 +3,9 @@ import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
 export function resolveStatePath(env) {
-	const explicitStatePath = env.LAZYCODEX_MODEL_CATALOG_STATE_PATH?.trim();
+	const explicitStatePath = env.LAZY_CLAUDECODE_MODEL_CATALOG_STATE_PATH?.trim();
 	if (explicitStatePath) return explicitStatePath;
-	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazycodex");
+	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazy-claudecode");
 	return join(dataRoot, "model-catalog-state.json");
 }
 

@@ -8,20 +8,20 @@ import { ulwLoopCommand } from "../src/cli-commands.ts";
 let testDir: string;
 let out: string[];
 let err: string[];
-let originalCodexSessionId: string | undefined;
-let originalCodexThreadId: string | undefined;
+let originalClaudeSessionId: string | undefined;
+let originalClaudeThreadId: string | undefined;
 let originalOmoSessionId: string | undefined;
 
 beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-json-err-"));
 	out = [];
 	err = [];
-	originalCodexSessionId = process.env["CODEX_SESSION_ID"];
-	originalCodexThreadId = process.env["CODEX_THREAD_ID"];
-	originalOmoSessionId = process.env["OMO_ULW_LOOP_SESSION_ID"];
-	delete process.env["CODEX_SESSION_ID"];
-	delete process.env["CODEX_THREAD_ID"];
-	delete process.env["OMO_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -35,12 +35,12 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalCodexSessionId === undefined) delete process.env["CODEX_SESSION_ID"];
-	else process.env["CODEX_SESSION_ID"] = originalCodexSessionId;
-	if (originalCodexThreadId === undefined) delete process.env["CODEX_THREAD_ID"];
-	else process.env["CODEX_THREAD_ID"] = originalCodexThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["OMO_ULW_LOOP_SESSION_ID"];
-	else process.env["OMO_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 

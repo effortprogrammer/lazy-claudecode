@@ -15,7 +15,7 @@ const CONTEXT_PRESSURE_MARKERS = [
 	"long threads and multiple compactions",
 ] as const;
 
-export type CodexUserPromptSubmitInput = {
+export type ClaudeUserPromptSubmitInput = {
 	readonly hook_event_name: "UserPromptSubmit";
 	readonly prompt: string;
 	readonly transcript_path?: string | null;
@@ -29,7 +29,7 @@ interface UserPromptSubmitHookOutput {
 }
 
 export function runUserPromptSubmitHook(input: unknown): string {
-	if (!isCodexUserPromptSubmitInput(input)) return "";
+	if (!isClaudeUserPromptSubmitInput(input)) return "";
 	if (isContextPressureRecoveryPrompt(input.prompt)) return "";
 	if (hasUltraworkDirectiveAlreadyInTranscript(input.transcript_path)) return "";
 	if (isContextPressureTranscript(input.transcript_path)) return "";
@@ -130,7 +130,7 @@ function parseJsonLine(line: string): unknown | null {
 	}
 }
 
-function isCodexUserPromptSubmitInput(value: unknown): value is CodexUserPromptSubmitInput {
+function isClaudeUserPromptSubmitInput(value: unknown): value is ClaudeUserPromptSubmitInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "UserPromptSubmit" &&

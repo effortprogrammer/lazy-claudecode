@@ -74,9 +74,9 @@ function makePlan(overrides: Partial<UlwLoopPlan> = {}): UlwLoopPlan {
 		briefPath: ".claude/ulw-loop/brief.md",
 		goalsPath: ".claude/ulw-loop/goals.json",
 		ledgerPath: ".claude/ulw-loop/ledger.jsonl",
-		codexGoalMode: "aggregate",
-		codexObjective: "Complete the durable ulw-loop plan in .claude/ulw-loop/goals.json",
-		codexObjectiveAliases: [],
+		claudeCodeGoalMode: "aggregate",
+		claudeCodeObjective: "Complete the durable ulw-loop plan in .claude/ulw-loop/goals.json",
+		claudeCodeObjectiveAliases: [],
 		goals: [makeGoal()],
 		...overrides,
 	};

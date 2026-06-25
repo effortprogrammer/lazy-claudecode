@@ -20,7 +20,7 @@ export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PA
 	await writeQualityGateArtifacts(repoRoot);
 	return JSON.stringify({
 		codeReview: {
-			by: "lazycodex-code-reviewer",
+			by: "lazy-claudecode-code-reviewer",
 			recommendation: "APPROVE",
 			codeQualityStatus: "CLEAR",
 			reportPath: CODE_REVIEW_PATH,
@@ -28,7 +28,7 @@ export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PA
 			blockers: [],
 		},
 		manualQa: {
-			by: "lazycodex-qa-executor",
+			by: "lazy-claudecode-qa-executor",
 			status: "passed",
 			evidence: "Ran CLI checkpoint validation with artifact-backed evidence.",
 			surfaceEvidence: [
@@ -67,7 +67,7 @@ export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PA
 			],
 		},
 		gateReview: {
-			by: "lazycodex-gate-reviewer",
+			by: "lazy-claudecode-gate-reviewer",
 			recommendation: "APPROVE",
 			reportPath: GATE_REVIEW_PATH,
 			evidence: "Verified all criteria and artifact evidence.",

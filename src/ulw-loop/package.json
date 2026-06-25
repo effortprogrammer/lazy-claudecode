@@ -1,7 +1,7 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-ulw-loop",
 	"version": "4.13.0",
-	"description": "Codex plugin: durable repo-native multi-goal orchestration with embedded success criteria and observable evidence audit.",
+	"description": "Claude Code plugin: durable repo-native multi-goal orchestration with embedded success criteria and observable evidence audit.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",

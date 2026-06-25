@@ -1,25 +1,25 @@
 /**
  * Runtime migration: force `[features.multi_agent_v2]` to `enabled = false`.
  *
- * Runs on every Codex SessionStart (via auto-update's config migration) so
+ * Runs on every Claude Code SessionStart (via auto-update's config migration) so
  * multi-agent V2 stays off regardless of how it was turned on: an
  * installer-forced `enabled = true`, a missing `enabled` key the runtime
  * would resolve per model, or the `[features]` boolean shorthand
  * `multi_agent_v2 = true` (removed here because a boolean key and a
  * `[features.multi_agent_v2]` table for the same name are conflicting TOML).
  *
- * Upstream basis: openai/codex#26753 — with the flag on, EVERY turn fails
+ * Upstream basis: anthropic/claude-code#26753 — with the flag on, EVERY turn fails
  * with a 400 ("spawn_agent declares encrypted parameters but is not
  * configured for encrypted tool use by this model"), even on prompts that
  * never touch subagents. OpenAI closed it NOT_PLANNED stating V2 is under
  * development, not recommended, and bug reports are not accepted. Same
- * failure class still being reported (openai/codex#27205).
+ * failure class still being reported (anthropic/claude-code#27205).
  */
-const MANAGED_COMMENT_MARKER = "openai/codex#26753";
+const MANAGED_COMMENT_MARKER = "anthropic/claude-code#26753";
 const MANAGED_DISABLE_COMMENT = [
-	"# Managed by LazyCodex: multi_agent_v2 is re-disabled on every Codex session start",
+	"# Managed by LazyClaude Code: multi_agent_v2 is re-disabled on every Claude Code session start",
 	`# because enabling it fails every turn with HTTP 400 (${MANAGED_COMMENT_MARKER}).`,
-	"# Opt out: LAZYCODEX_CONFIG_MIGRATION_DISABLED=1 (or LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED=1).",
+	"# Opt out: LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED=1 (or LAZY_CLAUDECODE_CONFIG_MIGRATION_DISABLED=1).",
 	"",
 ].join("\n");
 

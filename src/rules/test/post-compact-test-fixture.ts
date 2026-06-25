@@ -2,18 +2,18 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import type { CodexPostCompactInput, CodexSessionStartInput, CodexUserPromptSubmitInput } from "../src/claude-code-hook.js";
+import type { ClaudePostCompactInput, ClaudeSessionStartInput, ClaudeUserPromptSubmitInput } from "../src/claude-code-hook.js";
 
 export const PROJECT_RULES_ENV = {
-	CODEX_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
-	CODEX_RULES_MAX_RESULT_CHARS: "50000",
-	CODEX_RULES_MAX_RULE_CHARS: "30000",
+	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
+	LAZY_CLAUDECODE_RULES_MAX_RESULT_CHARS: "50000",
+	LAZY_CLAUDECODE_RULES_MAX_RULE_CHARS: "30000",
 };
 
 export const EXPANDED_POST_COMPACT_ENV = {
 	...PROJECT_RULES_ENV,
-	CODEX_RULES_POST_COMPACT_MAX_RESULT_CHARS: "20000",
-	CODEX_RULES_POST_COMPACT_MAX_RULE_CHARS: "12000",
+	LAZY_CLAUDECODE_RULES_POST_COMPACT_MAX_RESULT_CHARS: "20000",
+	LAZY_CLAUDECODE_RULES_POST_COMPACT_MAX_RULE_CHARS: "12000",
 };
 
 const tempDirectories: string[] = [];
@@ -41,7 +41,7 @@ export function makeOversizedProject(prefix = "budget"): { root: string; pluginD
 	return { root, pluginData };
 }
 
-export function sessionStartInput(root: string, sessionId = DEFAULT_SESSION_ID): CodexSessionStartInput {
+export function sessionStartInput(root: string, sessionId = DEFAULT_SESSION_ID): ClaudeSessionStartInput {
 	return {
 		session_id: sessionId,
 		transcript_path: null,
@@ -57,7 +57,7 @@ export function compactSessionStartInput(
 	root: string,
 	transcriptPath: string,
 	sessionId = DEFAULT_SESSION_ID,
-): CodexSessionStartInput {
+): ClaudeSessionStartInput {
 	return {
 		session_id: sessionId,
 		transcript_path: transcriptPath,
@@ -69,7 +69,7 @@ export function compactSessionStartInput(
 	};
 }
 
-export function postCompactInput(root: string, sessionId = DEFAULT_SESSION_ID): CodexPostCompactInput {
+export function postCompactInput(root: string, sessionId = DEFAULT_SESSION_ID): ClaudePostCompactInput {
 	return {
 		session_id: sessionId,
 		turn_id: "turn-compact",
@@ -85,7 +85,7 @@ export function userPromptSubmitInput(
 	root: string,
 	transcriptPath: string,
 	sessionId = DEFAULT_SESSION_ID,
-): CodexUserPromptSubmitInput {
+): ClaudeUserPromptSubmitInput {
 	return {
 		session_id: sessionId,
 		turn_id: "turn-after-compact",

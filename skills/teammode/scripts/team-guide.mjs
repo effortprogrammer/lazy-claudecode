@@ -68,7 +68,7 @@ coordinate with each other, but the leader owns the final decision and integrati
   is mandatory regardless of the language the task was given in.
 - **Exception: when the END USER addresses you directly, reply in the user's own language.**
   Team-internal traffic stays English; user-facing replies match the user.
-- **Reach the leader and your peers with \`codex_app.send_message_to_thread\` - not by narrating in
+- **Reach the leader and your peers with \`claude_app.send_message_to_thread\` - not by narrating in
   your own thread, where no one reads it.** The address book is in team.json: the leader thread id
   is \`leader.sessionId\`, and each peer thread id is its \`members[].threadId\`.
 - **Push a short message at each of these moments - never batch them into one report at the end:**
@@ -108,5 +108,5 @@ export function buildMemberPrompt(team, id) {
 FIRST read your field manual at \`${guide}\`, then the team state at \`${teamJson}\`; they define your scope, deliverable, the leader, the artifacts directory, and the communication rules.
 ${where}
 Communicate with the team and leader in English; reply to the end user in the user's own language.
-Start now. Push updates to the leader and relevant peers with \`codex_app.send_message_to_thread\` as you work - findings, \`WORKING:\` heartbeats, and \`BLOCKED:\` the instant you stall - never just one report at the end.`;
+Start now. Push updates to the leader and relevant peers with \`claude_app.send_message_to_thread\` as you work - findings, \`WORKING:\` heartbeats, and \`BLOCKED:\` the instant you stall - never just one report at the end.`;
 }

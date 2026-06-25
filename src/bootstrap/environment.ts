@@ -25,7 +25,7 @@ export interface InstallFlowDetection {
 
 export const INSTALL_SNAPSHOT_FILENAME = "lazyclaude-code-install.json";
 
-const DEFAULT_MARKETPLACE_NAME = "sisyphuslabs";
+const DEFAULT_MARKETPLACE_NAME = "effortprogrammer";
 const MAX_CLAUDE_CODE_HOME_WALK_UP_LEVELS = 6;
 
 export async function detectInstallFlowDetailed(options: DetectInstallFlowOptions): Promise<InstallFlowDetection> {

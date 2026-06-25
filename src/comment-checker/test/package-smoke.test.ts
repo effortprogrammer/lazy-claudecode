@@ -15,8 +15,8 @@ describe("plugin package metadata", () => {
 		// then
 		expect(packageJson.type).toBe("module");
 		expect(packageJson.packageManager).toBe("npm@11.12.1");
-		expect(packageJson.dependencies ?? {}).not.toHaveProperty("@code-yeongyu/comment-checker");
-		expect(packageJson.optionalDependencies).toHaveProperty("@code-yeongyu/comment-checker");
+		expect(packageJson.dependencies ?? {}).not.toHaveProperty("@effortprogrammer/comment-checker");
+		expect(packageJson.optionalDependencies).toHaveProperty("@effortprogrammer/comment-checker");
 		expect(packageJson.bin["lazy-claudecode-comment-checker"]).toBe("./dist/cli.js");
 		expect(cliSource.startsWith("#!/usr/bin/env node")).toBe(true);
 		expect(command).toBe(`node "${pluginRoot}/dist/cli.js" hook post-tool-use`);

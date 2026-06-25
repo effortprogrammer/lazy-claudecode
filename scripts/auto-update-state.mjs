@@ -5,19 +5,19 @@ import { dirname, join } from "node:path";
 export const DEFAULT_LOCK_STALE_MS = 10 * 60 * 1_000;
 
 export function resolveStatePath(env) {
-	if (env.LAZYCODEX_AUTO_UPDATE_STATE_PATH?.trim()) return env.LAZYCODEX_AUTO_UPDATE_STATE_PATH;
-	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazycodex");
+	if (env.LAZY_CLAUDECODE_AUTO_UPDATE_STATE_PATH?.trim()) return env.LAZY_CLAUDECODE_AUTO_UPDATE_STATE_PATH;
+	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazy-claudecode");
 	return join(dataRoot, "auto-update.json");
 }
 
 export function resolveLogPath(env) {
-	if (env.LAZYCODEX_AUTO_UPDATE_LOG_PATH?.trim()) return env.LAZYCODEX_AUTO_UPDATE_LOG_PATH;
-	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazycodex");
+	if (env.LAZY_CLAUDECODE_AUTO_UPDATE_LOG_PATH?.trim()) return env.LAZY_CLAUDECODE_AUTO_UPDATE_LOG_PATH;
+	const dataRoot = env.PLUGIN_DATA?.trim() || join(homedir(), ".local", "share", "lazy-claudecode");
 	return join(dataRoot, "auto-update.log");
 }
 
 export function resolveLockPath(env, statePath) {
-	if (env.LAZYCODEX_AUTO_UPDATE_LOCK_PATH?.trim()) return env.LAZYCODEX_AUTO_UPDATE_LOCK_PATH;
+	if (env.LAZY_CLAUDECODE_AUTO_UPDATE_LOCK_PATH?.trim()) return env.LAZY_CLAUDECODE_AUTO_UPDATE_LOCK_PATH;
 	return `${statePath}.lock`;
 }
 

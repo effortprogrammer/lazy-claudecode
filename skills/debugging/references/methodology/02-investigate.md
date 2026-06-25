@@ -50,7 +50,7 @@ When the `team_*` tools are present, create a **debug-squad** team and split inv
 ```json
 {
   "name": "debug-squad",
-  "lead": { "kind": "subagent_type", "subagent_type": "sisyphus" },
+  "lead": { "kind": "subagent_type", "subagent_type": "effortprogrammer" },
   "members": [
     {
       "kind": "category",

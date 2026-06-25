@@ -1,16 +1,16 @@
 import { describe, expect, it } from "vitest";
 
 import {
-	aggregateCodexObjective,
-	codexGoalMode,
-	compatibleCodexObjectives,
-	expectedCodexObjective,
+	aggregateClaudeCodeObjective,
+	claudeCodeGoalMode,
+	compatibleClaudeCodeObjectives,
+	expectedClaudeCodeObjective,
 	firstUnresolvedCriterion,
 	hasAllCriteriaPass,
 	hasEssentialCriteriaPass,
 	isFinalRunCompletionCandidate,
 	isUlwLoopDone,
-	ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE,
+	ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
 } from "../src/goal-status.js";
 import type { UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.js";
 
@@ -125,10 +125,10 @@ describe("isFinalRunCompletionCandidate", () => {
 	});
 });
 
-describe("codexGoalMode", () => {
+describe("claudeCodeGoalMode", () => {
 	it("defaults to per_story when undefined", () => {
 		// when
-		const mode = codexGoalMode(makePlan());
+		const mode = claudeCodeGoalMode(makePlan());
 
 		// then
 		expect(mode).toBe("per_story");
@@ -136,79 +136,79 @@ describe("codexGoalMode", () => {
 
 	it("returns aggregate when explicitly aggregate", () => {
 		// when
-		const mode = codexGoalMode(makePlan({ codexGoalMode: "aggregate" }));
+		const mode = claudeCodeGoalMode(makePlan({ claudeCodeGoalMode: "aggregate" }));
 
 		// then
 		expect(mode).toBe("aggregate");
 	});
 });
 
-describe("expectedCodexObjective", () => {
-	it("aggregate mode returns plan.codexObjective", () => {
+describe("expectedClaudeCodeObjective", () => {
+	it("aggregate mode returns plan.claudeCodeObjective", () => {
 		// given
 		const goal = makeGoal({ objective: "story objective" });
-		const plan = makePlan({ codexGoalMode: "aggregate", codexObjective: "aggregate objective" });
+		const plan = makePlan({ claudeCodeGoalMode: "aggregate", claudeCodeObjective: "aggregate objective" });
 
 		// when
-		const objective = expectedCodexObjective(plan, goal);
+		const objective = expectedClaudeCodeObjective(plan, goal);
 
 		// then
 		expect(objective).toBe("aggregate objective");
 	});
 
-	it("aggregate mode falls back to ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE when codexObjective missing", () => {
+	it("aggregate mode falls back to ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE when claudeCodeObjective missing", () => {
 		// given
 		const goal = makeGoal({ objective: "story objective" });
-		const plan = makePlan({ codexGoalMode: "aggregate" });
+		const plan = makePlan({ claudeCodeGoalMode: "aggregate" });
 
 		// when
-		const objective = expectedCodexObjective(plan, goal);
+		const objective = expectedClaudeCodeObjective(plan, goal);
 
 		// then
-		expect(objective).toBe(ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE);
+		expect(objective).toBe(ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE);
 	});
 
 	it("per_story mode returns goal.objective", () => {
 		// given
 		const goal = makeGoal({ objective: "story objective" });
-		const plan = makePlan({ codexGoalMode: "per_story", codexObjective: "aggregate objective" });
+		const plan = makePlan({ claudeCodeGoalMode: "per_story", claudeCodeObjective: "aggregate objective" });
 
 		// when
-		const objective = expectedCodexObjective(plan, goal);
+		const objective = expectedClaudeCodeObjective(plan, goal);
 
 		// then
 		expect(objective).toBe("story objective");
 	});
 });
 
-describe("aggregateCodexObjective", () => {
-	it("returns plan.codexObjective when set", () => {
+describe("aggregateClaudeCodeObjective", () => {
+	it("returns plan.claudeCodeObjective when set", () => {
 		// when
-		const objective = aggregateCodexObjective(makePlan({ codexObjective: "aggregate objective" }));
+		const objective = aggregateClaudeCodeObjective(makePlan({ claudeCodeObjective: "aggregate objective" }));
 
 		// then
 		expect(objective).toBe("aggregate objective");
 	});
 
-	it("falls back to ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE", () => {
+	it("falls back to ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE", () => {
 		// when
-		const objective = aggregateCodexObjective(makePlan());
+		const objective = aggregateClaudeCodeObjective(makePlan());
 
 		// then
-		expect(objective).toBe(ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE);
+		expect(objective).toBe(ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE);
 	});
 });
 
-describe("compatibleCodexObjectives", () => {
+describe("compatibleClaudeCodeObjectives", () => {
 	it("includes aggregate objective + aliases", () => {
 		// given
 		const plan = makePlan({
-			codexObjective: "aggregate objective",
-			codexObjectiveAliases: ["legacy one", "legacy two"],
+			claudeCodeObjective: "aggregate objective",
+			claudeCodeObjectiveAliases: ["legacy one", "legacy two"],
 		});
 
 		// when
-		const objectives = compatibleCodexObjectives(plan);
+		const objectives = compatibleClaudeCodeObjectives(plan);
 
 		// then
 		expect(objectives).toEqual(["aggregate objective", "legacy one", "legacy two"]);
@@ -352,11 +352,11 @@ describe("firstUnresolvedCriterion", () => {
 	});
 });
 
-describe("ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE", () => {
+describe("ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE", () => {
 	it("references the .claude/ulw-loop path and excludes the legacy workspace", () => {
 		const legacyWorkspace = [".", "om", "x"].join("");
 
-		expect(ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE).toContain(".claude/ulw-loop");
-		expect(ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE).not.toContain(legacyWorkspace);
+		expect(ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE).toContain(".claude/ulw-loop");
+		expect(ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE).not.toContain(legacyWorkspace);
 	});
 });

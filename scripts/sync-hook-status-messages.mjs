@@ -4,7 +4,7 @@ import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { fileURLToPath } from "node:url";
 
-import { formatLazyCodexHookStatusMessage, normalizeLazyCodexHookStatusLabel } from "./hook-status-message.mjs";
+import { formatLazyClaude CodeHookStatusMessage, normalizeLazyClaude CodeHookStatusLabel } from "./hook-status-message.mjs";
 
 const defaultRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 
@@ -32,7 +32,7 @@ async function readPackageVersion(path) {
 }
 
 async function readAggregateHookPaths(root) {
-	const manifest = await readJson(join(root, ".codex-plugin", "plugin.json"));
+	const manifest = await readJson(join(root, ".claude-plugin", "plugin.json"));
 	if (typeof manifest.hooks === "string") return [manifest.hooks];
 	if (Array.isArray(manifest.hooks)) {
 		return manifest.hooks.filter((hookPath) => typeof hookPath === "string");
@@ -58,8 +58,8 @@ function syncHooksJson(hooksJson, versionForCommand) {
 		for (const group of groups) {
 			for (const hook of group.hooks) {
 				if (hook.type !== "command") continue;
-				const label = normalizeLazyCodexHookStatusLabel(hook.statusMessage);
-				hook.statusMessage = formatLazyCodexHookStatusMessage(versionForCommand(hook.command), label);
+				const label = normalizeLazyClaude CodeHookStatusLabel(hook.statusMessage);
+				hook.statusMessage = formatLazyClaude CodeHookStatusMessage(versionForCommand(hook.command), label);
 			}
 		}
 	}
@@ -79,14 +79,14 @@ function normalizeReleaseVersion(version) {
 }
 
 function readReleaseVersion(options) {
-	const releaseVersion = normalizeReleaseVersion(options.releaseVersion ?? process.env.LAZYCODEX_RELEASE_VERSION);
+	const releaseVersion = normalizeReleaseVersion(options.releaseVersion ?? process.env.LAZY_CLAUDECODE_RELEASE_VERSION);
 	if (releaseVersion.length > 0) return releaseVersion;
 	return undefined;
 }
 
 export async function syncHookStatusMessages(root = defaultRoot, options = {}) {
 	const releaseVersion = readReleaseVersion(options);
-	const aggregateVersion = releaseVersion ?? (await readPackageVersion(join(root, ".codex-plugin", "plugin.json")));
+	const aggregateVersion = releaseVersion ?? (await readPackageVersion(join(root, ".claude-plugin", "plugin.json")));
 	const componentNames = await readComponentNames(root);
 	for (const hookPath of await readAggregateHookPaths(root)) {
 		const aggregateHooksPath = join(root, hookPath.replace(/^\.\//, ""));

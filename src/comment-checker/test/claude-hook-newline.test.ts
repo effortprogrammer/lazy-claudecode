@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 
-import { type CodexPostToolUseInput, runCommentCheckerPostToolUse } from "../src/claude-code-hook.ts";
+import { type ClaudePostToolUseInput, runCommentCheckerPostToolUse } from "../src/claude-code-hook.ts";
 
-function postToolUseInput(): CodexPostToolUseInput {
+function postToolUseInput(): ClaudePostToolUseInput {
 	return {
 		session_id: "thread-1",
 		turn_id: "turn-1",

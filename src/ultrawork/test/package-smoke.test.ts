@@ -29,7 +29,7 @@ function expectSparkshellToolStrategyContract(value: string): void {
 	expect(guidance).not.toMatch(/\bprefer\b[^.]*\bbefore raw shell commands\b/);
 }
 
-describe("codex ultrawork package metadata", () => {
+describe("claude-code ultrawork package metadata", () => {
 	it("#given package metadata #when inspected #then hook ships as bundled CLI", () => {
 		// given
 		const packageJson = readPackageJson("package.json");

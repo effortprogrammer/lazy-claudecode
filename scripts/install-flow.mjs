@@ -1,10 +1,10 @@
 import { readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 
-export const INSTALL_SNAPSHOT_FILE = "lazycodex-install.json";
+export const INSTALL_SNAPSHOT_FILE = "lazy-claudecode-install.json";
 
 export function resolveInstallSnapshotPath(env, pluginRoot) {
-	if (env.LAZYCODEX_INSTALLED_VERSION_PATH?.trim()) return env.LAZYCODEX_INSTALLED_VERSION_PATH;
+	if (env.LAZY_CLAUDECODE_INSTALLED_VERSION_PATH?.trim()) return env.LAZY_CLAUDECODE_INSTALLED_VERSION_PATH;
 	return join(pluginRoot, INSTALL_SNAPSHOT_FILE);
 }
 

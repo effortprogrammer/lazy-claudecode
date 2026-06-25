@@ -2,9 +2,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { configFromEnvironment } from "../src/config.js";
-import { createEngine, defaultConfig, type EngineDeps } from "@oh-my-opencode/rules-engine/engine";
-import { matchRule as defaultMatchRule } from "@oh-my-opencode/rules-engine/engine";
-import type { RuleCandidate } from "@oh-my-opencode/rules-engine/engine";
+import { createEngine, defaultConfig, type EngineDeps } from "@effortprogrammer/rules-engine/engine";
+import { matchRule as defaultMatchRule } from "@effortprogrammer/rules-engine/engine";
+import type { RuleCandidate } from "@effortprogrammer/rules-engine/engine";
 
 const projectRoot = "/tmp/claude-code-rules-engine";
 
@@ -229,7 +229,7 @@ describe("rule engine default source selection", () => {
 			readFile: () => null,
 		} satisfies EngineDeps;
 		const engine = createEngine(
-			configFromEnvironment({ CODEX_RULES_ENABLED_SOURCES: "AGENTS.md,~/.claude/CLAUDE.md,plugin-bundled" }),
+			configFromEnvironment({ LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,~/.claude/CLAUDE.md,plugin-bundled" }),
 			deps,
 		);
 

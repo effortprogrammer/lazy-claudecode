@@ -9,7 +9,7 @@ import {
 	parseRule,
 	scanRuleFiles,
 	SOURCE_PRIORITY,
-} from "@oh-my-opencode/rules-engine/engine";
+} from "@effortprogrammer/rules-engine/engine";
 
 const tempDirectories: string[] = [];
 

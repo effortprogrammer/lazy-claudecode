@@ -136,13 +136,13 @@ function fetchReturning(bytes: Uint8Array): { fetchImpl: SgFetch; calls: string[
 }
 
 function makeContext(options: {
-	codexHome: string;
+	claudeHome: string;
 	manifestDir: string;
 	pluginData: string;
 	env?: Record<string, string | undefined>;
 }): BootstrapWorkerContext {
 	return {
-		codexHome: options.codexHome,
+		claudeHome: options.claudeHome,
 		env: options.env ?? {},
 		flags: { manifestDir: options.manifestDir, once: false, only: "sg" },
 		now: 1_700_000_000_000,
@@ -174,11 +174,11 @@ describe("runSgProvision", () => {
 	it("#given resolution misses #when provisioning from a pinned zip #then the standalone binary lands at the resolver probe path with mode 755 and no staging leftovers", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const { calls, fetchImpl } = fetchReturning(FIXTURE_ZIP);
 		const probed: string[] = [];
-		const context = makeContext({ codexHome, manifestDir, pluginData: join(root, "data") });
+		const context = makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") });
 
 		// when
 		const outcome = await runSgProvision(context, {
@@ -193,24 +193,24 @@ describe("runSgProvision", () => {
 		});
 
 		// then
-		const destination = join(codexHome, "runtime", "ast-grep", "linux-x64", "sg");
+		const destination = join(claudeHome, "runtime", "ast-grep", "linux-x64", "sg");
 		expect(sgProvisionDestination(context, "x64")).toBe(destination);
 		expect(outcome.degraded).toEqual([]);
 		expect(calls).toEqual([`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`]);
 		expect(probed).toEqual([destination]);
 		expect(new Uint8Array(await readFile(destination))).toEqual(STANDALONE_BYTES);
 		expect((await stat(destination)).mode & 0o777).toBe(0o755);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([destination]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([destination]);
 		expect(await readBootstrapLog(context.pluginData)).toContain(`"sg":"provisioned:${destination}"`);
 	});
 
 	it("#given a preexisting sg resolution #when provisioning #then it short-circuits without fetching and records a preexisting note in the log", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const { calls, fetchImpl } = fetchReturning(FIXTURE_ZIP);
-		const context = makeContext({ codexHome, manifestDir, pluginData: join(root, "data") });
+		const context = makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") });
 
 		// when
 		const outcome = await runSgProvision(context, {
@@ -226,19 +226,19 @@ describe("runSgProvision", () => {
 		// then
 		expect(outcome.degraded).toEqual([]);
 		expect(calls).toEqual([]);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 		expect(await readBootstrapLog(context.pluginData)).toContain('"sg":"preexisting:/opt/homebrew/bin/sg"');
 	});
 
-	it("#given OMO_BOOTSTRAP_FORCE_PROVISION=1 #when a preexisting sg would resolve #then resolution is bypassed and provisioning still runs", async () => {
+	it("#given LAZY_CLAUDECODE_BOOTSTRAP_FORCE_PROVISION=1 #when a preexisting sg would resolve #then resolution is bypassed and provisioning still runs", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const { calls, fetchImpl } = fetchReturning(FIXTURE_ZIP);
 		const resolverCalls: string[] = [];
 		const context = makeContext({
-			codexHome,
+			claudeHome,
 			env: { [SG_FORCE_PROVISION_ENV_KEY]: "1" },
 			manifestDir,
 			pluginData: join(root, "data"),
@@ -260,17 +260,17 @@ describe("runSgProvision", () => {
 		expect(outcome.degraded).toEqual([]);
 		expect(resolverCalls).toEqual([]);
 		expect(calls).toHaveLength(1);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([
-			join(codexHome, "runtime", "ast-grep", "linux-x64", "sg"),
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([
+			join(claudeHome, "runtime", "ast-grep", "linux-x64", "sg"),
 		]);
 	});
 
 	it("#given a tampered checksum #when provisioning #then a degraded ast_grep entry names the mismatch and no file is left under runtime", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
-		const context = makeContext({ codexHome, manifestDir, pluginData: join(root, "data") });
+		const context = makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") });
 
 		// when
 		const outcome = await runSgProvision(context, {
@@ -287,15 +287,15 @@ describe("runSgProvision", () => {
 		expect(entry?.component).toBe(SG_PROVISION_COMPONENT);
 		expect(entry?.reason).toMatch(/checksum mismatch/i);
 		expect(entry?.hint).toBe(BOOTSTRAP_DOCTOR_HINT);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 	});
 
 	it("#given a binary that reports the wrong version #when provisioning #then the provisioned file is removed and a degraded entry names both versions", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
-		const context = makeContext({ codexHome, manifestDir, pluginData: join(root, "data") });
+		const context = makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") });
 
 		// when
 		const outcome = await runSgProvision(context, {
@@ -313,20 +313,20 @@ describe("runSgProvision", () => {
 		expect(entry?.reason).toContain("0.0.1");
 		expect(entry?.reason).toContain(FIXTURE_VERSION);
 		expect(entry?.hint).toBe(BOOTSTRAP_DOCTOR_HINT);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 	});
 
 	it("#given the shared provisioner download fails #when provisioning #then a degraded entry names the download failure and leaves runtime empty", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const calls: string[] = [];
 		const fetchImpl: SgFetch = async (url) => {
 			calls.push(url);
 			return new Response("unavailable", { status: 503 });
 		};
-		const context = makeContext({ codexHome, manifestDir, pluginData: join(root, "data") });
+		const context = makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") });
 
 		// when
 		const outcome = await runSgProvision(context, {
@@ -344,20 +344,20 @@ describe("runSgProvision", () => {
 		expect(entry?.reason).toMatch(/failed to download/i);
 		expect(entry?.reason).toContain("HTTP 503");
 		expect(calls).toEqual([`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`]);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 	});
 
 	it("#given win32 #when provisioning #then the destination binary is sg.exe extracted from the .exe entry", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const windowsZip = makeZip([
 			{ data: SHIM_BYTES, name: "sg.exe" },
 			{ data: STANDALONE_BYTES, name: "ast-grep.exe" },
 		]);
 		const context: BootstrapWorkerContext = {
-			...makeContext({ codexHome, manifestDir, pluginData: join(root, "data") }),
+			...makeContext({ claudeHome, manifestDir, pluginData: join(root, "data") }),
 			platform: "win32",
 		};
 
@@ -378,7 +378,7 @@ describe("runSgProvision", () => {
 		});
 
 		// then
-		const destination = join(codexHome, "runtime", "ast-grep", "win32-x64", "sg.exe");
+		const destination = join(claudeHome, "runtime", "ast-grep", "win32-x64", "sg.exe");
 		expect(outcome.degraded).toEqual([]);
 		expect(new Uint8Array(await readFile(destination))).toEqual(STANDALONE_BYTES);
 	});
@@ -388,7 +388,7 @@ describe("worker sg step wiring", () => {
 	it("#given --only sg with injected seams #when the worker runs #then the default sg step provisions through the manifest-dir flag and writes a success state", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-worker-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const pluginData = join(root, "data");
 		const pluginRoot = join(root, "plugin-root");
@@ -398,7 +398,7 @@ describe("worker sg step wiring", () => {
 
 		// when
 		const result = await runBootstrapWorker({
-			argv: ["--only", "sg", "--claude-code-home", codexHome, "--manifest-dir", manifestDir],
+			argv: ["--only", "sg", "--claude-code-home", claudeHome, "--manifest-dir", manifestDir],
 			env: { PLUGIN_DATA: pluginData, PLUGIN_ROOT: pluginRoot },
 			platform: "linux",
 			steps: defaultWorkerSteps({
@@ -420,15 +420,15 @@ describe("worker sg step wiring", () => {
 		const state = await readBootstrapState(join(pluginData, "bootstrap", "state.json"));
 		expect(state.lastStatus).toBe("success");
 		expect(state.degraded).toEqual([]);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([
-			join(codexHome, "runtime", "ast-grep", "linux-x64", "sg"),
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([
+			join(claudeHome, "runtime", "ast-grep", "linux-x64", "sg"),
 		]);
 	});
 
 	it("#given --only sg with a tampered manifest #when the worker runs #then it finishes degraded with an ast_grep checksum entry and exit-0 semantics", async () => {
 		// given
 		const root = createTemporaryDirectory("lazy-claudecode-bootstrap-provision-worker-");
-		const codexHome = join(root, "claude-code-home");
+		const claudeHome = join(root, "claude-code-home");
 		const manifestDir = join(root, "manifests");
 		const pluginData = join(root, "data");
 		const pluginRoot = join(root, "plugin-root");
@@ -437,7 +437,7 @@ describe("worker sg step wiring", () => {
 
 		// when
 		const result = await runBootstrapWorker({
-			argv: ["--only", "sg", "--claude-code-home", codexHome, "--manifest-dir", manifestDir],
+			argv: ["--only", "sg", "--claude-code-home", claudeHome, "--manifest-dir", manifestDir],
 			env: { PLUGIN_DATA: pluginData, PLUGIN_ROOT: pluginRoot },
 			platform: "linux",
 			steps: defaultWorkerSteps({
@@ -459,6 +459,6 @@ describe("worker sg step wiring", () => {
 		expect(state.lastStatus).toBe("degraded");
 		expect(state.degraded?.[0]?.component).toBe(SG_PROVISION_COMPONENT);
 		expect(state.degraded?.[0]?.reason).toMatch(/checksum mismatch/i);
-		expect(await listFilesRecursively(join(codexHome, "runtime"))).toEqual([]);
+		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 	});
 });

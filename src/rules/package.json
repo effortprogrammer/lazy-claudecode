@@ -1,7 +1,7 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-rules",
 	"version": "4.13.0",
-	"description": "Codex plugin that injects project rule files into model context through lifecycle hooks.",
+	"description": "Claude Code plugin that injects project rule files into model context through lifecycle hooks.",
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
@@ -50,7 +50,7 @@
 		"picomatch": "^4.0.3"
 	},
 	"devDependencies": {
-		"@oh-my-opencode/rules-engine": "file:../../../../rules-engine",
+		"@effortprogrammer/rules-engine": "file:../../../../rules-engine",
 		"@biomejs/biome": "2.4.16",
 		"@types/node": "^25.9.3",
 		"@types/picomatch": "^4.0.0",

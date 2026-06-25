@@ -30,7 +30,7 @@ describe("runCodegraphServe unavailable CodeGraph paths", () => {
 		expect(exitCode).toBe(0);
 		expect(spawned).toEqual([]);
 		expect(stderr).toEqual([
-			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set OMO_CODEGRAPH_BIN.\n",
+			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set LAZY_CLAUDECODE_CODEGRAPH_BIN.\n",
 		]);
 	});
 
@@ -61,7 +61,7 @@ describe("runCodegraphServe unavailable CodeGraph paths", () => {
 		expect(stderr[0]).toContain("CODEGRAPH_ALLOW_UNSAFE_NODE");
 	});
 
-	it("#given OMO_CODEGRAPH_BIN points at a missing path #when serving MCP #then exposes an empty facade before spawn", async () => {
+	it("#given LAZY_CLAUDECODE_CODEGRAPH_BIN points at a missing path #when serving MCP #then exposes an empty facade before spawn", async () => {
 		// given
 		const stderr: string[] = [];
 		const spawned: string[] = [];
@@ -83,7 +83,7 @@ describe("runCodegraphServe unavailable CodeGraph paths", () => {
 		expect(exitCode).toBe(0);
 		expect(spawned).toEqual([]);
 		expect(stderr).toEqual([
-			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set OMO_CODEGRAPH_BIN.\n",
+			"CodeGraph MCP skipped: codegraph binary not found. Install CodeGraph or set LAZY_CLAUDECODE_CODEGRAPH_BIN.\n",
 		]);
 	});
 

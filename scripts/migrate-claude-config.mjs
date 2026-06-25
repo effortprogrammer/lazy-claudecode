@@ -4,19 +4,19 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname } from "node:path";
 import { pathToFileURL } from "node:url";
 
-import { FALLBACK_CATALOG, readModelCatalog } from "./migrate-codex-config/catalog.mjs";
-import { configPaths } from "./migrate-codex-config/config-paths.mjs";
-import { forceDisableMultiAgentV2 } from "./migrate-codex-config/multi-agent-v2-guard.mjs";
-import { ensureCodexReasoningConfig as applyReasoningProfile, readRootSettings } from "./migrate-codex-config/root-settings.mjs";
-import { readState, resolveStatePath, writeState } from "./migrate-codex-config/state.mjs";
+import { FALLBACK_CATALOG, readModelCatalog } from "./migrate-claude-config/catalog.mjs";
+import { configPaths } from "./migrate-claude-config/config-paths.mjs";
+import { forceDisableMultiAgentV2 } from "./migrate-claude-config/multi-agent-v2-guard.mjs";
+import { ensureClaude CodeReasoningConfig as applyReasoningProfile, readRootSettings } from "./migrate-claude-config/root-settings.mjs";
+import { readState, resolveStatePath, writeState } from "./migrate-claude-config/state.mjs";
 
-export { readModelCatalog } from "./migrate-codex-config/catalog.mjs";
+export { readModelCatalog } from "./migrate-claude-config/catalog.mjs";
 
-export function ensureCodexReasoningConfig(config, profile = FALLBACK_CATALOG.current) {
+export function ensureClaude CodeReasoningConfig(config, profile = FALLBACK_CATALOG.current) {
 	return applyReasoningProfile(config, profile);
 }
 
-export async function migrateCodexConfig({ env = process.env, cwd = process.cwd() } = {}) {
+export async function migrateClaude CodeConfig({ env = process.env, cwd = process.cwd() } = {}) {
 	const catalog = await readModelCatalog(env);
 	const statePath = resolveStatePath(env);
 	const state = await readState(statePath);
@@ -47,7 +47,7 @@ export async function migrateConfigFile(configPath, { catalog = FALLBACK_CATALOG
 	let reasoningApplied = false;
 
 	if (decision.apply) {
-		config = ensureCodexReasoningConfig(config, catalog.current);
+		config = ensureClaude CodeReasoningConfig(config, catalog.current);
 		reasoningApplied = config !== before;
 	}
 
@@ -101,7 +101,7 @@ async function readConfig(configPath) {
 }
 
 if (process.argv[1] !== undefined && import.meta.url === pathToFileURL(process.argv[1]).href) {
-	migrateCodexConfig().catch((error) => {
+	migrateClaude CodeConfig().catch((error) => {
 		if (!(error instanceof Error)) throw error;
 		process.exit(0);
 	});

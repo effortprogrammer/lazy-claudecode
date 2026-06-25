@@ -1,20 +1,20 @@
 import { stringEnd, stripJsonComments } from "./jsonc.mjs";
 
-export function addCodexCodegraphValues(content, config, additions) {
-	const codex = recordAt(config, "[codex]");
-	const codexRange = findObjectPropertyRange(content, 0, "[codex]");
-	if (!isRecord(codex) || codexRange === null) {
+export function addClaudeCodegraphValues(content, config, additions) {
+	const claude = recordAt(config, "[claude-code]");
+	const claudeRange = findObjectPropertyRange(content, 0, "[claude-code]");
+	if (!isRecord(claude) || claudeRange === null) {
 		return insertPropertiesIntoObject(content, 0, {
-			"[codex]": {
+			"[claude-code]": {
 				codegraph: additions,
 			},
 		});
 	}
 
-	const codegraph = recordAt(codex, "codegraph");
-	const codegraphRange = findObjectPropertyRange(content, codexRange.valueStart, "codegraph");
+	const codegraph = recordAt(claude, "codegraph");
+	const codegraphRange = findObjectPropertyRange(content, claudeRange.valueStart, "codegraph");
 	if (!isRecord(codegraph) || codegraphRange === null) {
-		return insertPropertiesIntoObject(content, codexRange.valueStart, { codegraph: additions });
+		return insertPropertiesIntoObject(content, claudeRange.valueStart, { codegraph: additions });
 	}
 	return insertPropertiesIntoObject(content, codegraphRange.valueStart, additions);
 }

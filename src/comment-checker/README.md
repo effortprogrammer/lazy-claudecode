@@ -1,8 +1,8 @@
 # claude-code-comment-checker
 
-[![ci](https://github.com/code-yeongyu/claude-code-comment-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/code-yeongyu/claude-code-comment-checker/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![ci](https://github.com/effortprogrammer/claude-code-comment-checker/actions/workflows/ci.yml/badge.svg)](https://github.com/effortprogrammer/claude-code-comment-checker/actions/workflows/ci.yml) [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-Claude Code plugin that runs [`@code-yeongyu/comment-checker`](https://github.com/code-yeongyu/go-claude-code-comment-checker) after successful edit-like `PostToolUse` hook calls.
+Claude Code plugin that runs [`@effortprogrammer/comment-checker`](https://github.com/code-yeongyu/go-claude-code-comment-checker) after successful edit-like `PostToolUse` hook calls.
 
 ## Behavior
 
@@ -52,17 +52,17 @@ node dist/cli.js hook post-tool-use < test/fixtures/post-tool-use.json
 ## Local Claude Code Installation
 
 ```bash
-npx lazycodex-ai install
+npx lazy-claudecode-ai install
 ```
 
-The installer builds and copies the plugin into `~/.claude-code/plugins/cache/sisyphuslabs/lazy-claudecode/0.1.0`, registers the `sisyphuslabs` marketplace from the `lazycodex` Git repository, installs runtime dependencies there, and enables:
+The installer builds and copies the plugin into `~/.claude-code/plugins/cache/effortprogrammer/lazy-claudecode/0.1.0`, registers the `effortprogrammer` marketplace from the `lazy-claudecode` Git repository, installs runtime dependencies there, and enables:
 
 ```toml
 [features]
 plugins = true
 plugin_hooks = true
 
-[plugins."lazy-claudecode@sisyphuslabs"]
+[plugins."lazy-claudecode@effortprogrammer"]
 enabled = true
 ```
 

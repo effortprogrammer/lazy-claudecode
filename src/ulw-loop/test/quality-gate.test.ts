@@ -9,7 +9,7 @@ import { UlwLoopError } from "../src/types.js";
 
 const VALID_GATE = {
 	codeReview: {
-		by: "lazycodex-code-reviewer",
+		by: "lazy-claudecode-code-reviewer",
 		recommendation: "APPROVE",
 		codeQualityStatus: "CLEAR",
 		reportPath: "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/code-review.md",
@@ -17,7 +17,7 @@ const VALID_GATE = {
 		blockers: [],
 	},
 	manualQa: {
-		by: "lazycodex-qa-executor",
+		by: "lazy-claudecode-qa-executor",
 		status: "passed",
 		evidence: "Executed CLI validation scenarios and captured artifact-backed outcomes.",
 		surfaceEvidence: [
@@ -56,7 +56,7 @@ const VALID_GATE = {
 		],
 	},
 	gateReview: {
-		by: "lazycodex-gate-reviewer",
+		by: "lazy-claudecode-gate-reviewer",
 		recommendation: "APPROVE",
 		reportPath: "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/gate-review.md",
 		evidence: "Rechecked reviewer reports and manual QA artifacts; gate is approved.",

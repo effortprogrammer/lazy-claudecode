@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type CodexPostToolUseLike, extractCodexToolPaths } from "../src/tool-paths.js";
+import { type ClaudePostToolUseLike, extractClaudeToolPaths } from "../src/tool-paths.js";
 
 const tempDirectories: string[] = [];
 
@@ -21,7 +21,7 @@ function makeProject(): string {
 	return root;
 }
 
-function postToolUse(input: { toolName: string; toolInput?: unknown; toolResponse?: unknown }): CodexPostToolUseLike {
+function postToolUse(input: { toolName: string; toolInput?: unknown; toolResponse?: unknown }): ClaudePostToolUseLike {
 	return {
 		tool_name: input.toolName,
 		tool_input: input.toolInput ?? {},
@@ -29,7 +29,7 @@ function postToolUse(input: { toolName: string; toolInput?: unknown; toolRespons
 	};
 }
 
-describe("extractCodexToolPaths", () => {
+describe("extractClaudeToolPaths", () => {
 	for (const [name, toolName, toolInput] of [
 		[
 			"#given filesystem read payload #when extracting #then returns resolved path",
@@ -52,7 +52,7 @@ describe("extractCodexToolPaths", () => {
 			const root = makeProject();
 
 			// when
-			const paths = extractCodexToolPaths(postToolUse({ toolName, toolInput }), root);
+			const paths = extractClaudeToolPaths(postToolUse({ toolName, toolInput }), root);
 
 			// then
 			expect(paths).toEqual([path.join(root, "src", "app.ts")]);
@@ -64,7 +64,7 @@ describe("extractCodexToolPaths", () => {
 		const root = makeProject();
 
 		// when
-		const paths = extractCodexToolPaths(
+		const paths = extractClaudeToolPaths(
 			postToolUse({
 				toolName: "apply_patch",
 				toolInput: {
@@ -89,7 +89,7 @@ describe("extractCodexToolPaths", () => {
 		const root = makeProject();
 
 		// when
-		const paths = extractCodexToolPaths(
+		const paths = extractClaudeToolPaths(
 			postToolUse({
 				toolName: "apply_patch",
 				toolInput: {
@@ -127,7 +127,7 @@ describe("extractCodexToolPaths", () => {
 		writeFileSync(path.join(root, "src", "other.ts"), "export const other = true;\n");
 
 		// when
-		const paths = extractCodexToolPaths(
+		const paths = extractClaudeToolPaths(
 			postToolUse({
 				toolName: "mcp__filesystem__read_multiple_files",
 				toolInput: { paths: ["src/app.ts", "src/other.ts"] },
@@ -144,7 +144,7 @@ describe("extractCodexToolPaths", () => {
 		const root = makeProject();
 
 		// when
-		const paths = extractCodexToolPaths(
+		const paths = extractClaudeToolPaths(
 			postToolUse({
 				toolName: "exec_command",
 				toolInput: { cmd: "sed -n '1,80p' src/app.ts src/missing.ts", workdir: root },
@@ -161,7 +161,7 @@ describe("extractCodexToolPaths", () => {
 		const root = makeProject();
 
 		// when
-		const paths = extractCodexToolPaths(
+		const paths = extractClaudeToolPaths(
 			postToolUse({
 				toolName: "read",
 				toolInput: { path: "src/app.ts" },

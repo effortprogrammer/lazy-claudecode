@@ -11,8 +11,8 @@ afterEach(() => {
 	for (const root of cleanupRoots.splice(0)) rmSync(root, { recursive: true, force: true });
 });
 
-describe("lazycodex executor verify CLI", () => {
-	it("#given valid lazycodex executor stdin #when CLI runs #then stdout contains block JSON", () => {
+describe("lazy-claudecode executor verify CLI", () => {
+	it("#given valid lazy-claudecode executor stdin #when CLI runs #then stdout contains block JSON", () => {
 		// given
 		const cwd = createWorkspace();
 		const payload = JSON.stringify(createPayload(cwd));
@@ -99,7 +99,7 @@ function runCli(input: string) {
 }
 
 function createWorkspace(): string {
-	const root = mkdtempSync(join(tmpdir(), "lazycodex-executor-verify-cli-"));
+	const root = mkdtempSync(join(tmpdir(), "lazy-claudecode-executor-verify-cli-"));
 	cleanupRoots.push(root);
 	return root;
 }
@@ -110,7 +110,7 @@ function createPayload(
 ): Record<string, string | boolean> {
 	return {
 		hook_event_name: "SubagentStop",
-		agent_type: "lazycodex-executor",
+		agent_type: "lazy-claudecode-executor",
 		agent_id: "agent_1",
 		session_id: "sess.1",
 		cwd,

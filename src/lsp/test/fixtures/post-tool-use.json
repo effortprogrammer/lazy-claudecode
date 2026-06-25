@@ -1,7 +1,7 @@
 {
 	"session_id": "00000000-0000-0000-0000-000000000000",
 	"turn_id": "00000000-0000-0000-0000-000000000001",
-	"transcript_path": "/tmp/codex-lsp-transcript.jsonl",
+	"transcript_path": "/tmp/claude-lsp-transcript.jsonl",
 	"cwd": ".",
 	"hook_event_name": "PostToolUse",
 	"model": "gpt-5.5",

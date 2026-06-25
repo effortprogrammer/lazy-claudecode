@@ -45,7 +45,7 @@ export function getStatePath(cwd: string, sessionId: string, agentId: string): s
 }
 
 function getStateDir(cwd: string): string {
-	return join(cwd, ".omo", "lazycodex-executor-verify");
+	return join(cwd, ".omo", "lazy-claudecode-executor-verify");
 }
 
 function sanitizeKey(value: string): string {

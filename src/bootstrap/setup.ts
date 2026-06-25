@@ -21,7 +21,7 @@ import type { ClaudeCodeAgentConfig, GitBashResolution } from "../shared/install
 import { appendBootstrapLog, BOOTSTRAP_DOCTOR_HINT } from "./worker.ts";
 import type { BootstrapDegradedEntry, BootstrapStepOutcome } from "./worker.ts";
 
-export const SETUP_MARKETPLACE_NAME = "sisyphuslabs";
+export const SETUP_MARKETPLACE_NAME = "effortprogrammer";
 export const SETUP_PLUGIN_NAME = "lazy-claudecode";
 export const GIT_BASH_INSTALL_HINT = "winget install --id Git.Git -e --source winget";
 

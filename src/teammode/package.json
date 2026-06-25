@@ -1,7 +1,7 @@
 {
 	"name": "@effortprogrammer/lazy-claudecode-teammode",
 	"version": "4.13.0",
-	"description": "Codex team-mode hook component that keeps background thread titles descriptive after create_thread.",
+	"description": "Claude Code team-mode hook component that keeps background thread titles descriptive after create_thread.",
 	"type": "module",
 	"private": true,
 	"files": [

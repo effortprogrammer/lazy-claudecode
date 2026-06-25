@@ -4,26 +4,26 @@ import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import { ulwLoopCommand } from "../src/cli-commands.ts";
-import { ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE } from "../src/goal-status.js";
+import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../src/goal-status.js";
 import { qualityGateJson } from "./fixtures/quality-gate-builder.js";
 
 let testDir: string;
 let out: string[];
 let err: string[];
-let originalCodexSessionId: string | undefined;
-let originalCodexThreadId: string | undefined;
+let originalClaudeSessionId: string | undefined;
+let originalClaudeThreadId: string | undefined;
 let originalOmoSessionId: string | undefined;
 
 beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-create-goals-"));
 	out = [];
 	err = [];
-	originalCodexSessionId = process.env["CODEX_SESSION_ID"];
-	originalCodexThreadId = process.env["CODEX_THREAD_ID"];
-	originalOmoSessionId = process.env["OMO_ULW_LOOP_SESSION_ID"];
-	delete process.env["CODEX_SESSION_ID"];
-	delete process.env["CODEX_THREAD_ID"];
-	delete process.env["OMO_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -37,12 +37,12 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalCodexSessionId === undefined) delete process.env["CODEX_SESSION_ID"];
-	else process.env["CODEX_SESSION_ID"] = originalCodexSessionId;
-	if (originalCodexThreadId === undefined) delete process.env["CODEX_THREAD_ID"];
-	else process.env["CODEX_THREAD_ID"] = originalCodexThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["OMO_ULW_LOOP_SESSION_ID"];
-	else process.env["OMO_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
+	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 
@@ -55,8 +55,8 @@ function stdoutJson(): Record<string, unknown> {
 	return JSON.parse(out.join(""));
 }
 
-function codexSnapshot(status: "active" | "complete" = "active"): string {
-	return JSON.stringify({ goal: { objective: ULW_LOOP_AGGREGATE_CODEX_OBJECTIVE, status } });
+function claudeSnapshot(status: "active" | "complete" = "active"): string {
+	return JSON.stringify({ goal: { objective: ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE, status } });
 }
 
 async function qualityGate(): Promise<string> {
@@ -114,7 +114,7 @@ describe("ulwLoopCommand create-goals", () => {
 				"--evidence",
 				"done",
 				"--claude-code-goal-json",
-				codexSnapshot("complete"),
+				claudeSnapshot("complete"),
 				"--quality-gate-json",
 				await qualityGate(),
 			]),
@@ -150,7 +150,7 @@ describe("ulwLoopCommand create-goals", () => {
 	});
 
 	it("#given Claude Code thread env #when creating goals #then uses the thread as the session scope", async () => {
-		process.env["CODEX_THREAD_ID"] = "thread-123";
+		process.env["LAZY_CLAUDECODE_THREAD_ID"] = "thread-123";
 
 		expect(await ulwLoopCommand(["create-goals", "--brief", "- Thread scoped", "--json"])).toBe(0);
 		resetOutput();
@@ -161,7 +161,7 @@ describe("ulwLoopCommand create-goals", () => {
 	});
 
 	it("#given Claude Code thread env and explicit session id #when creating goals #then the explicit session wins", async () => {
-		process.env["CODEX_THREAD_ID"] = "thread-123";
+		process.env["LAZY_CLAUDECODE_THREAD_ID"] = "thread-123";
 
 		expect(
 			await ulwLoopCommand(["create-goals", "--session-id", "manual-456", "--brief", "- Manual scoped", "--json"]),

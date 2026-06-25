@@ -47,17 +47,17 @@ npm pack --dry-run
 ## Local Claude Code Installation
 
 ```bash
-npx lazycodex-ai install
+npx lazy-claudecode-ai install
 ```
 
-The installer builds and copies the plugin into `~/.claude-code/plugins/cache/sisyphuslabs/lazy-claudecode/0.1.0`, registers the `sisyphuslabs` marketplace from the `lazycodex` Git repository, installs runtime dependencies there, and enables:
+The installer builds and copies the plugin into `~/.claude-code/plugins/cache/effortprogrammer/lazy-claudecode/0.1.0`, registers the `effortprogrammer` marketplace from the `lazy-claudecode` Git repository, installs runtime dependencies there, and enables:
 
 ```toml
 [features]
 plugins = true
 plugin_hooks = true
 
-[plugins."lazy-claudecode@sisyphuslabs"]
+[plugins."lazy-claudecode@effortprogrammer"]
 enabled = true
 ```
 
@@ -71,4 +71,4 @@ This plugin runs locally. The scaffold does not call a network service by itself
 
 ## Related
 
-- [lazycodex](https://github.com/code-yeongyu/lazycodex) - Sisyphus Labs Claude Code marketplace repository.
+- [lazy-claudecode](https://github.com/effortprogrammer/lazy-claudecode) - Effort Programmer Claude Code marketplace repository.

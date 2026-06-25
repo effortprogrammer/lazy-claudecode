@@ -73,7 +73,7 @@ export function isLspDaemonUnreachableDiagnostics(diagnostics: string): boolean 
 }
 
 function sessionStatePath(sessionId: string): string {
-	const root = process.env["PLUGIN_DATA"] ?? join(homedir(), ".codex", "codex-lsp");
+	const root = process.env["PLUGIN_DATA"] ?? join(homedir(), ".claude", "claude-lsp");
 	return join(root, "sessions", `${safePathSegment(sessionId)}.json`);
 }
 

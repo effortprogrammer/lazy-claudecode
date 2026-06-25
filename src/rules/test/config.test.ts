@@ -9,7 +9,7 @@ describe("rules config", () => {
 		it(`#given removed agent-doc source ${sourceList} #when parsing enabled sources #then preserves the explicit empty allowlist`, () => {
 			// given
 			const env = {
-				CODEX_RULES_ENABLED_SOURCES: sourceList,
+				LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: sourceList,
 			} satisfies NodeJS.ProcessEnv;
 
 			// when

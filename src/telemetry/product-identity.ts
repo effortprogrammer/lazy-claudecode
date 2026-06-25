@@ -8,12 +8,12 @@ import {
 	writeTelemetryDiagnostic,
 	type TelemetryDiagnosticInput,
 	type TelemetryProductConfig,
-} from "@oh-my-opencode/telemetry-core";
+} from "@effortprogrammer/telemetry-core";
 
 export { DEFAULT_POSTHOG_API_KEY, DEFAULT_POSTHOG_HOST };
 
 export const PRODUCT_NAME = "lazy-claudecode";
-export const PACKAGE_NAME = "@oh-my-opencode/lazy-claudecode";
+export const PACKAGE_NAME = "@effortprogrammer/lazy-claudecode";
 export const CACHE_DIR_NAME = "lazy-claudecode";
 export const EVENT_NAME = "omo_claude-code_daily_active";
 export const LEGACY_PARENT_PACKAGE = "oh-my-opencode";

@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { configFromEnvironment } from "../src/config.js";
-import { SOURCE_PRIORITY } from "@oh-my-opencode/rules-engine/engine";
-import { createEngine, defaultConfig, type EngineDeps } from "@oh-my-opencode/rules-engine/engine";
-import { resolvePluginRulesRoot } from "@oh-my-opencode/rules-engine/engine";
-import type { RuleCandidate } from "@oh-my-opencode/rules-engine/engine";
+import { SOURCE_PRIORITY } from "@effortprogrammer/rules-engine/engine";
+import { createEngine, defaultConfig, type EngineDeps } from "@effortprogrammer/rules-engine/engine";
+import { resolvePluginRulesRoot } from "@effortprogrammer/rules-engine/engine";
+import type { RuleCandidate } from "@effortprogrammer/rules-engine/engine";
 
 const projectRoot = "/tmp/claude-code-rules-bundled-priority";
 const bundledPath = join(projectRoot, "bundled-rules", "hephaestus.md");
@@ -49,8 +49,8 @@ describe("plugin bundled rule priority", () => {
 	it("#given bundled source explicitly enabled then disabled #when parsing env #then no sources remain enabled", () => {
 		// given / when
 		const config = configFromEnvironment({
-			CODEX_RULES_ENABLED_SOURCES: "plugin-bundled",
-			CODEX_RULES_DISABLE_BUNDLED: "1",
+			LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "plugin-bundled",
+			LAZY_CLAUDECODE_RULES_DISABLE_BUNDLED: "1",
 		});
 
 		// then

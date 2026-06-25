@@ -18,7 +18,7 @@ describe("checkpointUlwLoop final story", () => {
 					goalId: "G002",
 					status: "complete",
 					evidence: "final work complete and validation passed",
-					codexGoalJson: snapshot("complete"),
+					claudeGoalJson: snapshot("complete"),
 				}),
 			"ULW_LOOP_QUALITY_GATE_INVALID",
 		);
@@ -33,7 +33,7 @@ describe("checkpointUlwLoop final story", () => {
 			goalId: "G002",
 			status: "complete",
 			evidence: "final work complete and validation passed",
-			codexGoalJson: snapshot("complete"),
+			claudeGoalJson: snapshot("complete"),
 			qualityGateJson: await qualityGateJson(repo),
 		});
 
@@ -59,7 +59,7 @@ describe("checkpointUlwLoop final story", () => {
 					goalId: "G002",
 					status: "complete",
 					evidence: "final work complete and validation passed",
-					codexGoalJson: snapshot("complete"),
+					claudeGoalJson: snapshot("complete"),
 					qualityGateJson: gateJson,
 				}),
 			"ulw_loop_criteria_not_all_pass",
@@ -78,7 +78,7 @@ describe("checkpointUlwLoop final story", () => {
 					goalId: "G002",
 					status: "complete",
 					evidence: "final work complete and validation passed",
-					codexGoalJson: snapshot("complete"),
+					claudeGoalJson: snapshot("complete"),
 					qualityGateJson: gateJson,
 				}),
 			"ULW_LOOP_QUALITY_GATE_INVALID",
@@ -94,7 +94,7 @@ describe("checkpointUlwLoop final story", () => {
 			goalId: "G001",
 			status: "complete",
 			evidence: "final implementation complete and quality gate passed",
-			codexGoalJson: snapshot("complete", taskObjective),
+			claudeGoalJson: snapshot("complete", taskObjective),
 			qualityGateJson: await qualityGateJson(repo),
 		});
 
@@ -111,7 +111,7 @@ describe("checkpointUlwLoop final story", () => {
 			goalId: "G001",
 			status: "complete",
 			evidence: "final implementation complete and quality gate passed",
-			codexGoalJson: snapshot("active", taskObjective),
+			claudeGoalJson: snapshot("active", taskObjective),
 			qualityGateJson: await qualityGateJson(repo),
 		});
 
@@ -128,7 +128,7 @@ describe("checkpointUlwLoop final story", () => {
 				goalId: "G001",
 				status: "complete",
 				evidence: "final implementation complete and quality gate passed",
-				codexGoalJson: snapshot("complete", "unrelated completed task"),
+				claudeGoalJson: snapshot("complete", "unrelated completed task"),
 				qualityGateJson: await qualityGateJson(repo),
 			}),
 		).rejects.toThrow("Final task-scoped aggregate reconciliation");
@@ -152,7 +152,7 @@ describe("checkpointUlwLoop final story", () => {
 			goalId: "G001",
 			status: "complete",
 			evidence: "G001 updated .claude/ulw-loop/goals.json after implementation completed and validation passed",
-			codexGoalJson: snapshot("complete", taskObjective),
+			claudeGoalJson: snapshot("complete", taskObjective),
 			qualityGateJson: await qualityGateJson(repo),
 		});
 		const next = await startNextUlwLoop(repo);
@@ -170,7 +170,7 @@ describe("checkpointUlwLoop final story", () => {
 				criterion("C002", "pending", { essential: false }),
 			],
 		});
-		const repo = await repoWith(plan([current], { codexGoalMode: "per_story", activeGoalId: "G001" }));
+		const repo = await repoWith(plan([current], { claudeCodeGoalMode: "per_story", activeGoalId: "G001" }));
 
 		await expectCode(
 			() =>
@@ -178,7 +178,7 @@ describe("checkpointUlwLoop final story", () => {
 					goalId: "G001",
 					status: "complete",
 					evidence: "per-story implementation complete and validation passed",
-					codexGoalJson: snapshot("complete", current.objective),
+					claudeGoalJson: snapshot("complete", current.objective),
 				}),
 			"ulw_loop_criteria_not_all_pass",
 		);

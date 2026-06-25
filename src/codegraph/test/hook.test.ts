@@ -39,7 +39,7 @@ describe("CodeGraph SessionStart hook", () => {
 			expect(parsed).toEqual({
 				hookSpecificOutput: {
 					hookEventName: "SessionStart",
-					additionalContext: "LazyCodex CodeGraph bootstrap scheduled in background",
+					additionalContext: "LazyClaude CodeGraph bootstrap scheduled in background",
 				},
 			});
 		} finally {
@@ -189,7 +189,7 @@ describe("CodeGraph SessionStart hook", () => {
 
 			// when
 			const result = await executeCodegraphSessionStartHook({
-				env: { CODEX_CODEGRAPH_ENABLED: "0", HOME: homeDir },
+				env: { LAZY_CLAUDECODE_CODEGRAPH_ENABLED: "0", HOME: homeDir },
 				stdin: Readable.from(["{}"]),
 				stdout: { write: (chunk) => stdout.push(chunk) },
 				spawnWorker: (invocation) => spawned.push(invocation),
@@ -230,13 +230,13 @@ describe("CodeGraph SessionStart hook", () => {
 					env: {
 						HOME: "/tmp/home",
 						KEEP: "1",
-						OMO_CODEGRAPH_SESSION_START_CWD: workspace,
+						LAZY_CLAUDECODE_CODEGRAPH_SESSION_START_CWD: workspace,
 					},
 				},
 			]);
 			expect(JSON.parse(stdout.join(""))).toEqual({
 				hookSpecificOutput: {
-					additionalContext: "LazyCodex CodeGraph bootstrap scheduled in background",
+					additionalContext: "LazyClaude CodeGraph bootstrap scheduled in background",
 					hookEventName: "SessionStart",
 				},
 			});
