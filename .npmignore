@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Test files
+src/**/test/
+src/**/*.test.ts
+src/test-support/
+src/**/__test_fixtures__/
+skills/**/tests/
+skills/**/test/
+
+# Dev config
+tsconfig.json
+src/**/tsconfig*.json
+biome.json
+bun.lock
+.github/
+
+# Dev docs in source
+src/**/AGENTS.md
+src/**/README.md
+
+# Build artifacts (Bun runs .ts directly, top-level dist/ not needed)
+# NOTE: src/*/dist/ pre-built MCP bundles are kept (they're committed upstream)
+/dist/
+*.tgz
+coverage/
+.DS_Store
+.env
+.lazy-claudecode/

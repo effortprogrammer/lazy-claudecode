@@ -1,0 +1,58 @@
+{
+	"name": "@effortprogrammer/lazy-claudecode-comment-checker",
+	"version": "4.13.0",
+	"description": "Claude Code plugin that runs comment-checker after edit-like PostToolUse hooks.",
+	"type": "module",
+	"packageManager": "npm@11.12.1",
+	"license": "MIT",
+	"homepage": "https://github.com/effortprogrammer/lazy-claudecode-comment-checker",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/effortprogrammer/lazy-claudecode-comment-checker.git"
+	},
+	"bugs": {
+		"url": "https://github.com/effortprogrammer/lazy-claudecode-comment-checker/issues"
+	},
+	"keywords": [
+		"claude-code",
+		"claude-code-hook",
+		"comment-checker",
+		"hooks",
+		"typescript"
+	],
+	"bin": {
+		"lazy-claudecode-comment-checker": "./dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"hooks",
+		"skills",
+		".lazy-claudecode-plugin",
+		"LICENSE",
+		"NOTICE",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"scripts": {
+		"build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && bun build src/cli.ts --target node --format esm --outfile dist/cli.js",
+		"test": "npm run build --silent && vitest --run",
+		"test:watch": "vitest",
+		"typecheck": "tsc --noEmit",
+		"lint": "biome check .",
+		"lint:fix": "biome check --write .",
+		"check": "tsc --noEmit && biome check . && npm run build"
+	},
+	"optionalDependencies": {
+		"@effortprogrammer/comment-checker": "^0.8.0"
+	},
+	"devDependencies": {
+		"@effortprogrammer/comment-checker-core": "file:../../../../comment-checker-core",
+		"@biomejs/biome": "2.4.16",
+		"@types/node": "^25.9.3",
+		"typescript": "^6.0.3",
+		"vitest": "^4.1.8"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	}
+}
