@@ -1,0 +1,162 @@
+{
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/rules/cli.ts\" hook session-start",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Loading Project Rules"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/telemetry/cli.ts\" hook session-start",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Recording Session Telemetry"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/bootstrap/cli.ts\" hook session-start",
+						"timeout": 30,
+						"statusMessage": "(lazy-claudecode) Checking Bootstrap Provisioning"
+					}
+				]
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/rules/cli.ts\" hook user-prompt-submit",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Loading Project Rules"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/ultrawork/cli.ts\" hook user-prompt-submit",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Checking Ultrawork Trigger"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/ulw-loop/cli.ts\" hook user-prompt-submit",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Ulw-Loop Steering"
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/git-bash/cli.ts\" hook pre-tool-use",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Recommending Git Bash MCP"
+					}
+				],
+				"matcher": "^Bash$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/ulw-loop/cli.ts\" hook pre-tool-use",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Enforcing Unlimited Goal Budget"
+					}
+				],
+				"matcher": "^create_goal$"
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/comment-checker/cli.ts\" hook post-tool-use",
+						"timeout": 30,
+						"statusMessage": "(lazy-claudecode) Checking Comments"
+					}
+				],
+				"matcher": "^(apply_patch|write|Write|edit|Edit|multi_edit|multiedit|MultiEdit)$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/rules/cli.ts\" hook post-tool-use",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Matching Project Rules"
+					}
+				],
+				"matcher": "^apply_patch$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/teammode/cli.ts\" hook post-tool-use",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Thread Title Hygiene"
+					}
+				],
+				"matcher": "^(create_thread|claude_code_app\\.create_thread)$"
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/start-work/cli.ts\" hook stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Start-Work Continuation"
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/start-work/cli.ts\" hook subagent-stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Start-Work Continuation"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bun \"${PLUGIN_ROOT}/src/executor-verify/cli.ts\" hook subagent-stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Verifying Executor Evidence"
+					}
+				],
+				"matcher": "^lazy-claudecode-executor$"
+			}
+		]
+	}
+}
