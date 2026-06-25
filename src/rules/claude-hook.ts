@@ -1,4 +1,4 @@
-import type { Claude CodeRulesHookOptions } from "./claude-hook-options.js";
+import type { ClaudeCodeRulesHookOptions } from "./claude-hook-options.js";
 import { configFromEnvironment } from "./config.js";
 import { hasContextPressureMarker, transcriptHasContextPressureMarker } from "./context-pressure.js";
 import { createHookDebugTimer } from "./debug-log.js";
@@ -20,12 +20,12 @@ import { withPostCompactBudget } from "./post-compact-budget.js";
 import { claimedPostCompactKind, shouldSkipPostCompactClaim } from "./post-compact-claim.js";
 import { createRulesEngine } from "./rules-engine-factory.js";
 import { runStaticInjection } from "./static-injection.js";
-import { extractClaude CodeToolPaths } from "./tool-paths.js";
+import { extractClaudeCodeToolPaths } from "./tool-paths.js";
 import { filterRulesAlreadyInTranscript } from "./transcript-rule-filter.js";
 
-export type { Claude CodeRulesHookOptions } from "./claude-hook-options.js";
+export type { ClaudeCodeRulesHookOptions } from "./claude-hook-options.js";
 
-export type Claude CodeSessionStartInput = {
+export type ClaudeCodeSessionStartInput = {
 	session_id: string;
 	transcript_path: string | null;
 	cwd: string;
@@ -35,7 +35,7 @@ export type Claude CodeSessionStartInput = {
 	source: "startup" | "resume" | "clear" | "compact";
 };
 
-export type Claude CodeUserPromptSubmitInput = {
+export type ClaudeCodeUserPromptSubmitInput = {
 	session_id: string;
 	turn_id: string;
 	transcript_path: string | null;
@@ -46,7 +46,7 @@ export type Claude CodeUserPromptSubmitInput = {
 	prompt: string;
 };
 
-export type Claude CodePostToolUseInput = {
+export type ClaudeCodePostToolUseInput = {
 	session_id: string;
 	turn_id: string;
 	transcript_path: string | null;
@@ -60,7 +60,7 @@ export type Claude CodePostToolUseInput = {
 	tool_use_id: string;
 };
 
-export type Claude CodePostCompactInput = {
+export type ClaudeCodePostCompactInput = {
 	session_id: string;
 	turn_id: string;
 	transcript_path: string | null;
@@ -71,8 +71,8 @@ export type Claude CodePostCompactInput = {
 };
 
 export async function runSessionStartHook(
-	input: Claude CodeSessionStartInput,
-	options: Claude CodeRulesHookOptions = {},
+	input: ClaudeCodeSessionStartInput,
+	options: ClaudeCodeRulesHookOptions = {},
 ): Promise<string> {
 	const cachePath = sessionCachePath(input.session_id, options.pluginDataRoot);
 	if (input.source === "clear") {
@@ -106,16 +106,16 @@ export async function runSessionStartHook(
 }
 
 export async function runPostCompactHook(
-	input: Claude CodePostCompactInput,
-	options: Claude CodeRulesHookOptions = {},
+	input: ClaudeCodePostCompactInput,
+	options: ClaudeCodeRulesHookOptions = {},
 ): Promise<string> {
 	markSessionCompacted(sessionCachePath(input.session_id, options.pluginDataRoot));
 	return "";
 }
 
 export async function runUserPromptSubmitHook(
-	input: Claude CodeUserPromptSubmitInput,
-	options: Claude CodeRulesHookOptions = {},
+	input: ClaudeCodeUserPromptSubmitInput,
+	options: ClaudeCodeRulesHookOptions = {},
 ): Promise<string> {
 	if (hasContextPressureMarker(input.prompt)) {
 		return "";
@@ -142,8 +142,8 @@ export async function runUserPromptSubmitHook(
 }
 
 export async function runPostToolUseHook(
-	input: Claude CodePostToolUseInput,
-	options: Claude CodeRulesHookOptions = {},
+	input: ClaudeCodePostToolUseInput,
+	options: ClaudeCodeRulesHookOptions = {},
 ): Promise<string> {
 	const debugTimer = createHookDebugTimer("PostToolUse");
 	const config = configFromEnvironment(options.env);
@@ -153,7 +153,7 @@ export async function runPostToolUseHook(
 		return "";
 	}
 
-	const targetPaths = extractClaude CodeToolPaths(input, input.cwd);
+	const targetPaths = extractClaudeCodeToolPaths(input, input.cwd);
 	debugTimer.lap("extract", {
 		targets: targetPaths.length,
 		uniqueTargets: uniqueStrings(targetPaths).length,

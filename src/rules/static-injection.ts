@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 
-import type { Claude CodeRulesHookOptions } from "./claude-hook-options.js";
+import type { ClaudeCodeRulesHookOptions } from "./claude-hook-options.js";
 import { configFromEnvironment } from "./config.js";
 import { withPromptBudget } from "./event-budget.js";
 import { formatAdditionalContextOutput } from "./hook-output.js";
@@ -21,7 +21,7 @@ export function runStaticInjection(
 	transcriptPath: string | null,
 	eventName: "SessionStart" | "UserPromptSubmit",
 	cachePath: string,
-	options: Claude CodeRulesHookOptions,
+	options: ClaudeCodeRulesHookOptions,
 	completedPostCompactChannel?: "static",
 	transcriptSearchOptions: TranscriptSearchOptions = {},
 	model?: string,
@@ -85,7 +85,7 @@ interface PostCompactRecoveryInput {
 	transcriptPath: string | null;
 	eventName: "SessionStart" | "UserPromptSubmit";
 	cachePath: string;
-	options: Claude CodeRulesHookOptions;
+	options: ClaudeCodeRulesHookOptions;
 	channel: "static";
 	model: string;
 	config: PiRulesConfig;

@@ -10,7 +10,7 @@ import {
 } from "./posthog.js";
 import { writeComponentTelemetryDiagnostic } from "./product-identity.js";
 
-export type Claude CodeSessionStartInput = {
+export type ClaudeCodeSessionStartInput = {
 	session_id: string;
 	transcript_path: string | null;
 	cwd: string;
@@ -20,7 +20,7 @@ export type Claude CodeSessionStartInput = {
 	source: "startup" | "resume" | "clear";
 };
 
-export type Claude CodeTelemetryHookOptions = {
+export type ClaudeCodeTelemetryHookOptions = {
 	createClient?: () => PostHogClient | Promise<PostHogClient>;
 	getDistinctId?: () => string;
 };
@@ -41,8 +41,8 @@ function writeHookDiagnostic(
 }
 
 export async function runSessionStartHook(
-	_input: Claude CodeSessionStartInput,
-	options: Claude CodeTelemetryHookOptions = {},
+	_input: ClaudeCodeSessionStartInput,
+	options: ClaudeCodeTelemetryHookOptions = {},
 ): Promise<string> {
 	const createClient = options.createClient ?? createPluginPostHog;
 	const getDistinctId = options.getDistinctId ?? getPostHogDistinctId;

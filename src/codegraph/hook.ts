@@ -4,8 +4,8 @@ import { cwd as processCwd, env as processEnv, stdin as processStdin, stdout as 
 import type { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
-import { buildCodegraphInitGuidanceForToolResult } from "../../../../../utils/src/codegraph/guidance.ts";
-import { getClaude CodeOmoConfig } from "../../../shared/src/config-loader.ts";
+import { buildCodegraphInitGuidanceForToolResult } from "../shared/codegraph/guidance.ts";
+import { getLazyClaudeCodeConfig } from "../shared/config-loader.ts";
 import { SESSION_START_CWD_ENV } from "./session-start-worker.js";
 import type {
 	HookStdout,
@@ -23,7 +23,7 @@ export type {
 	CodegraphSessionStartDeps,
 	CodegraphSessionStartOutcome,
 	CodegraphWorkspacePreparation,
-	Claude CodeOmoConfig,
+	LazyClaudeCodeConfig,
 	HookStdout,
 	OmoConfigSource,
 	PostToolUseHookOptions,
@@ -52,7 +52,7 @@ export async function executeCodegraphSessionStartHook(options: SessionStartHook
 	const input = await readHookInput(options.stdin ?? processStdin);
 	const projectRoot = resolveProjectRoot(input, options.cwd ?? processCwd());
 	const homeDir = resolveHomeDir(env);
-	const config = options.config ?? getClaude CodeOmoConfig({ cwd: projectRoot, env, homeDir });
+	const config = options.config ?? getLazyClaudeCodeConfig({ cwd: projectRoot, env, homeDir });
 
 	if (config.codegraph?.enabled === false) {
 		return { action: "skipped-disabled", exitCode: 0 };

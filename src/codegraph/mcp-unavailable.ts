@@ -7,7 +7,7 @@ import {
 	runJsonRpcStdioServer,
 	successResponse,
 	type JsonRpcResponse,
-} from "../../../../../mcp-stdio-core/src/index.ts";
+} from "@modelcontextprotocol/sdk/server/index.js";
 
 export interface UnavailableCodegraphMcpOptions {
 	readonly input: Readable;

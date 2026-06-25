@@ -15,19 +15,19 @@ export {
 	INSTALL_SNAPSHOT_FILENAME,
 	resolveBootstrapLockPath,
 	resolveBootstrapStatePath,
-	resolveClaude CodeHome,
+	resolveClaudeCodeHome,
 } from "./environment.ts";
 export type {
 	BootstrapLockHandle,
 	BootstrapLocksOptions,
-	Claude CodeHomeResolution,
-	Claude CodeHomeSource,
+	ClaudeCodeHomeResolution,
+	ClaudeCodeHomeSource,
 	ConfigSourceSignal,
 	DetectInstallFlowFromEnvironmentOptions,
 	DetectInstallFlowOptions,
 	InstallFlow,
 	InstallFlowDetection,
-	ResolveClaude CodeHomeOptions,
+	ResolveClaudeCodeHomeOptions,
 } from "./environment.ts";
 export { BOOTSTRAP_RESTART_NOTICE, executeSessionStartHook, runSessionStartHook } from "./hook.ts";
 export {

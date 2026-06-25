@@ -4,16 +4,16 @@ import { homedir } from "node:os";
 import { extname, join } from "node:path";
 import { cwd as processCwd, env as processEnv, stderr as processStderr } from "node:process";
 
-import { getClaude CodeOmoConfig } from "../../../shared/src/config-loader.ts";
-import { buildCodegraphEnv } from "../../../../../utils/src/codegraph/env.ts";
-import { evaluateCodegraphNodeSupport, type CodegraphNodeSupport } from "../../../../../utils/src/codegraph/node-support.ts";
-import { ensureCodegraphProvisioned } from "../../../../../utils/src/codegraph/provision.ts";
+import { getLazyClaudeCodeConfig } from "../shared/config-loader.ts";
+import { buildCodegraphEnv } from "../shared/codegraph/env.ts";
+import { evaluateCodegraphNodeSupport, type CodegraphNodeSupport } from "../shared/codegraph/node-support.ts";
+import { ensureCodegraphProvisioned } from "../shared/codegraph/provision.ts";
 import {
 	codegraphCommandRequiresSupportedLocalNode,
 	resolveCodegraphCommand,
 	type CodegraphCommandResolution,
-} from "../../../../../utils/src/codegraph/resolve.ts";
-import { ensureCodegraphGitignored, prepareCodegraphWorkspace } from "../../../../../utils/src/codegraph/workspace.ts";
+} from "../shared/codegraph/resolve.ts";
+import { ensureCodegraphGitignored, prepareCodegraphWorkspace } from "../shared/codegraph/workspace.ts";
 import type {
 	CodegraphCommandResult,
 	CodegraphConfig,
@@ -44,7 +44,7 @@ export async function runCodegraphSessionStartWorker(options: SessionStartWorker
 	const env = options.env ?? processEnv;
 	const homeDir = resolveHomeDir(env);
 	const projectRoot = options.cwd ?? env[SESSION_START_CWD_ENV] ?? processCwd();
-	const config = options.config ?? getClaude CodeOmoConfig({ cwd: projectRoot, env, homeDir });
+	const config = options.config ?? getLazyClaudeCodeConfig({ cwd: projectRoot, env, homeDir });
 	const logOutcome = options.logOutcome ?? ((outcome) => appendOutcome(homeDir, outcome));
 
 	if (config.codegraph?.enabled === false) {

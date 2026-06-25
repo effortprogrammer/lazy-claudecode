@@ -80,7 +80,7 @@ describe("CodeGraph component runtime package metadata", () => {
 		const codexNotice = readFileSync(resolve(repoRoot, "packages/lazy-claudecode-claude-code/THIRD-PARTY-NOTICES.md"), "utf8");
 
 		// when
-		const listsCodegraphComponent = codexNotice.includes("@sisyphuslabs/claude-code-codegraph");
+		const listsCodegraphComponent = codexNotice.includes("@sisyphuslabs/claudeCodegraph");
 		const listsUpstreamRuntime = codexNotice.includes("@colbymchenry/codegraph");
 
 		// then

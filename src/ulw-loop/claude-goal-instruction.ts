@@ -1,40 +1,40 @@
 import {
-	claude-codeGoalMode,
-	expectedClaude CodeObjective,
+	claudeCodeGoalMode,
+	expectedClaudeCodeObjective,
 	isEssentialCriterion,
 	isFinalRunCompletionCandidate,
 } from "./goal-status.js";
-import type { UlwLoopClaude CodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.js";
+import type { UlwLoopClaudeCodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.js";
 
-export interface Claude CodeCreateGoalPayload {
+export interface ClaudeCodeCreateGoalPayload {
 	readonly objective: string;
 }
 
 export interface UlwLoopGoalInstruction {
 	readonly text: string;
-	readonly json: Claude CodeCreateGoalPayload;
+	readonly json: ClaudeCodeCreateGoalPayload;
 }
 
-export function buildClaude CodeGoalInstruction(args: {
+export function buildClaudeCodeGoalInstruction(args: {
 	readonly plan: UlwLoopPlan;
 	readonly goal: UlwLoopItem;
 	readonly isFinal?: boolean;
 }): UlwLoopGoalInstruction {
-	const mode = claude-codeGoalMode(args.plan);
+	const mode = claudeCodeGoalMode(args.plan);
 	const createGoal = buildCreateGoalPayload(args.plan, args.goal);
 	const isFinal = args.isFinal ?? isFinalRunCompletionCandidate(args.plan, args.goal);
 	return { text: buildText(mode, args.plan, args.goal, createGoal, isFinal), json: createGoal };
 }
 
-function buildCreateGoalPayload(plan: UlwLoopPlan, goal: UlwLoopItem): Claude CodeCreateGoalPayload {
-	return { objective: expectedClaude CodeObjective(plan, goal) };
+function buildCreateGoalPayload(plan: UlwLoopPlan, goal: UlwLoopItem): ClaudeCodeCreateGoalPayload {
+	return { objective: expectedClaudeCodeObjective(plan, goal) };
 }
 
 function buildText(
-	mode: UlwLoopClaude CodeGoalMode,
+	mode: UlwLoopClaudeCodeGoalMode,
 	plan: UlwLoopPlan,
 	goal: UlwLoopItem,
-	createGoal: Claude CodeCreateGoalPayload,
+	createGoal: ClaudeCodeCreateGoalPayload,
 	isFinal: boolean,
 ): string {
 	return joinLines([
@@ -60,7 +60,7 @@ function buildText(
 	]);
 }
 
-function modeConstraintLines(mode: UlwLoopClaude CodeGoalMode, isFinal: boolean): readonly string[] {
+function modeConstraintLines(mode: UlwLoopClaudeCodeGoalMode, isFinal: boolean): readonly string[] {
 	if (mode === "per_story") {
 		return [
 			"- First call get_goal. If no active goal exists, call create_goal with the payload below.",
@@ -79,7 +79,7 @@ function modeConstraintLines(mode: UlwLoopClaude CodeGoalMode, isFinal: boolean)
 	];
 }
 
-function checkpointLines(plan: UlwLoopPlan, mode: UlwLoopClaude CodeGoalMode): readonly string[] {
+function checkpointLines(plan: UlwLoopPlan, mode: UlwLoopClaudeCodeGoalMode): readonly string[] {
 	const failureLine = `- If blocked or failed, checkpoint with --status failed and the failure evidence; rerun complete-goals${sessionOption(plan)} --retry-failed to resume.`;
 	if (mode === "per_story") return [failureLine];
 	return [
@@ -113,7 +113,7 @@ function finalSection(plan: UlwLoopPlan, goal: UlwLoopItem, isFinal: boolean, ag
 		"Final story — run mandatory quality gate before update_goal:",
 		"- Run targeted verification for changed behavior.",
 		"- Confirm every manualQa artifact path exists and has non-zero size.",
-		"- Spawn final reviewers with fork_context=false: lazyclaude-code-code-reviewer, lazyclaude-code-qa-executor, and lazyclaude-code-gate-reviewer. Include the original brief, goal objectives, desired user-visible outcome, diff, and evidence.",
+		"- Spawn final reviewers with fork_context=false: lazyclaude-code-reviewer, lazyclaude-code-qa-executor, and lazyclaude-code-gate-reviewer. Include the original brief, goal objectives, desired user-visible outcome, diff, and evidence.",
 		"- Require clean codeReview, manualQa, gateReview, iteration, and criteriaCoverage. criteriaCoverage must summarize originalIntent, desiredOutcome, and userOutcomeReview; counts alone are not approval.",
 		"- If any reviewer is blocked/inconclusive or the quality gate is not clean, do not call update_goal. Record blocker work first:",
 		`  ${blockerCommand}`,

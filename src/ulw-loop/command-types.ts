@@ -1,9 +1,9 @@
-import type { UlwLoopClaude CodeGoalMode, UlwLoopStatus } from "./constants.js";
+import type { UlwLoopClaudeCodeGoalMode, UlwLoopStatus } from "./constants.js";
 
 export interface CreateUlwLoopOptions {
 	brief: string;
 	goals?: readonly { readonly title?: string; readonly objective: string }[];
-	claude-codeGoalMode?: UlwLoopClaude CodeGoalMode;
+	claudeCodeGoalMode?: UlwLoopClaudeCodeGoalMode;
 	now?: Date;
 	force?: boolean;
 }
@@ -17,9 +17,9 @@ export interface CheckpointOptions {
 	goalId: string;
 	status: Extract<UlwLoopStatus, "complete" | "failed"> | "blocked";
 	evidence?: string;
-	claude-codeGoal?: unknown;
+	claudeCodeGoal?: unknown;
 	qualityGate?: unknown;
-	allowActiveFinalClaude CodeGoal?: boolean;
+	allowActiveFinalClaudeCodeGoal?: boolean;
 	now?: Date;
 }
 
@@ -32,5 +32,5 @@ export interface AddUlwLoopGoalOptions {
 
 export interface RecordFinalReviewBlockersOptions extends AddUlwLoopGoalOptions {
 	goalId: string;
-	claude-codeGoal?: unknown;
+	claudeCodeGoal?: unknown;
 }

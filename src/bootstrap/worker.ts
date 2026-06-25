@@ -3,8 +3,8 @@ import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { readState, writeState } from "../../../scripts/auto-update-state.mjs";
-import { bootstrapLocks, resolveBootstrapStatePath, resolveClaude CodeHome } from "./environment.ts";
+import { readState, writeState } from "../shared/auto-update-state.ts";
+import { bootstrapLocks, resolveBootstrapStatePath, resolveClaudeCodeHome } from "./environment.ts";
 import { runSgProvision } from "./provision.ts";
 import type { SgProvisionSeams } from "./provision.ts";
 import { runWorkerSetup } from "./setup.ts";
@@ -27,14 +27,14 @@ export interface BootstrapState {
 }
 
 export interface BootstrapWorkerFlags {
-	readonly claude-codeHome?: string;
+	readonly claudeCodeHome?: string;
 	readonly manifestDir?: string;
 	readonly once: boolean;
 	readonly only?: string;
 }
 
 export interface BootstrapWorkerContext {
-	readonly claude-codeHome: string;
+	readonly claudeCodeHome: string;
 	readonly env: Record<string, string | undefined>;
 	readonly flags: BootstrapWorkerFlags;
 	readonly now: number;
@@ -73,7 +73,7 @@ export interface RunBootstrapWorkerOptions {
 }
 
 export function parseWorkerFlags(argv: readonly string[]): BootstrapWorkerFlags {
-	let claude-codeHome: string | undefined;
+	let claudeCodeHome: string | undefined;
 	let manifestDir: string | undefined;
 	let once = false;
 	let only: string | undefined;
@@ -84,7 +84,7 @@ export function parseWorkerFlags(argv: readonly string[]): BootstrapWorkerFlags 
 			continue;
 		}
 		if (flag === "--claude-code-home") {
-			claude-codeHome = requireFlagValue(argv, index, flag);
+			claudeCodeHome = requireFlagValue(argv, index, flag);
 			index += 1;
 			continue;
 		}
@@ -102,7 +102,7 @@ export function parseWorkerFlags(argv: readonly string[]): BootstrapWorkerFlags 
 	}
 	return {
 		once,
-		...(claude-codeHome === undefined ? {} : { claude-codeHome }),
+		...(claudeCodeHome === undefined ? {} : { claudeCodeHome }),
 		...(manifestDir === undefined ? {} : { manifestDir }),
 		...(only === undefined ? {} : { only }),
 	};
@@ -186,8 +186,8 @@ export async function runBootstrapWorker(options: RunBootstrapWorkerOptions = {}
 			return { ran: false, reason: "already-completed" };
 		}
 
-		const claude-codeHome = flags.claude-codeHome ?? (await resolveClaude CodeHome({ env, pluginRoot })).path;
-		const context: BootstrapWorkerContext = { claude-codeHome, env, flags, now, platform, pluginData, pluginRoot, pluginVersion };
+		const claudeCodeHome = flags.claudeCodeHome ?? (await resolveClaudeCodeHome({ env, pluginRoot })).path;
+		const context: BootstrapWorkerContext = { claudeCodeHome, env, flags, now, platform, pluginData, pluginRoot, pluginVersion };
 		await appendBootstrapLog(pluginData, now, "worker-started", { version: pluginVersion ?? "unknown" });
 
 		const degraded: BootstrapDegradedEntry[] = [];

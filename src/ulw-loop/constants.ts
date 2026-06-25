@@ -12,7 +12,7 @@ export type UlwLoopStatus =
 	| "review_blocked"
 	| "needs_user_decision";
 
-export type UlwLoopClaude CodeGoalMode = "aggregate" | "per_story";
+export type UlwLoopClaudeCodeGoalMode = "aggregate" | "per_story";
 
 export type UlwLoopSteeringStatus = "superseded" | "blocked";
 

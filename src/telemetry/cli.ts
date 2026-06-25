@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { stdin as processStdin, stdout as processStdout } from "node:process";
 
-import { type Claude CodeSessionStartInput, runSessionStartHook } from "./claude-hook.js";
+import { type ClaudeCodeSessionStartInput, runSessionStartHook } from "./claude-hook.js";
 
 const command = process.argv[2];
 const subcommand = process.argv[3];
@@ -17,7 +17,7 @@ async function runHookCli(): Promise<void> {
 	const raw = await readStdin();
 	if (raw.trim().length === 0) return;
 	const parsed = parseHookInput(raw);
-	if (!isClaude CodeSessionStartInput(parsed)) return;
+	if (!isClaudeCodeSessionStartInput(parsed)) return;
 	const output = await runSessionStartHook(parsed);
 	if (output.length > 0) {
 		processStdout.write(output);
@@ -33,7 +33,7 @@ function parseHookInput(raw: string): unknown | undefined {
 	}
 }
 
-function isClaude CodeSessionStartInput(value: unknown): value is Claude CodeSessionStartInput {
+function isClaudeCodeSessionStartInput(value: unknown): value is ClaudeCodeSessionStartInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "SessionStart" &&

@@ -12,7 +12,7 @@ const SPARKSHELL_AWARENESS_MARKER = "## Sparkshell Runtime";
 
 export const SPARKSHELL_AWARENESS_DEDUP_KEY = "__omo_sparkshell_awareness__";
 
-export function isClaude CodeAppServerActive(env: RuntimeEnv = process.env): boolean {
+export function isClaudeCodeAppServerActive(env: RuntimeEnv = process.env): boolean {
 	const originator = env["CLAUDE_CODE_INTERNAL_ORIGINATOR_OVERRIDE"]?.toLowerCase() ?? "";
 	const bundleIdentifier = env["__CFBundleIdentifier"]?.toLowerCase() ?? "";
 	const shellActive = isTruthy(env["CLAUDE_CODE_SHELL"]);
@@ -26,9 +26,9 @@ export function isClaude CodeAppServerActive(env: RuntimeEnv = process.env): boo
 }
 
 function isSparkShellAppServerConfigured(env: RuntimeEnv = process.env): boolean {
-	const claude-codeSocketPath = env["CLAUDE_CODE_APP_SERVER_SOCKET"]?.trim() ?? "";
+	const claudeCodeSocketPath = env["CLAUDE_CODE_APP_SERVER_SOCKET"]?.trim() ?? "";
 	const omoSocketPath = env["OMO_SPARKSHELL_APP_SERVER_SOCKET"]?.trim() ?? "";
-	return claude-codeSocketPath.length > 0 || omoSocketPath.length > 0;
+	return claudeCodeSocketPath.length > 0 || omoSocketPath.length > 0;
 }
 
 export function resolveOmoInvocation(env: RuntimeEnv = process.env, deps: OmoResolutionDeps = {}): string | null {
@@ -56,8 +56,8 @@ function omoCandidateBinDirs(env: RuntimeEnv): readonly string[] {
 	const localBinDir = env["CLAUDE_CODE_LOCAL_BIN_DIR"]?.trim() ?? "";
 	if (localBinDir.length > 0) dirs.push(localBinDir);
 	const home = env["HOME"]?.trim() || env["USERPROFILE"]?.trim() || "";
-	const claude-codeHome = env["CLAUDE_CODE_HOME"]?.trim() || (home.length > 0 ? join(home, ".claude-code") : "");
-	if (claude-codeHome.length > 0) dirs.push(join(claude-codeHome, "bin"));
+	const claudeCodeHome = env["CLAUDE_CODE_HOME"]?.trim() || (home.length > 0 ? join(home, ".claude-code") : "");
+	if (claudeCodeHome.length > 0) dirs.push(join(claudeCodeHome, "bin"));
 	if (home.length > 0) dirs.push(join(home, ".local", "bin"));
 	return dirs;
 }
@@ -67,7 +67,7 @@ export function getSparkShellRuntimeAwareness(env: RuntimeEnv = process.env, dep
 	if (isFalsy(override)) {
 		return "";
 	}
-	if (!isTruthy(override) && !isClaude CodeAppServerActive(env) && !isSparkShellAppServerConfigured(env)) {
+	if (!isTruthy(override) && !isClaudeCodeAppServerActive(env) && !isSparkShellAppServerConfigured(env)) {
 		return "";
 	}
 

@@ -1,7 +1,7 @@
 import { existsSync, statSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 
-export interface Claude CodePostToolUseLike {
+export interface ClaudeCodePostToolUseLike {
 	tool_name: string;
 	tool_input: unknown;
 	tool_response: unknown;
@@ -25,7 +25,7 @@ const TRACKED_TOOL_NAMES = new Set([
 	"exec_command",
 ]);
 
-export function extractClaude CodeToolPaths(input: Claude CodePostToolUseLike, cwd: string): string[] {
+export function extractClaudeCodeToolPaths(input: ClaudeCodePostToolUseLike, cwd: string): string[] {
 	const toolName = input.tool_name.toLowerCase();
 	if (!TRACKED_TOOL_NAMES.has(toolName) || isFailedToolResponse(input.tool_response)) {
 		return [];

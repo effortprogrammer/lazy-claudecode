@@ -3,7 +3,7 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { acquireLock, DEFAULT_LOCK_STALE_MS, resolveLockPath, resolveStatePath } from "../../../scripts/auto-update-state.mjs";
+import { acquireLock, DEFAULT_LOCK_STALE_MS, resolveLockPath, resolveStatePath } from "../shared/auto-update-state.ts";
 
 export type InstallFlow = "npx-local" | "marketplace" | "unknown";
 
@@ -96,7 +96,7 @@ export interface DetectInstallFlowFromEnvironmentOptions {
 export async function detectInstallFlowFromEnvironment(
 	options: DetectInstallFlowFromEnvironmentOptions,
 ): Promise<InstallFlowDetection> {
-	const home = await resolveClaude CodeHome({ env: options.env, pluginRoot: options.pluginRoot });
+	const home = await resolveClaudeCodeHome({ env: options.env, pluginRoot: options.pluginRoot });
 	const configToml = await readOptionalFile(join(home.path, "config.toml"));
 	return detectInstallFlowDetailed({
 		pluginRoot: options.pluginRoot,
@@ -106,24 +106,24 @@ export async function detectInstallFlowFromEnvironment(
 }
 
 export async function detectInstallFlowForTest(pluginRoot: string): Promise<InstallFlow> {
-	const home = await resolveClaude CodeHome({ env: {}, pluginRoot });
+	const home = await resolveClaudeCodeHome({ env: {}, pluginRoot });
 	const configToml = home.source === "walk-up" ? await readOptionalFile(join(home.path, "config.toml")) : undefined;
 	return detectInstallFlow({ pluginRoot, ...(configToml === undefined ? {} : { configToml }) });
 }
 
-export type Claude CodeHomeSource = "env" | "walk-up" | "default";
+export type ClaudeCodeHomeSource = "env" | "walk-up" | "default";
 
-export interface Claude CodeHomeResolution {
+export interface ClaudeCodeHomeResolution {
 	readonly path: string;
-	readonly source: Claude CodeHomeSource;
+	readonly source: ClaudeCodeHomeSource;
 }
 
-export interface ResolveClaude CodeHomeOptions {
+export interface ResolveClaudeCodeHomeOptions {
 	readonly env: Record<string, string | undefined>;
 	readonly pluginRoot?: string;
 }
 
-export async function resolveClaude CodeHome(options: ResolveClaude CodeHomeOptions): Promise<Claude CodeHomeResolution> {
+export async function resolveClaudeCodeHome(options: ResolveClaudeCodeHomeOptions): Promise<ClaudeCodeHomeResolution> {
 	const envHome = options.env["CLAUDE_CODE_HOME"]?.trim();
 	if (envHome !== undefined && envHome.length > 0) {
 		return { path: resolve(envHome), source: "env" };

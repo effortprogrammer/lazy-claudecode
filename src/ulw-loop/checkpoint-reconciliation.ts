@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 
-import { claude-codeGoalMode, isFinalRunCompletionCandidate } from "./goal-status.js";
+import { claudeCodeGoalMode, isFinalRunCompletionCandidate } from "./goal-status.js";
 import { type UlwLoopScope, ulwLoopBriefPath } from "./paths.js";
 import type { UlwLoopItem, UlwLoopPlan } from "./types.js";
 import { ULW_LOOP_DIR, ULW_LOOP_GOALS, ULW_LOOP_LEDGER } from "./types.js";
@@ -59,7 +59,7 @@ export async function canReconcileCompletedTaskScopedAggregateSnapshot(
 	evidence: string,
 	scope?: UlwLoopScope,
 ): Promise<boolean> {
-	if (claude-codeGoalMode(plan) !== "aggregate") return false;
+	if (claudeCodeGoalMode(plan) !== "aggregate") return false;
 	if (goal.status !== "in_progress" || plan.activeGoalId !== goal.id) return false;
 	if (isFinalRunCompletionCandidate(plan, goal)) {
 		return snapshotObjectiveMapsToUlwLoopPlan(repoRoot, snapshotObjective, scope);
@@ -77,7 +77,7 @@ export async function canReconcileActiveFinalTaskScopedAggregateSnapshot(
 	evidence: string,
 	scope?: UlwLoopScope,
 ): Promise<boolean> {
-	if (claude-codeGoalMode(plan) !== "aggregate") return false;
+	if (claudeCodeGoalMode(plan) !== "aggregate") return false;
 	if (goal.status !== "in_progress" || plan.activeGoalId !== goal.id) return false;
 	if (!isFinalRunCompletionCandidate(plan, goal)) return false;
 	if (!textHasCompletionValidationEvidence(evidence)) return false;

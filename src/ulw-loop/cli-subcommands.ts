@@ -3,15 +3,15 @@ import { readFile } from "node:fs/promises";
 import { type CheckpointUlwLoopArgs, checkpointUlwLoop } from "./checkpoint.js";
 import {
 	hasFlag,
-	parseClaude CodeGoalJson,
+	parseClaudeCodeGoalJson,
 	parseRecordEvidenceArgs,
 	positionalText,
 	readStdin,
 	readValue,
 } from "./cli-arg-parser.js";
-import { blockedDecisionHandoff, normalizeClaude CodeGoalMode, printJson, printStatus } from "./cli-output.js";
+import { blockedDecisionHandoff, normalizeClaudeCodeGoalMode, printJson, printStatus } from "./cli-output.js";
 import { parseSteeringProposal, printSteerResult } from "./cli-steering.js";
-import { buildClaude CodeGoalInstruction } from "./claude-goal-instruction.js";
+import { buildClaudeCodeGoalInstruction } from "./claude-goal-instruction.js";
 import { recordEvidence } from "./evidence.js";
 import { isEssentialCriterion } from "./goal-status.js";
 import type { UlwLoopScope } from "./paths.js";
@@ -46,7 +46,7 @@ export async function createGoals(
 		repoRoot,
 		{
 			brief,
-			claude-codeGoalMode: normalizeClaude CodeGoalMode(readValue(argv, "--claude-code-goal-mode")),
+			claudeCodeGoalMode: normalizeClaudeCodeGoalMode(readValue(argv, "--claude-code-goal-mode")),
 			force: hasFlag(argv, "--force"),
 		},
 		scope,
@@ -88,7 +88,7 @@ export async function completeGoals(
 		} else process.stdout.write(`${handoff || "ulw-loop: all goals complete"}\n`);
 		return 0;
 	}
-	const instruction = buildClaude CodeGoalInstruction({ plan: result.plan, goal: result.goal });
+	const instruction = buildClaudeCodeGoalInstruction({ plan: result.plan, goal: result.goal });
 	if (json) printJson({ ok: true, resumed: result.resumed, goal: result.goal, instruction, plan: result.plan });
 	else process.stdout.write(`${instruction.text}\n`);
 	return 0;
@@ -103,10 +103,10 @@ export async function checkpoint(
 	const goalId = required(argv, "--goal-id");
 	const statusValue = checkpointStatus(required(argv, "--status"));
 	const evidence = required(argv, "--evidence");
-	const claude-codeGoalJson = await parseClaude CodeGoalJson(
+	const claudeCodeGoalJson = await parseClaudeCodeGoalJson(
 		statusValue === "complete" ? required(argv, "--claude-code-goal-json") : readValue(argv, "--claude-code-goal-json"),
 	);
-	if (statusValue === "complete" && claude-codeGoalJson === undefined) {
+	if (statusValue === "complete" && claudeCodeGoalJson === undefined) {
 		throw new UlwLoopError("Missing --claude-code-goal-json.", "ULW_LOOP_CLAUDE_CODE_GOAL_JSON_REQUIRED");
 	}
 	const qualityGateJson = readValue(argv, "--quality-gate-json");
@@ -114,7 +114,7 @@ export async function checkpoint(
 		goalId,
 		status: statusValue,
 		evidence,
-		...(claude-codeGoalJson === undefined ? {} : { claude-codeGoalJson }),
+		...(claudeCodeGoalJson === undefined ? {} : { claudeCodeGoalJson }),
 		...(qualityGateJson === undefined ? {} : { qualityGateJson }),
 	};
 	const result = await checkpointUlwLoop(repoRoot, args, scope);
@@ -191,8 +191,8 @@ export async function reviewBlockers(
 	json: boolean,
 	scope?: UlwLoopScope,
 ): Promise<number> {
-	const claude-codeGoalJson = await parseClaude CodeGoalJson(required(argv, "--claude-code-goal-json"));
-	if (claude-codeGoalJson === undefined) {
+	const claudeCodeGoalJson = await parseClaudeCodeGoalJson(required(argv, "--claude-code-goal-json"));
+	if (claudeCodeGoalJson === undefined) {
 		throw new UlwLoopError("Missing --claude-code-goal-json.", "ULW_LOOP_CLAUDE_CODE_GOAL_JSON_REQUIRED");
 	}
 	const result = await recordFinalReviewBlockers(
@@ -202,7 +202,7 @@ export async function reviewBlockers(
 			title: required(argv, "--title"),
 			objective: required(argv, "--objective"),
 			evidence: required(argv, "--evidence"),
-			claude-codeGoalJson,
+			claudeCodeGoalJson,
 		},
 		scope,
 	);

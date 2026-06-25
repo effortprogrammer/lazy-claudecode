@@ -63,7 +63,7 @@ export async function readJsonInput(value: string | undefined): Promise<unknown 
 	}
 }
 
-export async function parseClaude CodeGoalJson(value: string | undefined): Promise<string | undefined> {
+export async function parseClaudeCodeGoalJson(value: string | undefined): Promise<string | undefined> {
 	if (value === undefined) return undefined;
 	const raw = looksLikeJson(value) ? value : await readFile(value, "utf8");
 	try { JSON.parse(raw); return raw; }

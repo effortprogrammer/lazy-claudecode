@@ -1,4 +1,4 @@
-import type { UlwLoopClaude CodeGoalMode, UlwLoopItem, UlwLoopPlan } from "./types.js";
+import type { UlwLoopClaudeCodeGoalMode, UlwLoopItem, UlwLoopPlan } from "./types.js";
 import { UlwLoopError } from "./types.js";
 
 export const ULW_LOOP_HELP = `Usage:
@@ -71,7 +71,7 @@ export function blockedDecisionHandoff(plan: UlwLoopPlan): string {
 	].join("\n");
 }
 
-export function normalizeClaude CodeGoalMode(value: string | undefined): UlwLoopClaude CodeGoalMode {
+export function normalizeClaudeCodeGoalMode(value: string | undefined): UlwLoopClaudeCodeGoalMode {
 	if (value === undefined) return "aggregate";
 	if (value === "aggregate" || value === "per_story") return value;
 	throw new UlwLoopError(

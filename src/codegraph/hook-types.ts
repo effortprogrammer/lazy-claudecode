@@ -1,13 +1,13 @@
 import type { Readable } from "node:stream";
 
-import type { Claude CodeOmoConfig as SharedClaude CodeOmoConfig } from "../../../shared/src/config-loader.ts";
-import type { CodegraphProvisionResult as SharedCodegraphProvisionResult } from "../../../../../utils/src/codegraph/provision.ts";
+import type { LazyClaudeCodeConfig as SharedLazyClaudeCodeConfig } from "../shared/config-loader.ts";
+import type { CodegraphProvisionResult as SharedCodegraphProvisionResult } from "../shared/codegraph/provision.ts";
 import type {
 	CodegraphCommandResolution,
 	ResolveCodegraphCommandOptions,
-} from "../../../../../utils/src/codegraph/resolve.ts";
-import type { CodegraphWorkspacePreparation as SharedCodegraphWorkspacePreparation } from "../../../../../utils/src/codegraph/workspace.ts";
-import type { CodegraphConfig as SharedCodegraphConfig } from "../../../../../utils/src/config.ts";
+} from "../shared/codegraph/resolve.ts";
+import type { CodegraphWorkspacePreparation as SharedCodegraphWorkspacePreparation } from "../shared/codegraph/workspace.ts";
+import type { CodegraphConfig as SharedCodegraphConfig } from "../shared/config.ts";
 
 export type SessionStartAction = "skipped-disabled" | "spawned";
 export type PostToolUseAction = "emitted-guidance" | "skipped";
@@ -41,8 +41,8 @@ export interface CodegraphCommandResult {
 }
 
 export type CodegraphConfig = Partial<SharedCodegraphConfig>;
-export type Claude CodeOmoConfig = SharedClaude CodeOmoConfig;
-export type OmoConfigSource = Claude CodeOmoConfig["sources"][number];
+export type LazyClaudeCodeConfig = SharedLazyClaudeCodeConfig;
+export type OmoConfigSource = LazyClaudeCodeConfig["sources"][number];
 export type CodegraphProvisionResult = SharedCodegraphProvisionResult;
 export type CodegraphWorkspacePreparation = SharedCodegraphWorkspacePreparation;
 
@@ -70,7 +70,7 @@ export interface CodegraphSessionStartDeps {
 
 export interface SessionStartHookOptions {
 	readonly argv?: readonly string[];
-	readonly config?: Claude CodeOmoConfig;
+	readonly config?: LazyClaudeCodeConfig;
 	readonly cwd?: string;
 	readonly env?: Record<string, string | undefined>;
 	readonly spawnWorker?: (invocation: WorkerSpawnInvocation) => void;
@@ -86,7 +86,7 @@ export interface PostToolUseHookOptions {
 }
 
 export interface SessionStartWorkerOptions {
-	readonly config?: Claude CodeOmoConfig;
+	readonly config?: LazyClaudeCodeConfig;
 	readonly cwd?: string;
 	readonly deps?: Partial<CodegraphSessionStartDeps>;
 	readonly env?: Record<string, string | undefined>;

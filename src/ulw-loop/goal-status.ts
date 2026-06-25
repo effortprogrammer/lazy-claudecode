@@ -1,20 +1,20 @@
 import { type UlwLoopScope, ulwLoopGoalsRelativePath, ulwLoopLedgerRelativePath } from "./paths.js";
 import type {
-	UlwLoopClaude CodeGoalMode,
+	UlwLoopClaudeCodeGoalMode,
 	UlwLoopItem,
 	UlwLoopPlan,
 	UlwLoopStatus,
 	UlwLoopSuccessCriterion,
 } from "./types.js";
 
-export const ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE: string = aggregateClaude CodeObjectiveForScope();
+export const ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE: string = aggregateClaudeCodeObjectiveForScope();
 
-export function aggregateClaude CodeObjectiveForScope(scope?: UlwLoopScope): string {
+export function aggregateClaudeCodeObjectiveForScope(scope?: UlwLoopScope): string {
 	return `Complete the durable ulw-loop plan in ${ulwLoopGoalsRelativePath(scope)}, including later accepted/appended stories, under the original brief constraints; use ${ulwLoopLedgerRelativePath(scope)} as the audit trail.`;
 }
 
-export function claude-codeGoalMode(plan: UlwLoopPlan): UlwLoopClaude CodeGoalMode {
-	return plan.claude-codeGoalMode ?? "per_story";
+export function claudeCodeGoalMode(plan: UlwLoopPlan): UlwLoopClaudeCodeGoalMode {
+	return plan.claudeCodeGoalMode ?? "per_story";
 }
 
 function isResolvedStatus(status: UlwLoopStatus): boolean {
@@ -67,16 +67,16 @@ export function isFinalRunCompletionCandidate(plan: UlwLoopPlan, goal: UlwLoopIt
 	);
 }
 
-export function aggregateClaude CodeObjective(plan: UlwLoopPlan): string {
-	return plan.claude-codeObjective ?? ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE;
+export function aggregateClaudeCodeObjective(plan: UlwLoopPlan): string {
+	return plan.claudeCodeObjective ?? ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE;
 }
 
-export function expectedClaude CodeObjective(plan: UlwLoopPlan, goal: UlwLoopItem): string {
-	return claude-codeGoalMode(plan) === "aggregate" ? aggregateClaude CodeObjective(plan) : goal.objective;
+export function expectedClaudeCodeObjective(plan: UlwLoopPlan, goal: UlwLoopItem): string {
+	return claudeCodeGoalMode(plan) === "aggregate" ? aggregateClaudeCodeObjective(plan) : goal.objective;
 }
 
-export function compatibleClaude CodeObjectives(plan: UlwLoopPlan): readonly string[] {
-	return [aggregateClaude CodeObjective(plan), ...(plan.claude-codeObjectiveAliases ?? [])];
+export function compatibleClaudeCodeObjectives(plan: UlwLoopPlan): readonly string[] {
+	return [aggregateClaudeCodeObjective(plan), ...(plan.claudeCodeObjectiveAliases ?? [])];
 }
 
 export function hasAllCriteriaPass(goal: UlwLoopItem): boolean {

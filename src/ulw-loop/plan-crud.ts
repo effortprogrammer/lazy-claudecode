@@ -1,7 +1,7 @@
 import { existsSync } from "node:fs";
 import { mkdir, writeFile } from "node:fs/promises";
 
-import { aggregateClaude CodeObjectiveForScope, isUlwLoopDone } from "./goal-status.js";
+import { aggregateClaudeCodeObjectiveForScope, isUlwLoopDone } from "./goal-status.js";
 import {
 	type UlwLoopScope,
 	ulwLoopBriefPath,
@@ -14,7 +14,7 @@ import {
 } from "./paths.js";
 import { appendGoalToPlan, deriveGoalCandidates, makeGoal } from "./plan-goal-factory.js";
 import { appendLedger, readUlwLoopPlan, withUlwLoopMutationLock, writePlan } from "./plan-io.js";
-import type { UlwLoopClaude CodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.js";
+import type { UlwLoopClaudeCodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.js";
 import { iso, UlwLoopError } from "./types.js";
 
 export { deriveGoalCandidates, seedDefaultSuccessCriteria } from "./plan-goal-factory.js";
@@ -57,7 +57,7 @@ function clearGoalBlockerFields(goal: UlwLoopItem): void {
 
 export async function createUlwLoopPlan(
 	repoRoot: string,
-	args: { brief: string; claude-codeGoalMode?: UlwLoopClaude CodeGoalMode; force?: boolean },
+	args: { brief: string; claudeCodeGoalMode?: UlwLoopClaudeCodeGoalMode; force?: boolean },
 	scope?: UlwLoopScope,
 ): Promise<UlwLoopPlan> {
 	return withUlwLoopMutationLock(repoRoot, scope, async () => {
@@ -80,10 +80,10 @@ export async function createUlwLoopPlan(
 			briefPath: ulwLoopBriefRelativePath(scope),
 			goalsPath: ulwLoopGoalsRelativePath(scope),
 			ledgerPath: ulwLoopLedgerRelativePath(scope),
-			claude-codeGoalMode: args.claude-codeGoalMode ?? "aggregate",
+			claudeCodeGoalMode: args.claudeCodeGoalMode ?? "aggregate",
 			goals,
 		};
-		if (plan.claude-codeGoalMode === "aggregate") plan.claude-codeObjective = aggregateClaude CodeObjectiveForScope(scope);
+		if (plan.claudeCodeGoalMode === "aggregate") plan.claudeCodeObjective = aggregateClaudeCodeObjectiveForScope(scope);
 		await mkdir(ulwLoopDir(repoRoot, scope), { recursive: true });
 		await writeFile(
 			ulwLoopBriefPath(repoRoot, scope),

@@ -14,22 +14,22 @@ import {
 import type { Readable, Writable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
-import { buildCodegraphEnv } from "../../../../../utils/src/codegraph/env.ts";
+import { buildCodegraphEnv } from "../shared/codegraph/env.ts";
 import {
 	buildCodegraphNodeSkipHint,
 	evaluateCodegraphNodeSupport,
-} from "../../../../../utils/src/codegraph/node-support.ts";
+} from "../shared/codegraph/node-support.ts";
 import {
 	ensureCodegraphProvisioned,
 	type EnsureCodegraphProvisionedOptions,
-} from "../../../../../utils/src/codegraph/provision.ts";
+} from "../shared/codegraph/provision.ts";
 import {
 	codegraphCommandRequiresSupportedLocalNode,
 	resolveCodegraphCommand,
 	type CodegraphCommandResolution,
 	type ResolveCodegraphCommandOptions,
-} from "../../../../../utils/src/codegraph/resolve.ts";
-import { getClaude CodeOmoConfig, type Claude CodeOmoConfig } from "../../../shared/src/config-loader.ts";
+} from "../shared/codegraph/resolve.ts";
+import { getLazyClaudeCodeConfig, type LazyClaudeCodeConfig } from "../shared/config-loader.ts";
 import type { CodegraphConfig } from "./hook.js";
 import { runUnavailableCodegraphMcpServer } from "./mcp-unavailable.js";
 
@@ -61,7 +61,7 @@ export interface CodegraphServeStderr {
 export interface RunCodegraphServeOptions {
 	readonly buildEnv?: (options: { readonly homeDir: string }) => Record<string, string>;
 	readonly commandExists?: (filePath: string) => boolean;
-	readonly config?: Claude CodeOmoConfig;
+	readonly config?: LazyClaudeCodeConfig;
 	readonly cwd?: string;
 	readonly env?: Record<string, string | undefined>;
 	readonly homeDir?: string;
@@ -85,7 +85,7 @@ const WINDOWS_NODE_SCRIPT_EXTENSIONS = new Set([".cjs", ".js", ".mjs"]);
 export async function runCodegraphServe(options: RunCodegraphServeOptions = {}): Promise<number> {
 	const env = options.env ?? processEnv;
 	const homeDir = options.homeDir ?? homedir();
-	const config = options.config ?? getClaude CodeOmoConfig({ cwd: options.cwd ?? processCwd(), env, homeDir });
+	const config = options.config ?? getLazyClaudeCodeConfig({ cwd: options.cwd ?? processCwd(), env, homeDir });
 	const codegraphConfig = config.codegraph ?? {};
 	if (codegraphConfig.enabled === false) {
 		return runUnavailableMcp(CODEGRAPH_DISABLED_HINT, options);

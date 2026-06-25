@@ -1,5 +1,5 @@
 import type {
-	UlwLoopClaude CodeGoalMode,
+	UlwLoopClaudeCodeGoalMode,
 	UlwLoopCriterionStatus,
 	UlwLoopLedgerEventKind,
 	UlwLoopStatus,
@@ -52,7 +52,7 @@ export interface UlwLoopAggregateCompletion {
 	status: "complete";
 	completedAt: string;
 	evidence: string;
-	claude-codeGoal?: unknown;
+	claudeCodeGoal?: unknown;
 }
 
 export interface UlwLoopPlan {
@@ -62,9 +62,9 @@ export interface UlwLoopPlan {
 	briefPath: string;
 	goalsPath: string;
 	ledgerPath: string;
-	claude-codeGoalMode?: UlwLoopClaude CodeGoalMode;
-	claude-codeObjective?: string;
-	claude-codeObjectiveAliases?: string[];
+	claudeCodeGoalMode?: UlwLoopClaudeCodeGoalMode;
+	claudeCodeObjective?: string;
+	claudeCodeObjectiveAliases?: string[];
 	aggregateCompletion?: UlwLoopAggregateCompletion;
 	activeGoalId?: string;
 	goals: UlwLoopItem[];
@@ -146,7 +146,7 @@ export interface UlwLoopLedgerEntry {
 	status?: UlwLoopStatus;
 	criterionStatus?: UlwLoopCriterionStatus;
 	message?: string;
-	claude-codeGoal?: unknown;
+	claudeCodeGoal?: unknown;
 	evidence?: string;
 	capturedEvidence?: string;
 	qualityGate?: unknown;

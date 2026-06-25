@@ -12,7 +12,7 @@ import {
 	type SgFetch,
 	type SgManifestAsset,
 	type SgRuntimeSlug,
-} from "../../../../../utils/src/ast-grep/index.ts";
+} from "../shared/ast-grep/index.ts";
 import { appendBootstrapLog, BOOTSTRAP_DOCTOR_HINT } from "./worker.ts";
 import type { BootstrapStepOutcome, BootstrapWorkerContext } from "./worker.ts";
 
@@ -21,7 +21,7 @@ export const SG_FORCE_PROVISION_ENV_KEY = "LAZY_CLAUDECODE_BOOTSTRAP_FORCE_PROVI
 
 export interface ResolvePreexistingSgOptions {
 	readonly arch: string;
-	readonly claude-codeHome: string;
+	readonly claudeCodeHome: string;
 	readonly env: Record<string, string | undefined>;
 	readonly platform: NodeJS.Platform;
 }
@@ -35,11 +35,11 @@ export interface SgProvisionSeams {
 }
 
 export function sgProvisionDestination(context: BootstrapWorkerContext, arch: string): string {
-	return join(sgRuntimeDir(context.claude-codeHome, context.platform, arch), sgBinaryName(context.platform));
+	return join(sgRuntimeDir(context.claudeCodeHome, context.platform, arch), sgBinaryName(context.platform));
 }
 
-function sgRuntimeDir(claude-codeHome: string, platform: NodeJS.Platform, arch: string): string {
-	return join(claude-codeHome, "runtime", "ast-grep", runtimeSlug(platform, arch));
+function sgRuntimeDir(claudeCodeHome: string, platform: NodeJS.Platform, arch: string): string {
+	return join(claudeCodeHome, "runtime", "ast-grep", runtimeSlug(platform, arch));
 }
 
 export async function runSgProvision(
@@ -52,7 +52,7 @@ export async function runSgProvision(
 	if (context.env[SG_FORCE_PROVISION_ENV_KEY] !== "1") {
 		const preexisting = (seams.resolvePreexistingSg ?? defaultResolvePreexistingSg)({
 			arch,
-			claude-codeHome: context.claude-codeHome,
+			claudeCodeHome: context.claudeCodeHome,
 			env: context.env,
 			platform: context.platform,
 		});
@@ -121,9 +121,9 @@ async function verifyProvisionedVersion(
 function defaultResolvePreexistingSg(options: ResolvePreexistingSgOptions): string | null {
 	return findSgBinarySync({
 		arch: options.arch,
-		env: { ...options.env, CLAUDE_CODE_HOME: options.claude-codeHome },
+		env: { ...options.env, CLAUDE_CODE_HOME: options.claudeCodeHome },
 		platform: options.platform,
-		runtimeDir: sgRuntimeDir(options.claude-codeHome, options.platform, options.arch),
+		runtimeDir: sgRuntimeDir(options.claudeCodeHome, options.platform, options.arch),
 	});
 }
 

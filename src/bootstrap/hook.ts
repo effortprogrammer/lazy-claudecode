@@ -3,7 +3,7 @@ import { stat } from "node:fs/promises";
 import type { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
-import { DEFAULT_LOCK_STALE_MS } from "../../../scripts/auto-update-state.mjs";
+import { DEFAULT_LOCK_STALE_MS } from "../shared/auto-update-state.ts";
 import { resolveBootstrapLockPath, resolveBootstrapStatePath } from "./environment.ts";
 import { readBootstrapState, readPluginVersion } from "./worker.ts";
 

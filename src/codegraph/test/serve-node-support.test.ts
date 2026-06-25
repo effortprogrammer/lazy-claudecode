@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { PassThrough } from "node:stream";
 
-import { CODEGRAPH_UNSAFE_NODE_ENV } from "../../../../../utils/src/codegraph/node-support.ts";
+import { CODEGRAPH_UNSAFE_NODE_ENV } from "../shared/codegraph/node-support.ts";
 import { runCodegraphServe } from "../src/serve.ts";
 
 describe("runCodegraphServe node support", () => {

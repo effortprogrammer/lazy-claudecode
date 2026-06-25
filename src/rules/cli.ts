@@ -2,11 +2,11 @@
 import { stdin as processStdin, stdout as processStdout } from "node:process";
 
 import {
-	type Claude CodePostCompactInput,
-	type Claude CodePostToolUseInput,
-	type Claude CodeRulesHookOptions,
-	type Claude CodeSessionStartInput,
-	type Claude CodeUserPromptSubmitInput,
+	type ClaudeCodePostCompactInput,
+	type ClaudeCodePostToolUseInput,
+	type ClaudeCodeRulesHookOptions,
+	type ClaudeCodeSessionStartInput,
+	type ClaudeCodeUserPromptSubmitInput,
 	runPostCompactHook,
 	runPostToolUseHook,
 	runSessionStartHook,
@@ -36,21 +36,21 @@ async function runHookCli(eventName: HookCliEventName): Promise<void> {
 	const parsed = parseHookInput(raw);
 	if (!parsed) return;
 	const pluginDataRoot = process.env["PLUGIN_DATA"];
-	const options: Claude CodeRulesHookOptions = pluginDataRoot === undefined ? {} : { pluginDataRoot };
+	const options: ClaudeCodeRulesHookOptions = pluginDataRoot === undefined ? {} : { pluginDataRoot };
 	const output = await runHook(eventName, parsed, options);
 	await writeStdout(output);
 }
 
-async function runHook(eventName: HookCliEventName, parsed: unknown, options: Claude CodeRulesHookOptions): Promise<string> {
+async function runHook(eventName: HookCliEventName, parsed: unknown, options: ClaudeCodeRulesHookOptions): Promise<string> {
 	switch (eventName) {
 		case "SessionStart":
-			return isClaude CodeSessionStartInput(parsed) ? await runSessionStartHook(parsed, options) : "";
+			return isClaudeCodeSessionStartInput(parsed) ? await runSessionStartHook(parsed, options) : "";
 		case "UserPromptSubmit":
-			return isClaude CodeUserPromptSubmitInput(parsed) ? await runUserPromptSubmitHook(parsed, options) : "";
+			return isClaudeCodeUserPromptSubmitInput(parsed) ? await runUserPromptSubmitHook(parsed, options) : "";
 		case "PostToolUse":
-			return isClaude CodePostToolUseInput(parsed) ? await runPostToolUseHook(parsed, options) : "";
+			return isClaudeCodePostToolUseInput(parsed) ? await runPostToolUseHook(parsed, options) : "";
 		case "PostCompact":
-			return isClaude CodePostCompactInput(parsed) ? await runPostCompactHook(parsed, options) : "";
+			return isClaudeCodePostCompactInput(parsed) ? await runPostCompactHook(parsed, options) : "";
 	}
 }
 
@@ -63,7 +63,7 @@ function parseHookInput(raw: string): unknown | undefined {
 	}
 }
 
-function isClaude CodeSessionStartInput(value: unknown): value is Claude CodeSessionStartInput {
+function isClaudeCodeSessionStartInput(value: unknown): value is ClaudeCodeSessionStartInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "SessionStart" &&
@@ -76,7 +76,7 @@ function isClaude CodeSessionStartInput(value: unknown): value is Claude CodeSes
 	);
 }
 
-function isClaude CodeUserPromptSubmitInput(value: unknown): value is Claude CodeUserPromptSubmitInput {
+function isClaudeCodeUserPromptSubmitInput(value: unknown): value is ClaudeCodeUserPromptSubmitInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "UserPromptSubmit" &&
@@ -90,7 +90,7 @@ function isClaude CodeUserPromptSubmitInput(value: unknown): value is Claude Cod
 	);
 }
 
-function isClaude CodePostToolUseInput(value: unknown): value is Claude CodePostToolUseInput {
+function isClaudeCodePostToolUseInput(value: unknown): value is ClaudeCodePostToolUseInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "PostToolUse" &&
@@ -105,7 +105,7 @@ function isClaude CodePostToolUseInput(value: unknown): value is Claude CodePost
 	);
 }
 
-function isClaude CodePostCompactInput(value: unknown): value is Claude CodePostCompactInput {
+function isClaudeCodePostCompactInput(value: unknown): value is ClaudeCodePostCompactInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "PostCompact" &&

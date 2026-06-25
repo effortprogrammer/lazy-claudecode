@@ -1,14 +1,14 @@
 // biome-ignore-all format: compact port must stay within the requested pure LOC budget.
 
-import { readClaude CodeGoalSnapshotInput, reconcileClaude CodeGoalSnapshot } from "./claude-goal-snapshot.js";
-import { claude-codeGoalMode, compatibleClaude CodeObjectives, expectedClaude CodeObjective, isFinalRunCompletionCandidate } from "./goal-status.js";
+import { readClaudeCodeGoalSnapshotInput, reconcileClaudeCodeGoalSnapshot } from "./claude-goal-snapshot.js";
+import { claudeCodeGoalMode, compatibleClaudeCodeObjectives, expectedClaudeCodeObjective, isFinalRunCompletionCandidate } from "./goal-status.js";
 import type { UlwLoopScope } from "./paths.js";
 import { seedDefaultSuccessCriteria } from "./plan-crud.js";
 import { appendLedger, readUlwLoopPlan, withUlwLoopMutationLock, writePlan } from "./plan-io.js";
 import type { UlwLoopItem, UlwLoopLedgerEntry, UlwLoopPlan } from "./types.js";
 import { iso, UlwLoopError } from "./types.js";
 
-export interface RecordFinalReviewBlockersArgs { readonly goalId: string; readonly title: string; readonly objective: string; readonly evidence: string; readonly claude-codeGoalJson: string }
+export interface RecordFinalReviewBlockersArgs { readonly goalId: string; readonly title: string; readonly objective: string; readonly evidence: string; readonly claudeCodeGoalJson: string }
 export interface RecordFinalReviewBlockersResult { readonly plan: UlwLoopPlan; readonly blockedGoal: UlwLoopItem; readonly newGoal: UlwLoopItem; readonly ledgerEntries: UlwLoopLedgerEntry[] }
 
 const BLOCKER_FIELDS = "blockedReason blockerSignature blockerOccurrenceCount requiredExternalDecision nonRetriable failedAt failureReason completedAt blocker blockerEvidence blockerOccurrences blockedAt".split(" ");
@@ -53,9 +53,9 @@ export async function recordFinalReviewBlockers(
 		if (goal.status !== "in_progress") ulwLoopError(`${goal.id} is ${goal.status}.`, "ulw_loop_goal_not_in_progress");
 		if (!isFinalRunCompletionCandidate(plan, goal)) ulwLoopError(`${goal.id} is not final.`, "ulw_loop_not_final_story");
 
-		const snapshot = await readClaude CodeGoalSnapshotInput(args.claude-codeGoalJson, repoRoot);
-		const aggregate = claude-codeGoalMode(plan) === "aggregate";
-		const reconciliation = reconcileClaude CodeGoalSnapshot(snapshot, { expectedObjective: expectedClaude CodeObjective(plan, goal), ...(aggregate ? { acceptedObjectives: compatibleClaude CodeObjectives(plan) } : {}), allowedStatuses: ["active"], requireSnapshot: true, requireComplete: false });
+		const snapshot = await readClaudeCodeGoalSnapshotInput(args.claudeCodeGoalJson, repoRoot);
+		const aggregate = claudeCodeGoalMode(plan) === "aggregate";
+		const reconciliation = reconcileClaudeCodeGoalSnapshot(snapshot, { expectedObjective: expectedClaudeCodeObjective(plan, goal), ...(aggregate ? { acceptedObjectives: compatibleClaudeCodeObjectives(plan) } : {}), allowedStatuses: ["active"], requireSnapshot: true, requireComplete: false });
 		if (!reconciliation.ok) ulwLoopError(reconciliation.errors.join(" "), "ulw_loop_claude-code_snapshot_mismatch");
 
 		const now = iso();
@@ -68,10 +68,10 @@ export async function recordFinalReviewBlockers(
 		const newGoal = appendBlockerGoal(plan, args, now);
 		plan.updatedAt = now;
 
-		const claude-codeGoal = reconciliation.snapshot.raw;
-		const blockedEntry: UlwLoopLedgerEntry = { at: now, kind: "goal_review_blocked", goalId: goal.id, status: goal.status, evidence: args.evidence, claude-codeGoal };
+		const claudeCodeGoal = reconciliation.snapshot.raw;
+		const blockedEntry: UlwLoopLedgerEntry = { at: now, kind: "goal_review_blocked", goalId: goal.id, status: goal.status, evidence: args.evidence, claudeCodeGoal };
 		const addedEntry: UlwLoopLedgerEntry = { at: now, kind: "goal_added", goalId: newGoal.id, status: newGoal.status, evidence: args.evidence, message: newGoal.title };
-		const summaryEntry: UlwLoopLedgerEntry = { at: now, kind: "goal_review_blocked", goalId: goal.id, status: goal.status, evidence: args.evidence, claude-codeGoal, message: `Review blockers recorded; appended ${newGoal.id}.` };
+		const summaryEntry: UlwLoopLedgerEntry = { at: now, kind: "goal_review_blocked", goalId: goal.id, status: goal.status, evidence: args.evidence, claudeCodeGoal, message: `Review blockers recorded; appended ${newGoal.id}.` };
 		Reflect.set(summaryEntry, "kind", "blocker_recorded");
 		const ledgerEntries = [blockedEntry, addedEntry, summaryEntry];
 		await writePlan(repoRoot, plan, scope);

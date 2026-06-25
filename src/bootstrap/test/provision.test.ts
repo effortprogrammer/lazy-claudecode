@@ -6,7 +6,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { deflateRawSync } from "node:zlib";
 
-import { SG_PINNED_VERSION, type SgFetch, type SgManifestAsset, type SgRuntimeSlug } from "../../../../../utils/src/ast-grep/index.ts";
+import { SG_PINNED_VERSION, type SgFetch, type SgManifestAsset, type SgRuntimeSlug } from "../shared/ast-grep/index.ts";
 import {
 	runSgProvision,
 	SG_FORCE_PROVISION_ENV_KEY,

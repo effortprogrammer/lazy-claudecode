@@ -2,31 +2,31 @@ import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
-export type Claude CodeGoalSnapshotStatus = "active" | "complete" | "cancelled" | "failed" | "unknown";
+export type ClaudeCodeGoalSnapshotStatus = "active" | "complete" | "cancelled" | "failed" | "unknown";
 
-export interface Claude CodeGoalSnapshot {
+export interface ClaudeCodeGoalSnapshot {
 	available: boolean;
 	objective?: string;
-	status?: Claude CodeGoalSnapshotStatus;
+	status?: ClaudeCodeGoalSnapshotStatus;
 	raw: unknown;
 }
 
-export interface Claude CodeGoalReconciliation {
+export interface ClaudeCodeGoalReconciliation {
 	ok: boolean;
-	snapshot: Claude CodeGoalSnapshot;
+	snapshot: ClaudeCodeGoalSnapshot;
 	warnings: string[];
 	errors: string[];
 }
 
-export interface ReconcileClaude CodeGoalOptions {
+export interface ReconcileClaudeCodeGoalOptions {
 	expectedObjective: string;
 	acceptedObjectives?: readonly string[];
-	allowedStatuses?: readonly Claude CodeGoalSnapshotStatus[];
+	allowedStatuses?: readonly ClaudeCodeGoalSnapshotStatus[];
 	requireSnapshot?: boolean;
 	requireComplete?: boolean;
 }
 
-export class Claude CodeGoalSnapshotError extends Error {}
+export class ClaudeCodeGoalSnapshotError extends Error {}
 function safeObject(value: unknown): Record<string, unknown> {
 	return value && typeof value === "object" && !Array.isArray(value) ? (value as Record<string, unknown>) : {};
 }
@@ -35,7 +35,7 @@ function safeString(value: unknown): string {
 	return typeof value === "string" ? value.trim() : "";
 }
 
-function normalizeStatus(value: unknown): Claude CodeGoalSnapshotStatus {
+function normalizeStatus(value: unknown): ClaudeCodeGoalSnapshotStatus {
 	const status = safeString(value).toLowerCase();
 	if (status === "complete" || status === "completed" || status === "done") return "complete";
 	if (status === "cancelled" || status === "canceled") return "cancelled";
@@ -48,7 +48,7 @@ function normalizeObjective(value: string): string {
 	return value.replace(/\s+/g, " ").trim();
 }
 
-export function parseClaude CodeGoalSnapshot(value: unknown): Claude CodeGoalSnapshot {
+export function parseClaudeCodeGoalSnapshot(value: unknown): ClaudeCodeGoalSnapshot {
 	const root = safeObject(value);
 	const goalValue = Object.hasOwn(root, "goal") ? root["goal"] : value;
 	if (goalValue === null || goalValue === undefined || goalValue === false) {
@@ -67,33 +67,33 @@ export function parseClaude CodeGoalSnapshot(value: unknown): Claude CodeGoalSna
 	};
 }
 
-export async function readClaude CodeGoalSnapshotInput(
+export async function readClaudeCodeGoalSnapshotInput(
 	raw: string | undefined,
 	cwd = process.cwd(),
-): Promise<Claude CodeGoalSnapshot | null> {
+): Promise<ClaudeCodeGoalSnapshot | null> {
 	if (!raw?.trim()) return null;
 	const trimmed = raw.trim();
 	try {
-		return parseClaude CodeGoalSnapshot(JSON.parse(trimmed));
+		return parseClaudeCodeGoalSnapshot(JSON.parse(trimmed));
 	} catch {
 		const path = resolve(cwd, trimmed);
 		if (!existsSync(path)) {
-			throw new Claude CodeGoalSnapshotError(`Claude Code goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
+			throw new ClaudeCodeGoalSnapshotError(`Claude Code goal snapshot is neither valid JSON nor a readable path: ${trimmed}`);
 		}
 		try {
-			return parseClaude CodeGoalSnapshot(JSON.parse(await readFile(path, "utf-8")));
+			return parseClaudeCodeGoalSnapshot(JSON.parse(await readFile(path, "utf-8")));
 		} catch (error) {
-			throw new Claude CodeGoalSnapshotError(
+			throw new ClaudeCodeGoalSnapshotError(
 				`Claude Code goal snapshot path does not contain valid JSON: ${trimmed}${error instanceof Error ? ` (${error.message})` : ""}`,
 			);
 		}
 	}
 }
 
-export function reconcileClaude CodeGoalSnapshot(
-	snapshot: Claude CodeGoalSnapshot | null | undefined,
-	options: ReconcileClaude CodeGoalOptions,
-): Claude CodeGoalReconciliation {
+export function reconcileClaudeCodeGoalSnapshot(
+	snapshot: ClaudeCodeGoalSnapshot | null | undefined,
+	options: ReconcileClaudeCodeGoalOptions,
+): ClaudeCodeGoalReconciliation {
 	const effectiveSnapshot = snapshot ?? { available: false, raw: null };
 	const errors: string[] = [];
 	const warnings: string[] = [];
@@ -133,7 +133,7 @@ export function reconcileClaude CodeGoalSnapshot(
 	return { ok: errors.length === 0, snapshot: effectiveSnapshot, warnings, errors };
 }
 
-export function formatClaude CodeGoalReconciliation(reconciliation: Claude CodeGoalReconciliation): string {
+export function formatClaudeCodeGoalReconciliation(reconciliation: ClaudeCodeGoalReconciliation): string {
 	const parts = [...reconciliation.errors, ...reconciliation.warnings];
 	return parts.join(" ");
 }

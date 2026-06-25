@@ -11,7 +11,7 @@ import {
 } from "./core.js";
 import { type CommentCheckerRunner, runCommentChecker } from "./runner.js";
 
-export type Claude CodePostToolUseInput = {
+export type ClaudeCodePostToolUseInput = {
 	session_id: string;
 	turn_id: string;
 	transcript_path: string | null;
@@ -25,7 +25,7 @@ export type Claude CodePostToolUseInput = {
 	tool_use_id: string;
 };
 
-export type Claude CodeHookOptions = {
+export type ClaudeCodeHookOptions = {
 	run?: CommentCheckerRunner;
 };
 
@@ -41,15 +41,15 @@ const CONTEXT_PRESSURE_MARKERS = [
 	"long threads and multiple compactions",
 ] as const;
 
-export function extractClaude CodeCommentCheckRequests(input: Claude CodePostToolUseInput): CommentCheckRequest[] {
+export function extractClaudeCodeCommentCheckRequests(input: ClaudeCodePostToolUseInput): CommentCheckRequest[] {
 	return extractCommentCheckRequests(toToolResultLike(input));
 }
 
 export async function runCommentCheckerPostToolUse(
-	input: Claude CodePostToolUseInput,
-	options: Claude CodeHookOptions = {},
+	input: ClaudeCodePostToolUseInput,
+	options: ClaudeCodeHookOptions = {},
 ): Promise<string> {
-	const requests = extractClaude CodeCommentCheckRequests(input);
+	const requests = extractClaudeCodeCommentCheckRequests(input);
 	if (requests.length === 0) return "";
 
 	const runner = options.run ?? runCommentChecker;
@@ -78,10 +78,10 @@ export async function runCommentCheckerPostToolUse(
 	});
 }
 
-export async function runClaude CodeHookCli(): Promise<void> {
+export async function runClaudeCodeHookCli(): Promise<void> {
 	const input = await readStdin();
 	if (input.trim().length === 0) return;
-	const parsed = parseClaude CodePostToolUseInput(input);
+	const parsed = parseClaudeCodePostToolUseInput(input);
 	if (!parsed) return;
 	const output = await runCommentCheckerPostToolUse(parsed);
 	if (output.length > 0) {
@@ -90,17 +90,17 @@ export async function runClaude CodeHookCli(): Promise<void> {
 	}
 }
 
-export function parseClaude CodePostToolUseInput(input: string): Claude CodePostToolUseInput | undefined {
+export function parseClaudeCodePostToolUseInput(input: string): ClaudeCodePostToolUseInput | undefined {
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse(input);
 	} catch {
 		return undefined;
 	}
-	return isClaude CodePostToolUseInput(parsed) ? parsed : undefined;
+	return isClaudeCodePostToolUseInput(parsed) ? parsed : undefined;
 }
 
-function toToolResultLike(input: Claude CodePostToolUseInput): ToolResultLike {
+function toToolResultLike(input: ClaudeCodePostToolUseInput): ToolResultLike {
 	return {
 		toolName: input.tool_name,
 		input: normalizeToolInput(input.tool_name, input.tool_input),
@@ -174,7 +174,7 @@ function limitHookText(text: string, maxChars: number): string {
 	return `${head}${marker}`;
 }
 
-function isClaude CodePostToolUseInput(value: unknown): value is Claude CodePostToolUseInput {
+function isClaudeCodePostToolUseInput(value: unknown): value is ClaudeCodePostToolUseInput {
 	return (
 		isRecord(value) &&
 		value["hook_event_name"] === "PostToolUse" &&

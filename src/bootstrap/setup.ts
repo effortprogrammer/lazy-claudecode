@@ -10,14 +10,14 @@ import {
 	capturePreservedAgentReasoning,
 	capturePreservedAgentServiceTier,
 	linkCachedPluginAgents,
-} from "../../../../src/install/link-cached-plugin-agents.ts";
-import { linkCachedPluginBins, linkRootRuntimeBin } from "../../../../src/install/claude-code-cache-bins.ts";
-import { updateClaude CodeConfig } from "../../../../src/install/claude-code-config-toml.ts";
-import { stampGitBashMcpEnv } from "../../../../src/install/claude-code-git-bash-mcp-env.ts";
-import { trustedHookStatesForPlugin } from "../../../../src/install/claude-code-hook-trust.ts";
-import { resolveClaude CodeInstallerBinDir } from "../../../../src/install/claude-code-installer-bin-dir.ts";
-import { prepareGitBashForInstall } from "../../../../src/install/git-bash.ts";
-import type { Claude CodeAgentConfig, GitBashResolution } from "../../../../src/install/types.ts";
+} from "../shared/install/link-cached-plugin-agents.ts";
+import { linkCachedPluginBins, linkRootRuntimeBin } from "../shared/install/claude-code-cache-bins.ts";
+import { updateClaudeCodeConfig } from "../shared/install/claude-code-config-toml.ts";
+import { stampGitBashMcpEnv } from "../shared/install/claude-code-git-bash-mcp-env.ts";
+import { trustedHookStatesForPlugin } from "../shared/install/claude-code-hook-trust.ts";
+import { resolveClaudeCodeInstallerBinDir } from "../shared/install/claude-code-installer-bin-dir.ts";
+import { prepareGitBashForInstall } from "../shared/install/git-bash.ts";
+import type { ClaudeCodeAgentConfig, GitBashResolution } from "../shared/install/types.ts";
 import { appendBootstrapLog, BOOTSTRAP_DOCTOR_HINT } from "./worker.ts";
 import type { BootstrapDegradedEntry, BootstrapStepOutcome } from "./worker.ts";
 
@@ -28,7 +28,7 @@ export const GIT_BASH_INSTALL_HINT = "winget install --id Git.Git -e --source wi
 export type SetupRunCommand = (command: string, args: readonly string[], options: { cwd: string }) => Promise<unknown>;
 
 export interface WorkerSetupOptions {
-	readonly claude-codeHome: string;
+	readonly claudeCodeHome: string;
 	readonly env: Record<string, string | undefined>;
 	readonly pluginData: string;
 	readonly pluginRoot: string;
@@ -42,7 +42,7 @@ export interface WorkerSetupOptions {
 }
 
 interface AgentLinkOutcome {
-	readonly agentConfigs: readonly Claude CodeAgentConfig[];
+	readonly agentConfigs: readonly ClaudeCodeAgentConfig[];
 	readonly degraded: readonly BootstrapDegradedEntry[];
 }
 
@@ -91,7 +91,7 @@ async function resolveGitBashStep(options: WorkerSetupOptions, degraded: Bootstr
 }
 
 async function linkBundledAgentsStep(options: WorkerSetupOptions): Promise<AgentLinkOutcome> {
-	const agentsTarget = join(options.claude-codeHome, "agents");
+	const agentsTarget = join(options.claudeCodeHome, "agents");
 	try {
 		// linkCachedPluginAgents writes its .installed-agents.json manifest next
 		// to the agent sources, so the bundled TOMLs are staged under PLUGIN_DATA
@@ -99,10 +99,10 @@ async function linkBundledAgentsStep(options: WorkerSetupOptions): Promise<Agent
 		// Claude Code-managed marketplace cache).
 		const stageRoot = join(options.pluginData, "bootstrap", "agents-stage");
 		await stageBundledAgents(options.pluginRoot, stageRoot);
-		const preservedReasoning = await capturePreservedAgentReasoning({ claude-codeHome: options.claude-codeHome });
-		const preservedServiceTier = await capturePreservedAgentServiceTier({ claude-codeHome: options.claude-codeHome });
+		const preservedReasoning = await capturePreservedAgentReasoning({ claudeCodeHome: options.claudeCodeHome });
+		const preservedServiceTier = await capturePreservedAgentServiceTier({ claudeCodeHome: options.claudeCodeHome });
 		const linked = await linkCachedPluginAgents({
-			claude-codeHome: options.claude-codeHome,
+			claudeCodeHome: options.claudeCodeHome,
 			pluginRoot: stageRoot,
 			preservedReasoning,
 			preservedServiceTier,
@@ -143,10 +143,10 @@ async function stageBundledAgents(pluginRoot: string, stageRoot: string): Promis
 
 async function updateConfigStep(
 	options: WorkerSetupOptions,
-	inputs: { agentConfigs: readonly Claude CodeAgentConfig[]; gitBashEnabled: boolean },
+	inputs: { agentConfigs: readonly ClaudeCodeAgentConfig[]; gitBashEnabled: boolean },
 	degraded: BootstrapDegradedEntry[],
 ): Promise<void> {
-	const configPath = join(options.claude-codeHome, "config.toml");
+	const configPath = join(options.claudeCodeHome, "config.toml");
 	try {
 		await assertWritableConfigIfPresent(configPath);
 		// Re-stamping trusted hook hashes after an upgrade is what makes the
@@ -157,7 +157,7 @@ async function updateConfigStep(
 			pluginName: SETUP_PLUGIN_NAME,
 			pluginRoot: options.pluginRoot,
 		});
-		await updateClaude CodeConfig({
+		await updateClaudeCodeConfig({
 			agentConfigs: inputs.agentConfigs,
 			// Hard invariant: the bootstrap worker NEVER writes permission keys
 			// (approval/sandbox/network policies stay installer-flag-only).
@@ -170,7 +170,7 @@ async function updateConfigStep(
 			pluginNames: [SETUP_PLUGIN_NAME],
 			preserveMarketplaceSource: true,
 			// The marketplace plugin tree has no <root>/plugin/model-catalog.json,
-			// so updateClaude CodeConfig falls back to the catalog bundled into this
+			// so updateClaudeCodeConfig falls back to the catalog bundled into this
 			// dist; bootstrap-setup.test.mjs guards against drift between the two.
 			repoRoot: options.pluginRoot,
 			trustedHookStates,
@@ -198,7 +198,7 @@ function errorCode(error: unknown): string | undefined {
 }
 
 async function linkComponentBinsStep(options: WorkerSetupOptions, degraded: BootstrapDegradedEntry[]): Promise<void> {
-	const binDir = resolveClaude CodeInstallerBinDir({ claude-codeHome: options.claude-codeHome, env: options.env });
+	const binDir = resolveClaudeCodeInstallerBinDir({ claudeCodeHome: options.claudeCodeHome, env: options.env });
 	try {
 		await linkCachedPluginBins({ binDir, pluginRoot: options.pluginRoot, platform: options.platform });
 	} catch (error) {
@@ -224,7 +224,7 @@ async function linkRuntimeWrapperStep(
 	try {
 		const linked = await linkRootRuntimeBin({
 			binDir,
-			claude-codeHome: options.claude-codeHome,
+			claudeCodeHome: options.claudeCodeHome,
 			platform: options.platform,
 			repoRoot: options.pluginRoot,
 		});

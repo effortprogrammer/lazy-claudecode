@@ -16,7 +16,7 @@ import type {
 } from "./types.js";
 
 const REVIEWER_ROLES = {
-	codeReview: "lazyclaude-code-code-reviewer",
+	codeReview: "lazyclaude-code-reviewer",
 	manualQa: "lazyclaude-code-qa-executor",
 	gateReview: "lazyclaude-code-gate-reviewer",
 } as const;

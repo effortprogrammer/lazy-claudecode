@@ -1,6 +1,6 @@
 import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises";
 
-import { aggregateClaude CodeObjectiveForScope } from "./goal-status.js";
+import { aggregateClaudeCodeObjectiveForScope } from "./goal-status.js";
 import {
 	repoRelative,
 	type UlwLoopScope,
@@ -69,14 +69,14 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 	if (parsed.version !== 1 || !Array.isArray(parsed.goals)) {
 		throw new UlwLoopError(`Invalid ulw-loop plan at ${repoRelative(path, repoRoot)}.`, "ULW_LOOP_PLAN_INVALID");
 	}
-	const previousObjective = parsed.claude-codeObjective;
+	const previousObjective = parsed.claudeCodeObjective;
 	if (
-		(parsed.claude-codeGoalMode ?? "per_story") === "aggregate" &&
+		(parsed.claudeCodeGoalMode ?? "per_story") === "aggregate" &&
 		isLegacyEnumeratedAggregateObjective(previousObjective)
 	) {
 		const now = iso();
-		parsed.claude-codeObjective = aggregateClaude CodeObjectiveForScope(scope);
-		parsed.claude-codeObjectiveAliases = [...new Set([...(parsed.claude-codeObjectiveAliases ?? []), previousObjective])];
+		parsed.claudeCodeObjective = aggregateClaudeCodeObjectiveForScope(scope);
+		parsed.claudeCodeObjectiveAliases = [...new Set([...(parsed.claudeCodeObjectiveAliases ?? []), previousObjective])];
 		parsed.updatedAt = now;
 		await writePlan(repoRoot, parsed, scope);
 		await appendLedger(
@@ -85,8 +85,8 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 				at: now,
 				kind: "aggregate_objective_migrated",
 				message: "Migrated legacy enumerated aggregate Claude Code objective to the stable pointer objective.",
-				before: { claude-codeObjective: previousObjective },
-				after: { claude-codeObjective: parsed.claude-codeObjective },
+				before: { claudeCodeObjective: previousObjective },
+				after: { claudeCodeObjective: parsed.claudeCodeObjective },
 			},
 			scope,
 		);

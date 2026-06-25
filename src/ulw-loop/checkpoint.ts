@@ -7,15 +7,15 @@ import {
 	canReconcileCompletedTaskScopedAggregateSnapshot,
 } from "./checkpoint-reconciliation.js";
 import {
-	formatClaude CodeGoalReconciliation,
-	readClaude CodeGoalSnapshotInput,
-	reconcileClaude CodeGoalSnapshot,
+	formatClaudeCodeGoalReconciliation,
+	readClaudeCodeGoalSnapshotInput,
+	reconcileClaudeCodeGoalSnapshot,
 } from "./claude-goal-snapshot.js";
 import { requireAllCriteriaPass, requireAllPlanCriteriaPass, requireEssentialCriteriaPass } from "./evidence.js";
 import {
-	claude-codeGoalMode,
-	compatibleClaude CodeObjectives,
-	expectedClaude CodeObjective,
+	claudeCodeGoalMode,
+	compatibleClaudeCodeObjectives,
+	expectedClaudeCodeObjective,
 	isFinalRunCompletionCandidate,
 } from "./goal-status.js";
 import type { UlwLoopScope } from "./paths.js";
@@ -39,7 +39,7 @@ export interface CheckpointUlwLoopArgs {
 	readonly goalId: string;
 	readonly status: "complete" | "failed" | "blocked";
 	readonly evidence: string;
-	readonly claude-codeGoalJson?: string;
+	readonly claudeCodeGoalJson?: string;
 	readonly qualityGateJson?: string;
 }
 export interface CheckpointUlwLoopResult {
@@ -87,8 +87,8 @@ async function readJsonInput(raw: string | undefined, repoRoot: string): Promise
 	}
 }
 
-function makeAggregateCompletion(now: string, evidence: string, claude-codeGoal: unknown): UlwLoopAggregateCompletion {
-	return { status: "complete", completedAt: now, evidence, claude-codeGoal };
+function makeAggregateCompletion(now: string, evidence: string, claudeCodeGoal: unknown): UlwLoopAggregateCompletion {
+	return { status: "complete", completedAt: now, evidence, claudeCodeGoal };
 }
 
 function applyBlockedOrFailed(
@@ -133,7 +133,7 @@ function buildLedger(
 	args: CheckpointUlwLoopArgs,
 	goal: UlwLoopItem,
 	qualityGate: UlwLoopQualityGate | undefined,
-	claude-codeGoal: unknown,
+	claudeCodeGoal: unknown,
 	aggregateCompletion: UlwLoopAggregateCompletion | undefined,
 ): UlwLoopLedgerEntry {
 	const entry: UlwLoopLedgerEntry = {
@@ -143,7 +143,7 @@ function buildLedger(
 		status: goal.status,
 		evidence: args.evidence,
 	};
-	if (claude-codeGoal !== undefined) entry.claude-codeGoal = claude-codeGoal;
+	if (claudeCodeGoal !== undefined) entry.claudeCodeGoal = claudeCodeGoal;
 	if (qualityGate !== undefined) entry.qualityGate = qualityGate;
 	if (goal.blockerSignature !== undefined) entry.blockerSignature = goal.blockerSignature;
 	if (goal.blockerOccurrenceCount !== undefined) entry.blockerOccurrenceCount = goal.blockerOccurrenceCount;
@@ -163,30 +163,30 @@ export async function checkpointUlwLoop(
 		const now = iso();
 		let aggregateCompletion: UlwLoopAggregateCompletion | undefined;
 		let qualityGate: UlwLoopQualityGate | undefined;
-		let claude-codeGoal: unknown;
+		let claudeCodeGoal: unknown;
 		if (args.status === "complete") {
-			const aggregate = claude-codeGoalMode(plan) === "aggregate";
+			const aggregate = claudeCodeGoalMode(plan) === "aggregate";
 			const final = isFinalRunCompletionCandidate(plan, goal);
 			if (final) {
 				requireAllCriteriaPass(goal);
 				requireAllPlanCriteriaPass(plan);
 			} else if (aggregate) requireEssentialCriteriaPass(goal);
 			else requireAllCriteriaPass(goal);
-			const snapshot = await readClaude CodeGoalSnapshotInput(args.claude-codeGoalJson, repoRoot);
-			const reconciliation = reconcileClaude CodeGoalSnapshot(snapshot, {
-				expectedObjective: expectedClaude CodeObjective(plan, goal),
-				...(aggregate ? { acceptedObjectives: compatibleClaude CodeObjectives(plan) } : {}),
+			const snapshot = await readClaudeCodeGoalSnapshotInput(args.claudeCodeGoalJson, repoRoot);
+			const reconciliation = reconcileClaudeCodeGoalSnapshot(snapshot, {
+				expectedObjective: expectedClaudeCodeObjective(plan, goal),
+				...(aggregate ? { acceptedObjectives: compatibleClaudeCodeObjectives(plan) } : {}),
 				allowedStatuses: aggregate ? (final ? ["complete"] : ["active"]) : ["complete"],
 				requireSnapshot: true,
 				requireComplete: !aggregate || final,
 			});
-			claude-codeGoal = reconciliation.snapshot.raw;
+			claudeCodeGoal = reconciliation.snapshot.raw;
 			if (!reconciliation.ok) {
 				const objective = snapshot?.objective;
 				const mismatchedTaskObjective =
 					snapshot?.available === true &&
 					objective !== undefined &&
-					normalizeObjective(objective) !== normalizeObjective(expectedClaude CodeObjective(plan, goal));
+					normalizeObjective(objective) !== normalizeObjective(expectedClaudeCodeObjective(plan, goal));
 				const completedTaskScoped =
 					mismatchedTaskObjective &&
 					snapshot.status === "complete" &&
@@ -212,11 +212,11 @@ export async function checkpointUlwLoop(
 				const taskScoped = completedTaskScoped || activeFinalTaskScoped;
 				if (!taskScoped)
 					throw new UlwLoopError(
-						`${formatClaude CodeGoalReconciliation(reconciliation)}${aggregate && snapshot?.status === "complete" && objective !== undefined ? buildTaskScopedAggregateReconciliationHint(goal, final) : ""}`,
+						`${formatClaudeCodeGoalReconciliation(reconciliation)}${aggregate && snapshot?.status === "complete" && objective !== undefined ? buildTaskScopedAggregateReconciliationHint(goal, final) : ""}`,
 						"ulw_loop_claude-code_snapshot_mismatch",
 					);
 			}
-			if (final) aggregateCompletion = makeAggregateCompletion(now, evidence, claude-codeGoal);
+			if (final) aggregateCompletion = makeAggregateCompletion(now, evidence, claudeCodeGoal);
 			if (final || aggregateCompletion !== undefined)
 				qualityGate = validateQualityGate(await readJsonInput(args.qualityGateJson, repoRoot), {
 					repoRoot,
@@ -234,7 +234,7 @@ export async function checkpointUlwLoop(
 		if (aggregateCompletion !== undefined) plan.aggregateCompletion = aggregateCompletion;
 		plan.updatedAt = now;
 		await writePlan(repoRoot, plan, scope);
-		const ledgerEntry = buildLedger(now, args, goal, qualityGate, claude-codeGoal, aggregateCompletion);
+		const ledgerEntry = buildLedger(now, args, goal, qualityGate, claudeCodeGoal, aggregateCompletion);
 		await appendLedger(repoRoot, ledgerEntry, scope);
 		return aggregateCompletion === undefined
 			? { plan, goal, ledgerEntry }
