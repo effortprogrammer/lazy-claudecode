@@ -117,7 +117,7 @@ function resolvePackageBinary(binaryName: string): string | undefined {
 }
 
 function commentCheckerPackageName(): string {
-	return ["@code-yeongyu", "comment-checker"].join("/");
+	return ["@effortprogrammer", "lazy-claudecode-comment-checker"].join("/");
 }
 
 function isCommentCheckerPackage(value: unknown): value is { getBinaryPath: () => string } {

@@ -27,7 +27,7 @@ export function isClaudeCodeAppServerActive(env: RuntimeEnv = process.env): bool
 
 function isSparkShellAppServerConfigured(env: RuntimeEnv = process.env): boolean {
 	const claudeCodeSocketPath = env["CLAUDE_CODE_APP_SERVER_SOCKET"]?.trim() ?? "";
-	const omoSocketPath = env["OMO_SPARKSHELL_APP_SERVER_SOCKET"]?.trim() ?? "";
+	const omoSocketPath = env["LAZY_CLAUDECODE_SPARKSHELL_APP_SERVER_SOCKET"]?.trim() ?? "";
 	return claudeCodeSocketPath.length > 0 || omoSocketPath.length > 0;
 }
 
@@ -63,7 +63,7 @@ function omoCandidateBinDirs(env: RuntimeEnv): readonly string[] {
 }
 
 export function getSparkShellRuntimeAwareness(env: RuntimeEnv = process.env, deps: OmoResolutionDeps = {}): string {
-	const override = env["OMO_SPARKSHELL_AWARENESS"] ?? env["LAZYCLAUDE_CODE_SPARKSHELL_AWARENESS"];
+	const override = env["LAZY_CLAUDECODE_SPARKSHELL_AWARENESS"] ?? env["LAZYCLAUDE_CODE_SPARKSHELL_AWARENESS"];
 	if (isFalsy(override)) {
 		return "";
 	}
@@ -84,10 +84,10 @@ export function getSparkShellRuntimeAwareness(env: RuntimeEnv = process.env, dep
 		`- Use \`${command} sparkshell <command>\` first for repo inspection, CLI smoke tests, git/history checks, and bounded command output. Raw \`rg\`/\`grep\`/\`cat\`/\`git\` are fallbacks when Sparkshell is unavailable or too narrow for the task.`,
 		`- Use \`${command} sparkshell --shell '<command>'\` only for shell metacharacters or pipelines.`,
 		`- Use \`${command} sparkshell --tmux-pane <pane-id> --tail-lines 400\` only to inspect an existing pane, never to launch ordinary commands. Tail lines must stay between 100 and 1000.`,
-		"- When no native sidecar or appserver is available, Sparkshell silently falls back to raw command execution. `OMO_SPARKSHELL_BIN` selects a native sidecar path.",
-		"- When `CLAUDE_CODE_THREAD_ID` identifies a Claude Code session, Sparkshell feeds recent session context (first/latest user request + last 5 conversation messages) into oversized-output condensation for relevance ranking, but never appends that context to command output. `OMO_SPARKSHELL_SESSION_CONTEXT=0` disables the lookup.",
-		`- Route potentially huge output (full log files, big diffs, \`cat\`/\`grep\` over large artifacts) through \`${command} sparkshell\` instead of reading it raw: oversized output is condensed to a budget while preserving error signatures, repeated patterns, session-goal-relevant lines, and head/tail. Tune with \`--budget <chars>\`; disable with \`OMO_SPARKSHELL_CONDENSE=0\`.`,
-		"- Oversized output is first summarized by the spark model (`claude-code exec`, default `gpt-5.3-claude-code-spark`) fed with the shell output plus session context: the summary keeps selected output as-is (no masking) and ends with a `[sparkshell caption]` line describing what ran, what the full output contained, and which lines were omitted. `OMO_SPARKSHELL_SPARK=0` skips the model and uses deterministic condensation directly.",
+		"- When no native sidecar or appserver is available, Sparkshell silently falls back to raw command execution. `LAZY_CLAUDECODE_SPARKSHELL_BIN` selects a native sidecar path.",
+		"- When `CLAUDE_CODE_THREAD_ID` identifies a Claude Code session, Sparkshell feeds recent session context (first/latest user request + last 5 conversation messages) into oversized-output condensation for relevance ranking, but never appends that context to command output. `LAZY_CLAUDECODE_SPARKSHELL_SESSION_CONTEXT=0` disables the lookup.",
+		`- Route potentially huge output (full log files, big diffs, \`cat\`/\`grep\` over large artifacts) through \`${command} sparkshell\` instead of reading it raw: oversized output is condensed to a budget while preserving error signatures, repeated patterns, session-goal-relevant lines, and head/tail. Tune with \`--budget <chars>\`; disable with \`LAZY_CLAUDECODE_SPARKSHELL_CONDENSE=0\`.`,
+		"- Oversized output is first summarized by the spark model (`claude-code exec`, default `gpt-5.3-claude-code-spark`) fed with the shell output plus session context: the summary keeps selected output as-is (no masking) and ends with a `[sparkshell caption]` line describing what ran, what the full output contained, and which lines were omitted. `LAZY_CLAUDECODE_SPARKSHELL_SPARK=0` skips the model and uses deterministic condensation directly.",
 	].join("\n");
 }
 

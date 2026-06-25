@@ -1,32 +1,35 @@
 ---
 name: lsp
-description: "Use when Claude Code shows LSP diagnostics feedback after edits. Understand how to interpret and act on TypeScript, Python, and other language server errors and warnings."
+description: Use when Codex needs language-server diagnostics, definitions, references, symbols, or rename safety checks in the current workspace.
 ---
 
-# LSP Diagnostics
+# Codex LSP
 
-The LSP diagnostics hook runs after file edits and reports compiler/type errors and warnings.
+Call `lsp` MCP tools through the tool interface; `lsp.*`/`mcp__lsp__*` are tool-call names, not shell commands.
 
-## How It Works
-- Fires on PostToolUse for Edit/Write/MultiEdit
-- Runs the appropriate language checker (tsc --noEmit, pyright, etc.)
-- Reports errors and warnings as additional context
-- Suppresses after 3 attempts on the same file (avoids loops)
+## Tools
 
-## Supported Languages
-| Extension | Checker | Command |
-|-----------|---------|---------|
-| .ts/.tsx  | TypeScript | `tsc --noEmit` |
-| .py       | Pyright | `pyright --outputjson` |
-| .rs       | Rust | `cargo check --message-format=json` |
-| .go       | Go | `go vet` |
+- `lsp.status`: list configured, installed, missing, disabled, and active language servers.
+- `lsp.diagnostics`: check one file or directory for LSP diagnostics. Prefer `severity: "error"` after edits.
+- `lsp.goto_definition`: locate a symbol definition from file, line, and character.
+- `lsp.find_references`: find usages of a symbol across the workspace.
+- `lsp.symbols`: inspect document symbols or search workspace symbols.
+- `lsp.prepare_rename`: check whether a rename is valid at a position.
+- `lsp.rename`: apply a language-server workspace edit for a rename.
 
-## How to Respond
-1. **Errors**: Must fix before proceeding. Read the diagnostic carefully.
-2. **Warnings**: Fix if trivial, note if complex (don't derail main task).
-3. **Repeated same error**: The hook suppresses after 3 attempts. Step back and rethink approach.
+## Config
 
-## Pitfalls
-- Don't blindly add type assertions (`as any`) to suppress errors
-- If tsc reports errors in unrelated files, focus only on files you edited
-- Some errors cascade — fix the root cause, not every downstream error
+Project config lives at `.codex/lsp-client.json`; user config lives at `~/.codex/lsp-client.json`.
+
+```json
+{
+	"lsp": {
+		"typescript": {
+			"command": ["typescript-language-server", "--stdio"],
+			"extensions": [".ts", ".tsx", ".js", ".jsx"]
+		}
+	}
+}
+```
+
+Use `lsp.status` first when diagnostics report a missing language server.

@@ -17,7 +17,7 @@ export const PACKAGE_NAME = "@oh-my-opencode/lazy-claudecode";
 export const CACHE_DIR_NAME = "lazy-claudecode";
 export const EVENT_NAME = "omo_claude-code_daily_active";
 export const LEGACY_PARENT_PACKAGE = "oh-my-opencode";
-export const PRODUCT_ENV_PREFIX = "OMO_CLAUDE_CODE";
+export const PRODUCT_ENV_PREFIX = "LAZY_CLAUDECODE";
 export const MACHINE_ID_PREFIX = "lazy-claudecode:";
 
 type ComponentPackageManifest = { readonly version?: string };

@@ -1,32 +1,240 @@
 {
-  "hooks": {
-    "SessionStart": [
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/bootstrap.js\"", "timeout": 30 }] },
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/rules-loader.js\"", "timeout": 10 }] },
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/telemetry.js\"", "timeout": 5 }] }
-    ],
-    "UserPromptSubmit": [
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/ultrawork-trigger.js\"", "timeout": 5 }] },
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/ulw-loop-steering.js\"", "timeout": 5 }] }
-    ],
-    "PreToolUse": [
-      { "matcher": "Bash", "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/git-bash-reminder.js\"", "timeout": 5 }] }
-    ],
-    "PostToolUse": [
-      { "matcher": "Edit|Write|MultiEdit", "hooks": [
-        { "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/comment-checker.js\"", "timeout": 30 },
-        { "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/lsp-diagnostics.js\"", "timeout": 60 },
-        { "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/codegraph-init.js\"", "timeout": 5 }
-      ]}
-    ],
-    "Stop": [
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/start-work-continuation.js\"", "timeout": 10 }] }
-    ],
-    "SubagentStop": [
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/executor-verify.js\"", "timeout": 10 }] }
-    ],
-    "PostCompact": [
-      { "hooks": [{ "type": "command", "command": "node \"${LAZY_CLAUDECODE_ROOT}/dist/hooks/post-compact-reset.js\"", "timeout": 5 }] }
-    ]
-  }
+	"hooks": {
+		"SessionStart": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/rules/cli.js\" hook session-start",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Loading Project Rules"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/telemetry/cli.js\" hook session-start",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Recording Session Telemetry"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/bootstrap/cli.js\" hook session-start",
+						"timeout": 30,
+						"statusMessage": "(lazy-claudecode) Checking Bootstrap Provisioning"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/codegraph/cli.js\" hook session-start",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Checking CodeGraph Bootstrap"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/scripts/auto-update.mjs\" hook session-start",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Checking Auto Update"
+					}
+				],
+				"matcher": "^startup$"
+			}
+		],
+		"UserPromptSubmit": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/rules/cli.js\" hook user-prompt-submit",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Loading Project Rules"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/ultrawork/cli.js\" hook user-prompt-submit",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Checking Ultrawork Trigger"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/ulw-loop/cli.js\" hook user-prompt-submit",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Ulw-Loop Steering"
+					}
+				]
+			}
+		],
+		"PreToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/git-bash/cli.js\" hook pre-tool-use",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Recommending Git Bash MCP"
+					}
+				],
+				"matcher": "^Bash$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/ulw-loop/cli.js\" hook pre-tool-use",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Enforcing Unlimited Goal Budget"
+					}
+				],
+				"matcher": "^create_goal$"
+			}
+		],
+		"PostToolUse": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/comment-checker/cli.js\" hook post-tool-use",
+						"timeout": 30,
+						"statusMessage": "(lazy-claudecode) Checking Comments"
+					}
+				],
+				"matcher": "^(apply_patch|write|Write|edit|Edit|multi_edit|multiedit|MultiEdit)$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/lsp/cli.js\" hook post-tool-use",
+						"timeout": 60,
+						"statusMessage": "(lazy-claudecode) Checking LSP Diagnostics"
+					}
+				],
+				"matcher": "^(apply_patch|write|Write|edit|Edit|multi_edit|multiedit|MultiEdit)$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/codegraph/cli.js\" hook post-tool-use",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Checking CodeGraph Init Guidance"
+					}
+				],
+				"matcher": "^(codegraph[._].*|mcp__codegraph__.*)$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/rules/cli.js\" hook post-tool-use",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Matching Project Rules"
+					}
+				],
+				"matcher": "^apply_patch$"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/teammode/cli.js\" hook post-tool-use",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Thread Title Hygiene"
+					}
+				],
+				"matcher": "^(create_thread|claude_code_app\\.create_thread)$"
+			}
+		],
+		"PostCompact": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/git-bash/cli.js\" hook post-compact",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Resetting Git Bash MCP Reminder"
+					}
+				],
+				"matcher": "manual|auto"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/rules/cli.js\" hook post-compact",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Resetting Project Rule Cache"
+					}
+				],
+				"matcher": "manual|auto"
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/lsp/cli.js\" hook post-compact",
+						"timeout": 5,
+						"statusMessage": "(lazy-claudecode) Resetting LSP Diagnostics Cache"
+					}
+				],
+				"matcher": "manual|auto"
+			}
+		],
+		"Stop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/start-work/cli.js\" hook stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Start-Work Continuation"
+					}
+				]
+			}
+		],
+		"SubagentStop": [
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/start-work/cli.js\" hook subagent-stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Checking Start-Work Continuation"
+					}
+				]
+			},
+			{
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/src/executor-verify/cli.js\" hook subagent-stop",
+						"timeout": 10,
+						"statusMessage": "(lazy-claudecode) Verifying Executor Evidence"
+					}
+				],
+				"matcher": "^lazycodex-executor$"
+			}
+		]
+	}
 }
