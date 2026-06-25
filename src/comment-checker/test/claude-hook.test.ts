@@ -452,7 +452,7 @@ describe("runCommentCheckerPostToolUse", () => {
 	});
 });
 
-describe("runCodexHookCli", () => {
+describe("runClaudeHookCli", () => {
 	it("#given malformed post-tool-use stdin #when hook CLI runs #then it no-ops without stderr", async () => {
 		// given
 		const input = "break;\n";
