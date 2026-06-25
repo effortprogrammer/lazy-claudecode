@@ -1,0 +1,17 @@
+{
+	"hooks": {
+		"SubagentStop": [
+			{
+				"matcher": "^lazy-claudecode-executor$",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "node \"${PLUGIN_ROOT}/components/lazy-claudecode-executor-verify/dist/cli.js\" hook subagent-stop",
+						"timeout": 10,
+						"statusMessage": "(LazyClaude) Verifying LazyClaude Executor Evidence"
+					}
+				]
+			}
+		]
+	}
+}
