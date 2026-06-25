@@ -1,1 +1,1 @@
-export { getString, isRecord } from "@effortprogrammer/comment-checker-core";
+export { getString, isRecord } from "../shared/comment-checker-core/index.js";

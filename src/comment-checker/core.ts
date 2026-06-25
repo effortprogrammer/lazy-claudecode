@@ -1,6 +1,6 @@
-export { parseApplyPatchRequests } from "@effortprogrammer/comment-checker-core";
+export { parseApplyPatchRequests } from "../shared/comment-checker-core/index.js";
 export { toHookInput } from "./hook-input.js";
-export { isRecord } from "@effortprogrammer/comment-checker-core";
+export { isRecord } from "../shared/comment-checker-core/index.js";
 export { extractCommentCheckRequests, isToolFailureOutput } from "./request-extractor.js";
 export type {
 	CheckerEdit,

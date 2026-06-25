@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
-import { findPluginBundledCandidates } from "@effortprogrammer/rules-engine/engine";
+import { findPluginBundledCandidates } from "../../shared/rules-engine/index.js";
 
 const WINDOWS_RULE_DESCRIPTION = "Windows Git Bash guidance for Claude Code";
 const WINDOWS_RULE_PATH = "bundled-rules/windows-git-bash.md";

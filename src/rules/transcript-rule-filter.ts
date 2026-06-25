@@ -1,4 +1,4 @@
-import type { LoadedRule } from "@effortprogrammer/rules-engine/engine";
+import type { LoadedRule } from "../shared/rules-engine/index.js";
 import type { TranscriptSearchOptions } from "./transcript-search.js";
 import { readTranscriptSearchText } from "./transcript-search.js";
 

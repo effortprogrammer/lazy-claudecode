@@ -10,7 +10,7 @@ import {
 	runSessionStartHook,
 	runUserPromptSubmitHook,
 } from "../src/claude-code-hook.js";
-import { createRuleDiscoveryCache, findRuleCandidates } from "@effortprogrammer/rules-engine/engine";
+import { createRuleDiscoveryCache, findRuleCandidates } from "../../shared/rules-engine/index.js";
 
 interface FixtureOptions {
 	readonly writeProjectDuplicate?: boolean;

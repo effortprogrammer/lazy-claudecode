@@ -9,7 +9,7 @@ import {
 	parseRule,
 	scanRuleFiles,
 	SOURCE_PRIORITY,
-} from "@effortprogrammer/rules-engine/engine";
+} from "../../shared/rules-engine/index.js";
 
 const tempDirectories: string[] = [];
 

@@ -1,5 +1,5 @@
 import { extractApplyPatchRequests } from "./apply-patch.js";
-import { getString, isRecord } from "@effortprogrammer/comment-checker-core";
+import { getString, isRecord } from "../shared/comment-checker-core/index.js";
 import type { CheckerEdit, CommentCheckRequest, TextContent, ToolResultContent, ToolResultLike } from "./types.js";
 
 export function extractCommentCheckRequests(event: ToolResultLike): CommentCheckRequest[] {

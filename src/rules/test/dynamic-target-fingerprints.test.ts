@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { fingerprintDynamicTargets } from "../src/dynamic-target-fingerprints.js";
-import { defaultConfig } from "@effortprogrammer/rules-engine/engine";
+import { defaultConfig } from "../../shared/rules-engine/index.js";
 
 const tempDirectories: string[] = [];
 

@@ -1,12 +1,12 @@
 import { statSync } from "node:fs";
 import { resolve } from "node:path";
 import { isSameOrChildPath, toPosixPath, uniqueStrings } from "./path-utils.js";
-import { createRuleDiscoveryCache, findRuleCandidates } from "@effortprogrammer/rules-engine/engine";
-import { hashContent } from "@effortprogrammer/rules-engine/engine";
-import { sortCandidates } from "@effortprogrammer/rules-engine/engine";
-import { findProjectRoot } from "@effortprogrammer/rules-engine/engine";
-import { disabledSourcesFromConfig } from "@effortprogrammer/rules-engine/engine";
-import type { PiRulesConfig, RuleCandidate } from "@effortprogrammer/rules-engine/engine";
+import { createRuleDiscoveryCache, findRuleCandidates } from "../shared/rules-engine/index.js";
+import { hashContent } from "../shared/rules-engine/index.js";
+import { sortCandidates } from "../shared/rules-engine/index.js";
+import { findProjectRoot } from "../shared/rules-engine/index.js";
+import { disabledSourcesFromConfig } from "../shared/rules-engine/index.js";
+import type { PiRulesConfig, RuleCandidate } from "../shared/rules-engine/index.js";
 
 export interface DynamicTargetFingerprint {
 	targetPath: string;

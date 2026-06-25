@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { findRuleCandidates } from "@effortprogrammer/rules-engine/engine";
-import type { RuleCandidate } from "@effortprogrammer/rules-engine/engine";
+import { findRuleCandidates } from "../../shared/rules-engine/index.js";
+import type { RuleCandidate } from "../../shared/rules-engine/index.js";
 
 const tempDirectories: string[] = [];
 

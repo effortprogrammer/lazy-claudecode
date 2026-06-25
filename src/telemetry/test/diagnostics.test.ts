@@ -5,19 +5,16 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
 	cleanupTelemetryDiagnostics,
-} from "@effortprogrammer/telemetry-core";
-import {
-	getComponentTelemetryDiagnosticsFilePath,
-	getComponentTelemetryStateDir,
-	writeComponentTelemetryDiagnostic,
-} from "../src/product-identity.js";
-import { CACHE_DIR_NAME } from "../src/product-identity.js";
+	getTelemetryDiagnosticsFilePath,
+	writeTelemetryDiagnostic,
+} from "../diagnostics.js";
+import { CACHE_DIR_NAME } from "../product-identity.js";
 
 const originalXdgDataHome = process.env["XDG_DATA_HOME"];
 const tempDirectories: string[] = [];
 
 function createDataHomePath(): string {
-	const tempPath = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-diagnostics-"));
+	const tempPath = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-diagnostics-"));
 	tempDirectories.push(tempPath);
 	return tempPath;
 }
@@ -53,11 +50,11 @@ afterEach(() => {
 });
 
 describe("telemetry diagnostics", () => {
-	it("#given a telemetry failure #when diagnostics are written #then JSONL is stored under the lazy-claudecode-claude-code data directory", () => {
+	it("#given a telemetry failure #when diagnostics are written #then JSONL is stored under the lazy-claudecode data directory", () => {
 		const dataHomePath = createDataHomePath();
 		process.env["XDG_DATA_HOME"] = dataHomePath;
 
-		writeComponentTelemetryDiagnostic(
+		writeTelemetryDiagnostic(
 			{
 				event: "telemetry_capture_failed",
 				error: new Error("capture failed"),
@@ -66,7 +63,7 @@ describe("telemetry diagnostics", () => {
 			new Date("2026-06-04T01:02:03.000Z"),
 		);
 
-		const diagnosticsFilePath = getComponentTelemetryDiagnosticsFilePath();
+		const diagnosticsFilePath = getTelemetryDiagnosticsFilePath();
 		expect(diagnosticsFilePath).toBe(path.join(dataHomePath, CACHE_DIR_NAME, "telemetry-diagnostics.jsonl"));
 
 		const entries = readDiagnosticEntries(diagnosticsFilePath);
@@ -102,11 +99,8 @@ describe("telemetry diagnostics", () => {
 			].join("\n")}\n`,
 		);
 
-		cleanupTelemetryDiagnostics({
-			diagnosticsDir: getComponentTelemetryStateDir(),
-			now: new Date("2026-06-04T00:00:00.000Z"),
-		});
-		writeComponentTelemetryDiagnostic(
+		cleanupTelemetryDiagnostics(new Date("2026-06-04T00:00:00.000Z"));
+		writeTelemetryDiagnostic(
 			{
 				event: "telemetry_capture_failed",
 				error: new Error("next failure"),

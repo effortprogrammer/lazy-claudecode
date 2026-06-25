@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { scanRuleFiles } from "@effortprogrammer/rules-engine/engine";
+import { scanRuleFiles } from "../../shared/rules-engine/index.js";
 
 const tempDirectories: string[] = [];
 

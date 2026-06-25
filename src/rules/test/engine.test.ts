@@ -2,9 +2,9 @@ import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { configFromEnvironment } from "../src/config.js";
-import { createEngine, defaultConfig, type EngineDeps } from "@effortprogrammer/rules-engine/engine";
-import { matchRule as defaultMatchRule } from "@effortprogrammer/rules-engine/engine";
-import type { RuleCandidate } from "@effortprogrammer/rules-engine/engine";
+import { createEngine, defaultConfig, type EngineDeps } from "../../shared/rules-engine/index.js";
+import { matchRule as defaultMatchRule } from "../../shared/rules-engine/index.js";
+import type { RuleCandidate } from "../../shared/rules-engine/index.js";
 
 const projectRoot = "/tmp/claude-code-rules-engine";
 

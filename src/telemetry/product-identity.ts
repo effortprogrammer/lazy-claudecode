@@ -1,24 +1,12 @@
 import { readFileSync } from "node:fs";
 
-import {
-	DEFAULT_POSTHOG_API_KEY,
-	DEFAULT_POSTHOG_HOST,
-	getTelemetryDiagnosticsFilePath,
-	resolveTelemetryStateDir,
-	writeTelemetryDiagnostic,
-	type TelemetryDiagnosticInput,
-	type TelemetryProductConfig,
-} from "@effortprogrammer/telemetry-core";
-
-export { DEFAULT_POSTHOG_API_KEY, DEFAULT_POSTHOG_HOST };
-
 export const PRODUCT_NAME = "lazy-claudecode";
 export const PACKAGE_NAME = "@effortprogrammer/lazy-claudecode";
 export const CACHE_DIR_NAME = "lazy-claudecode";
-export const EVENT_NAME = "omo_claude-code_daily_active";
-export const LEGACY_PARENT_PACKAGE = "oh-my-opencode";
-export const PRODUCT_ENV_PREFIX = "LAZY_CLAUDECODE";
-export const MACHINE_ID_PREFIX = "lazy-claudecode:";
+export const EVENT_NAME = "lazy_claudecode_daily_active";
+export const LEGACY_PARENT_PACKAGE = "lazy-claudecode";
+export const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
+export const DEFAULT_POSTHOG_API_KEY = "phc_CFJhj5HyvA62QPhvyaUCtaq23aUfznnijg5VaaGkNk74";
 
 type ComponentPackageManifest = { readonly version?: string };
 
@@ -34,10 +22,7 @@ function readComponentVersionFromManifest(): string {
 		if (isComponentPackageManifest(parsed) && typeof parsed.version === "string") {
 			return parsed.version;
 		}
-	} catch (error) {
-		if (error instanceof Error) {
-			return "0.0.0";
-		}
+	} catch {
 		return "0.0.0";
 	}
 	return "0.0.0";
@@ -47,45 +32,4 @@ const COMPONENT_VERSION_CACHE = readComponentVersionFromManifest();
 
 export function getComponentVersion(): string {
 	return COMPONENT_VERSION_CACHE;
-}
-
-export function createComponentTelemetryProductConfig(
-	additionalProperties?: TelemetryProductConfig["additionalProperties"],
-): TelemetryProductConfig {
-	const product = {
-		cacheDirName: CACHE_DIR_NAME,
-		defaultApiKey: DEFAULT_POSTHOG_API_KEY,
-		defaultHost: DEFAULT_POSTHOG_HOST,
-		eventName: EVENT_NAME,
-		machineIdPrefix: MACHINE_ID_PREFIX,
-		packageName: PACKAGE_NAME,
-		packageVersion: getComponentVersion(),
-		platform: "lazy-claudecode",
-		productEnvPrefix: PRODUCT_ENV_PREFIX,
-		productName: PRODUCT_NAME,
-	};
-
-	if (additionalProperties === undefined) {
-		return product;
-	}
-
-	return {
-		...product,
-		additionalProperties,
-	};
-}
-
-export function getComponentTelemetryStateDir(): string {
-	return resolveTelemetryStateDir(createComponentTelemetryProductConfig());
-}
-
-export function getComponentTelemetryDiagnosticsFilePath(): string {
-	return getTelemetryDiagnosticsFilePath(getComponentTelemetryStateDir());
-}
-
-export function writeComponentTelemetryDiagnostic(input: TelemetryDiagnosticInput, now = new Date()): void {
-	writeTelemetryDiagnostic(input, {
-		diagnosticsDir: getComponentTelemetryStateDir(),
-		now,
-	});
 }

@@ -1,5 +1,5 @@
 import { hasContextPressureMarker } from "./context-pressure.js";
-import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
+import type { PiRulesConfig } from "../shared/rules-engine/index.js";
 import { readTranscriptSearchText } from "./transcript-search.js";
 
 export interface PostCompactBudgetContext {

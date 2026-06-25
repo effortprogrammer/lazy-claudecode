@@ -4,10 +4,10 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { configFromEnvironment } from "../src/config.js";
-import { SOURCE_PRIORITY } from "@effortprogrammer/rules-engine/engine";
-import { createEngine, defaultConfig, type EngineDeps } from "@effortprogrammer/rules-engine/engine";
-import { resolvePluginRulesRoot } from "@effortprogrammer/rules-engine/engine";
-import type { RuleCandidate } from "@effortprogrammer/rules-engine/engine";
+import { SOURCE_PRIORITY } from "../../shared/rules-engine/index.js";
+import { createEngine, defaultConfig, type EngineDeps } from "../../shared/rules-engine/index.js";
+import { resolvePluginRulesRoot } from "../../shared/rules-engine/index.js";
+import type { RuleCandidate } from "../../shared/rules-engine/index.js";
 
 const projectRoot = "/tmp/claude-code-rules-bundled-priority";
 const bundledPath = join(projectRoot, "bundled-rules", "hephaestus.md");

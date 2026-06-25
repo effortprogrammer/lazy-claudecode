@@ -4,7 +4,7 @@ import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { withPostCompactBudget } from "../src/post-compact-budget.js";
-import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
+import type { PiRulesConfig } from "../../shared/rules-engine/index.js";
 
 const tempDirectories: string[] = [];
 const CONFIG: PiRulesConfig = {

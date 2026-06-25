@@ -5,8 +5,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
-import type { PostHogActivityReason, PostHogClient } from "../src/posthog.js";
+import { type ClaudeCodeSessionStartInput, runSessionStartHook } from "../claude-hook.js";
+import type { PostHogActivityReason, PostHogClient } from "../posthog.js";
 
 const CLI_PATH = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 
@@ -36,7 +36,7 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<ClaudeSessionStartInput> = {}): ClaudeSessionStartInput {
+function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> = {}): ClaudeCodeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,
@@ -122,37 +122,13 @@ describe("runSessionStartHook", () => {
 			expect(recorder.shutdownCalls).toBe(1);
 		});
 	});
-
-	describe("#given PostHog client creation fails", () => {
-		it("#when createClient throws #then hook resolves with empty output", async () => {
-			const output = await runSessionStartHook(makeSessionStartInput(), {
-				createClient: () => {
-					throw new Error("posthog unavailable");
-				},
-				getDistinctId: () => "distinct-id-abc",
-			});
-
-			expect(output).toBe("");
-		});
-
-		it("#when createClient rejects #then hook resolves with empty output", async () => {
-			const output = await runSessionStartHook(makeSessionStartInput(), {
-				createClient: async () => {
-					throw new Error("posthog unavailable");
-				},
-				getDistinctId: () => "distinct-id-abc",
-			});
-
-			expect(output).toBe("");
-		});
-	});
 });
 
 describe("telemetry CLI session-start hook (subprocess)", () => {
 	describe("#given LAZY_CLAUDECODE_DISABLE_POSTHOG=1 set in environment", () => {
 		it("#when CLI receives valid SessionStart JSON #then exits 0 with no stdout output", async () => {
 			const payload = JSON.stringify(makeSessionStartInput());
-			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
+			const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli(payload, {
@@ -166,8 +142,8 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 
 		it("#when CLI runs from an isolated snapshot without node_modules #then exits 0 with no output", async () => {
 			const payload = JSON.stringify(makeSessionStartInput());
-			const snapshotRoot = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-snapshot-"));
-			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
+			const snapshotRoot = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-snapshot-"));
+			const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-data-"));
 			tempDirectories.push(snapshotRoot, dataDir);
 			cpSync(fileURLToPath(new URL("../dist", import.meta.url)), path.join(snapshotRoot, "dist"), {
 				recursive: true,
@@ -187,7 +163,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 	describe("#given LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY=0 set in environment", () => {
 		it("#when CLI receives valid SessionStart JSON #then exits 0 with no stdout output", async () => {
 			const payload = JSON.stringify(makeSessionStartInput());
-			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
+			const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli(payload, {
@@ -202,7 +178,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 
 	describe("#given malformed JSON on stdin", () => {
 		it("#when CLI receives invalid input #then exits 0 with no stdout output", async () => {
-			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
+			const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli("not-a-json-object", {
@@ -217,7 +193,7 @@ describe("telemetry CLI session-start hook (subprocess)", () => {
 
 	describe("#given empty stdin", () => {
 		it("#when CLI receives empty input #then exits 0 with no stdout output", async () => {
-			const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-data-"));
+			const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-data-"));
 			tempDirectories.push(dataDir);
 
 			const result = await runHookCli("", {

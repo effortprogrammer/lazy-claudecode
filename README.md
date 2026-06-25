@@ -145,15 +145,6 @@ Claude Code hooks allow scripts to run at lifecycle events:
 
 ## Configuration
 
-### Environment Variables
-
-| Variable | Description |
-|----------|-------------|
-| `LAZY_CLAUDECODE_NO_TELEMETRY` | Set to `1` to disable telemetry |
-| `LAZY_CLAUDECODE_ROOT` | Override install root (set automatically) |
-| `LAZY_CLAUDECODE_DEBUG` | Set to `1` for verbose logging |
-| `LAZY_CLAUDECODE_STATE_DIR` | Override state directory |
-
 ### Project Rules
 
 Place rules files in your project:

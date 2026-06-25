@@ -3,9 +3,9 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.js";
-import type { PostHogClient } from "../src/posthog.js";
-import { getComponentTelemetryDiagnosticsFilePath } from "../src/product-identity.js";
+import { type ClaudeCodeSessionStartInput, runSessionStartHook } from "../claude-hook.js";
+import { getTelemetryDiagnosticsFilePath } from "../diagnostics.js";
+import type { PostHogClient } from "../posthog.js";
 
 const tempDirectories: string[] = [];
 const originalXdgDataHome = process.env["XDG_DATA_HOME"];
@@ -22,7 +22,7 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<ClaudeSessionStartInput> = {}): ClaudeSessionStartInput {
+function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> = {}): ClaudeCodeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,
@@ -36,7 +36,7 @@ function makeSessionStartInput(overrides: Partial<ClaudeSessionStartInput> = {})
 }
 
 function createDiagnosticsDataDir(): string {
-	const dataDir = mkdtempSync(path.join(tmpdir(), "claude-code-telemetry-diagnostics-"));
+	const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-diagnostics-"));
 	tempDirectories.push(dataDir);
 	process.env["XDG_DATA_HOME"] = dataDir;
 	return dataDir;
@@ -63,7 +63,7 @@ describe("runSessionStartHook diagnostics", () => {
 
 			expect(output).toBe("");
 			expect(shutdownCalls).toBe(1);
-			const diagnostics = readFileSync(getComponentTelemetryDiagnosticsFilePath(), "utf-8");
+			const diagnostics = readFileSync(getTelemetryDiagnosticsFilePath(), "utf-8");
 			expect(diagnostics).toContain('"event":"telemetry_capture_failed"');
 			expect(diagnostics).toContain('"error_message":"trackActive failed"');
 		});
@@ -88,7 +88,7 @@ describe("runSessionStartHook diagnostics", () => {
 
 			expect(output).toBe("");
 			expect(shutdownCalls).toBe(1);
-			const diagnostics = readFileSync(getComponentTelemetryDiagnosticsFilePath(), "utf-8");
+			const diagnostics = readFileSync(getTelemetryDiagnosticsFilePath(), "utf-8");
 			expect(diagnostics).toContain('"event":"telemetry_capture_failed"');
 			expect(diagnostics).toContain('"error_name":"symbol"');
 			expect(diagnostics).toContain('"error_message":"Symbol(trackActive failed)"');

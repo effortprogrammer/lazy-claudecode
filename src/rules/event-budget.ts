@@ -1,4 +1,4 @@
-import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
+import type { PiRulesConfig } from "../shared/rules-engine/index.js";
 
 export function withDynamicBudget(config: PiRulesConfig): PiRulesConfig {
 	return {

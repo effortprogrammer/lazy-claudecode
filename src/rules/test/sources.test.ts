@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
 
-import { SOURCE_PRIORITY } from "@effortprogrammer/rules-engine/engine";
-import { defaultConfig } from "@effortprogrammer/rules-engine/engine";
-import { disabledSourcesFromConfig } from "@effortprogrammer/rules-engine/engine";
-import type { PiRulesConfig } from "@effortprogrammer/rules-engine/engine";
+import { SOURCE_PRIORITY } from "../../shared/rules-engine/index.js";
+import { defaultConfig } from "../../shared/rules-engine/index.js";
+import { disabledSourcesFromConfig } from "../../shared/rules-engine/index.js";
+import type { PiRulesConfig } from "../../shared/rules-engine/index.js";
 
 describe("rules source selection", () => {
 	it("#given default config #when disabled sources are derived #then opt-out sources stay disabled", () => {

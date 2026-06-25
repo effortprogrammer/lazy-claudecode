@@ -3,9 +3,9 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { configFromEnvironment } from "./config.js";
-import { createEngine } from "@effortprogrammer/rules-engine/engine";
-import { findRuleCandidates } from "@effortprogrammer/rules-engine/engine";
-import { findProjectRoot } from "@effortprogrammer/rules-engine/engine";
+import { createEngine } from "../shared/rules-engine/index.js";
+import { findRuleCandidates } from "../shared/rules-engine/index.js";
+import { findProjectRoot } from "../shared/rules-engine/index.js";
 
 interface RulesEngineFactoryOptions {
 	env?: NodeJS.ProcessEnv;
