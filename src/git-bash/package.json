@@ -1,0 +1,27 @@
+{
+	"name": "@effortprogrammer/lazy-claudecode-git-bash-hook",
+	"version": "4.13.0",
+	"description": "Claude Code hook component that reminds Windows sessions to prefer the lazy-claudecode git_bash MCP.",
+	"type": "module",
+	"private": true,
+	"bin": {
+		"lazy-claudecode-git-bash-hook": "./dist/cli.js"
+	},
+	"files": [
+		"dist",
+		"hooks"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.build.json",
+		"test": "bun test test/*.test.ts",
+		"typecheck": "tsc --noEmit"
+	},
+	"devDependencies": {
+		"@effortprogrammer/utils": "file:../../../../utils",
+		"@types/node": "^25.9.3",
+		"typescript": "^6.0.3"
+	},
+	"engines": {
+		"node": ">=20.0.0"
+	}
+}
