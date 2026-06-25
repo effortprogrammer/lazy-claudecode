@@ -1,0 +1,30 @@
+# Dependencies
+node_modules/
+
+# Test files
+src/**/test/
+src/**/*.test.ts
+src/test-support/
+src/**/__test_fixtures__/
+skills/**/tests/
+skills/**/test/
+
+# Dev config
+tsconfig.json
+src/**/tsconfig*.json
+biome.json
+bun.lock
+.github/
+
+# Dev docs in source
+src/**/AGENTS.md
+src/**/README.md
+
+# Build artifacts
+# NOTE: dist/lib/ (CLI bundles) and src/*/dist/ (pre-built MCP bundles) are kept
+# Only exclude top-level dist/ leftovers that aren't lib/
+*.tgz
+coverage/
+.DS_Store
+.env
+.lazy-claudecode/
