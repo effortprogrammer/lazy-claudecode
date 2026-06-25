@@ -1,0 +1,104 @@
+import { type UlwLoopScope, ulwLoopGoalsRelativePath, ulwLoopLedgerRelativePath } from "./paths.js";
+import type {
+	UlwLoopClaude CodeGoalMode,
+	UlwLoopItem,
+	UlwLoopPlan,
+	UlwLoopStatus,
+	UlwLoopSuccessCriterion,
+} from "./types.js";
+
+export const ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE: string = aggregateClaude CodeObjectiveForScope();
+
+export function aggregateClaude CodeObjectiveForScope(scope?: UlwLoopScope): string {
+	return `Complete the durable ulw-loop plan in ${ulwLoopGoalsRelativePath(scope)}, including later accepted/appended stories, under the original brief constraints; use ${ulwLoopLedgerRelativePath(scope)} as the audit trail.`;
+}
+
+export function claude-codeGoalMode(plan: UlwLoopPlan): UlwLoopClaude CodeGoalMode {
+	return plan.claude-codeGoalMode ?? "per_story";
+}
+
+function isResolvedStatus(status: UlwLoopStatus): boolean {
+	return status === "complete";
+}
+
+function isSupersededResolved(goal: UlwLoopItem, plan: UlwLoopPlan): boolean {
+	if (goal.steeringStatus !== "superseded") return false;
+	const replacements = goal.supersededBy ?? [];
+	if (replacements.length === 0) return false;
+	return replacements.every((id) => {
+		const replacement = plan.goals.find((candidate) => candidate.id === id);
+		return replacement !== undefined && isResolvedStatus(replacement.status);
+	});
+}
+
+function isCompletionBlocking(goal: UlwLoopItem, plan: UlwLoopPlan): boolean {
+	if (goal.steeringStatus === "superseded") return !isSupersededResolved(goal, plan);
+	if (goal.steeringStatus === "blocked") return true;
+	return !isResolvedStatus(goal.status);
+}
+
+function isCompletionBlockingForFinalCandidate(
+	candidate: UlwLoopItem,
+	finalCandidate: UlwLoopItem,
+	plan: UlwLoopPlan,
+): boolean {
+	if (candidate.id === finalCandidate.id) return false;
+	if (candidate.steeringStatus === "superseded") {
+		const replacements = candidate.supersededBy ?? [];
+		if (replacements.length === 0) return true;
+		return !replacements.every((id) => {
+			if (id === finalCandidate.id) return true;
+			const replacement = plan.goals.find((goal) => goal.id === id);
+			return replacement !== undefined && isResolvedStatus(replacement.status);
+		});
+	}
+	return isCompletionBlocking(candidate, plan);
+}
+
+export function isUlwLoopDone(plan: UlwLoopPlan): boolean {
+	if (plan.aggregateCompletion?.status === "complete") return true;
+	return plan.goals.every((goal) => !isCompletionBlocking(goal, plan));
+}
+
+export function isFinalRunCompletionCandidate(plan: UlwLoopPlan, goal: UlwLoopItem): boolean {
+	return (
+		isCompletionBlocking(goal, plan) &&
+		plan.goals.every((candidate) => !isCompletionBlockingForFinalCandidate(candidate, goal, plan))
+	);
+}
+
+export function aggregateClaude CodeObjective(plan: UlwLoopPlan): string {
+	return plan.claude-codeObjective ?? ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE;
+}
+
+export function expectedClaude CodeObjective(plan: UlwLoopPlan, goal: UlwLoopItem): string {
+	return claude-codeGoalMode(plan) === "aggregate" ? aggregateClaude CodeObjective(plan) : goal.objective;
+}
+
+export function compatibleClaude CodeObjectives(plan: UlwLoopPlan): readonly string[] {
+	return [aggregateClaude CodeObjective(plan), ...(plan.claude-codeObjectiveAliases ?? [])];
+}
+
+export function hasAllCriteriaPass(goal: UlwLoopItem): boolean {
+	return goal.successCriteria.length > 0 && goal.successCriteria.every((criterion) => criterion.status === "pass");
+}
+
+export function isEssentialCriterion(criterion: UlwLoopSuccessCriterion): boolean {
+	return criterion.essential ?? true;
+}
+
+export function essentialCriteriaOf(goal: UlwLoopItem): readonly UlwLoopSuccessCriterion[] {
+	const explicit = goal.successCriteria.filter(isEssentialCriterion);
+	if (explicit.length > 0) return explicit;
+	const happy = goal.successCriteria.find((criterion) => criterion.userModel === "happy");
+	return happy === undefined ? [] : [happy];
+}
+
+export function hasEssentialCriteriaPass(goal: UlwLoopItem): boolean {
+	const criteria = essentialCriteriaOf(goal);
+	return criteria.length > 0 && criteria.every((criterion) => criterion.status === "pass");
+}
+
+export function firstUnresolvedCriterion(goal: UlwLoopItem): UlwLoopSuccessCriterion | undefined {
+	return goal.successCriteria.find((criterion) => criterion.status !== "pass");
+}
