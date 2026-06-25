@@ -1,0 +1,46 @@
+{
+  "name": "lazy-claudecode",
+  "version": "0.1.0",
+  "description": "Agent harness for Claude Code — hooks, skills, MCP servers, and systematic work modes. Ported from LazyCodex.",
+  "type": "module",
+  "bin": {
+    "lazy-claudecode": "./bin/lazy-claudecode.js"
+  },
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "lint": "biome check src/",
+    "lint:fix": "biome check --write src/",
+    "test": "node --test dist/**/*.test.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "claude",
+    "claude-code",
+    "hooks",
+    "agent",
+    "mcp",
+    "codex",
+    "ai",
+    "developer-tools"
+  ],
+  "author": "Hojin Yang",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "dist/",
+    "bin/",
+    "skills/",
+    "hooks-config.json",
+    "model-catalog.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.0",
+    "typescript": "^5.5.0"
+  }
+}

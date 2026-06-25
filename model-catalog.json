@@ -1,0 +1,10 @@
+{
+  "version": "2026-06-26.claude-sonnet-4-default",
+  "current": { "model": "claude-sonnet-4-20250514" },
+  "roles": {
+    "default": { "model": "claude-sonnet-4-20250514", "description": "General-purpose tasks" },
+    "verifier": { "model": "claude-sonnet-4-20250514", "description": "Evidence verification and review" },
+    "worker": { "model": "claude-sonnet-4-20250514", "description": "Subagent task execution" },
+    "planner": { "model": "claude-sonnet-4-20250514", "description": "Plan generation and decomposition" }
+  }
+}

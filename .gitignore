@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.js.map
+*.d.ts
+!bin/*.js
+.lazy-claudecode/
+.env
+.DS_Store
+*.tgz
+coverage/
