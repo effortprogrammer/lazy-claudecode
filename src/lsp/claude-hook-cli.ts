@@ -1,6 +1,6 @@
 import { stdin as processStdin } from "node:process";
 
-import { disposeDefaultLspManager } from "../lsp-daemon/index.js";
+import { disposeDefaultLspManager } from "../lsp-daemon/dist/index.js";
 
 import { isRecord, runLspPostCompactHook, runLspPostToolUseHook } from "./claude-hook.js";
 

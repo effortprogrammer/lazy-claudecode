@@ -6,7 +6,7 @@ import { argv, execPath, stderr } from "node:process";
 import { runPostCompactHookCli, runPostToolUseHookCli } from "./claude-hook-cli.js";
 
 const require = createRequire(import.meta.url);
-const PACKAGE_LSP_MCP_CLI = "../lsp-daemon/cli.js";
+const PACKAGE_LSP_MCP_CLI = "../lsp-daemon/dist/cli.js";
 
 async function main(): Promise<void> {
 	const [command = "mcp", subcommand = ""] = argv.slice(2);

@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 
-import { callDiagnosticsViaDaemon, currentRequestContext } from "../lsp-daemon/index.js";
+import { callDiagnosticsViaDaemon, currentRequestContext } from "../lsp-daemon/dist/index.js";
 
 import {
 	isLspDaemonUnreachableDiagnostics,

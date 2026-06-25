@@ -9,5 +9,7 @@ dist/
 *.tgz
 coverage/
 
-# Component dist
-src/*/dist/
+# Component dist (auto-generated)
+# NOTE: MCP server dist/ bundles are committed because they're pre-built
+# from the upstream monorepo and can't be rebuilt locally.
+# src/*/dist/ — NOT ignored, these are tracked

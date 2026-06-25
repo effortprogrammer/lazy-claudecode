@@ -9,7 +9,7 @@
 		"codegraph": {
 			"command": "node",
 			"args": [
-				"src/codegraph/serve.js"
+				"src/codegraph/dist/serve.js"
 			],
 			"cwd": ".",
 			"required": false
@@ -17,7 +17,7 @@
 		"git_bash": {
 			"command": "node",
 			"args": [
-				"./src/git-bash/mcp-cli.js",
+				"./src/git-bash-mcp/dist/cli.js",
 				"mcp"
 			],
 			"cwd": "."
@@ -25,7 +25,7 @@
 		"lsp": {
 			"command": "node",
 			"args": [
-				"./src/lsp/daemon-cli.js",
+				"./src/lsp-daemon/dist/cli.js",
 				"mcp"
 			],
 			"cwd": "."
