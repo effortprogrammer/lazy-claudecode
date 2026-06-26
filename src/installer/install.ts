@@ -61,14 +61,17 @@ function resolveBunPath(): string {
 }
 
 /**
- * Load hooks-config.json and resolve ${BUN} to the absolute bun path.
- * ${PLUGIN_ROOT} is kept as-is — Claude Code resolves it at runtime.
+ * Load hooks-config.json and resolve placeholders to absolute paths.
+ * ${BUN} → absolute bun binary path
+ * ${PLUGIN_ROOT} → absolute package root path
  */
 function loadHooksConfig(root: string): HooksConfig {
   const configPath = join(root, "hooks-config.json");
   const raw = readFileSync(configPath, "utf-8");
   const bunPath = resolveBunPath();
-  const resolved = raw.replace(/\$\{BUN\}/g, bunPath);
+  const resolved = raw
+    .replace(/\$\{BUN\}/g, bunPath)
+    .replace(/\$\{PLUGIN_ROOT\}/g, root);
   return JSON.parse(resolved) as HooksConfig;
 }
 
