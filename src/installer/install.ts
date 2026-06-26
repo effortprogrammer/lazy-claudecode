@@ -202,6 +202,58 @@ function installCrossCallAgents(root: string): number {
   return installed;
 }
 
+/**
+ * Install slash commands to ~/.claude/commands/.
+ * - /lazycc → delegates to Claude Code (via lazycc-delegate agent)
+ * - /lazycodex → delegates to Codex (via lazycodex-delegate agent)
+ *
+ * Commands are loaded by both Claude Code and Codex (LazyCodex)
+ * from ~/.claude/commands/ directory.
+ */
+function installSlashCommands(root: string): number {
+  const { hasClaude, hasCodex } = detectAgentCLIs();
+
+  const targetDir = join(homedir(), ".claude", "commands");
+  const commandsSourceDir = join(root, "commands");
+
+  if (!existsSync(commandsSourceDir)) {
+    console.log("⏭️  No commands/ directory in package — skipping slash command setup");
+    return 0;
+  }
+
+  if (!hasClaude && !hasCodex) {
+    console.log("⏭️  Neither claude nor codex CLI found — skipping slash command setup");
+    return 0;
+  }
+
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  // Map: which command file to install for which CLI
+  const commandMapping: Array<{ file: string; requiredCli: string; description: string }> = [
+    { file: "lazycc.md", requiredCli: "codex", description: "/lazycc → delegate to Claude Code" },
+    { file: "lazycodex.md", requiredCli: "claude", description: "/lazycodex → delegate to Codex" },
+  ];
+
+  let installed = 0;
+
+  for (const { file, requiredCli, description } of commandMapping) {
+    const cliAvailable = requiredCli === "codex" ? hasCodex : hasClaude;
+    if (!cliAvailable) continue;
+
+    const sourcePath = join(commandsSourceDir, file);
+    if (!existsSync(sourcePath)) continue;
+
+    const targetPath = join(targetDir, file);
+    copyFileSync(sourcePath, targetPath);
+    console.log(`✅ Installed ${description}`);
+    installed++;
+  }
+
+  return installed;
+}
+
 export async function install(root: string): Promise<void> {
   console.log("🔧 Installing lazy-claudecode hooks...\n");
 
@@ -269,5 +321,13 @@ export async function install(root: string): Promise<void> {
   if (agentCount > 0) {
     console.log(`\n✅ ${agentCount} cross-call agent(s) installed to ~/.claude/agents/`);
     console.log("   Codex and Claude Code can now delegate tasks to each other as subagents.");
+  }
+
+  // 8. Install slash commands
+  console.log("\n⚡ Setting up slash commands...");
+  const commandCount = installSlashCommands(root);
+  if (commandCount > 0) {
+    console.log(`\n✅ ${commandCount} slash command(s) installed to ~/.claude/commands/`);
+    console.log("   Use /lazycc or /lazycodex to delegate tasks between agents.");
   }
 }
