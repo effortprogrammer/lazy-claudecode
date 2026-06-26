@@ -67,6 +67,17 @@ Claude will:
 
 ---
 
+## 🤝 Cross-Call: Claude Code ↔ Codex
+
+If you have both CLIs installed, the installer sets up bidirectional delegation automatically:
+
+- **In Codex** → `@lazycc-delegate` to hand a task to Claude Code
+- **In Claude Code** → `/lazycodex` to hand a task to Codex
+
+Each agent runs the other's CLI under the hood and returns the result as-is — no context lost, no copy-paste.
+
+---
+
 ## 🧬 Origins
 
 Built by [Hojin Yang](https://github.com/effortprogrammer). Inspired by [LazyCodex](https://github.com/code-yeongyu/lazycodex) ([@code-yeongyu](https://github.com/code-yeongyu)).

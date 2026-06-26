@@ -137,18 +137,18 @@ function detectAgentCLIs(): { hasClaude: boolean; hasCodex: boolean } {
 }
 
 /**
- * Install cross-call agent files to ~/.claude/agents/.
- * - If `codex` is installed → install claude-code-delegate.md (Codex can call Claude Code)
- * - If `claude` is installed → install codex-delegate.md (Claude Code can call Codex)
+ * Install cross-call agent files to ~/.claude/agents/ and ~/.codex/agents/.
+ * - If `codex` is installed → install lazycc-delegate (Codex can call Claude Code)
+ *   - .md → ~/.claude/agents/ (for LazyCodex plugin compatibility)
+ *   - .toml → ~/.codex/agents/ + register in ~/.codex/config.toml (for Codex native TUI)
+ * - If `claude` is installed → install lazycodex-delegate.md (Claude Code can call Codex)
  * - Both → install both
- *
- * These .md agent files are read by both Claude Code (loadUserAgents) and
- * Codex (mergeWithClaudeCodeAgents) from the same ~/.claude/agents/ directory.
  */
 function installCrossCallAgents(root: string): number {
   const { hasClaude, hasCodex } = detectAgentCLIs();
 
-  const targetDir = join(homedir(), ".claude", "agents");
+  const claudeAgentsDir = join(homedir(), ".claude", "agents");
+  const codexAgentsDir = join(homedir(), ".codex", "agents");
 
   // Clean up deprecated agent files from previous versions
   const deprecatedFiles = [
@@ -156,7 +156,7 @@ function installCrossCallAgents(root: string): number {
     "codex-delegate.md",
   ];
   for (const file of deprecatedFiles) {
-    const oldPath = join(targetDir, file);
+    const oldPath = join(claudeAgentsDir, file);
     if (existsSync(oldPath)) {
       unlinkSync(oldPath);
       console.log(`🧹 Removed deprecated ${file}`);
@@ -169,13 +169,15 @@ function installCrossCallAgents(root: string): number {
   }
 
   const agentsSourceDir = join(root, "agents");
+  const codexAgentsSourceDir = join(root, "codex-agents");
+
   if (!existsSync(agentsSourceDir)) {
     console.log("⏭️  No agents/ directory in package — skipping cross-call agent setup");
     return 0;
   }
 
-  if (!existsSync(targetDir)) {
-    mkdirSync(targetDir, { recursive: true });
+  if (!existsSync(claudeAgentsDir)) {
+    mkdirSync(claudeAgentsDir, { recursive: true });
   }
 
   // Map: which agent file to install for which CLI
@@ -193,11 +195,68 @@ function installCrossCallAgents(root: string): number {
     const sourcePath = join(agentsSourceDir, file);
     if (!existsSync(sourcePath)) continue;
 
-    const targetPath = join(targetDir, file);
+    const targetPath = join(claudeAgentsDir, file);
     copyFileSync(sourcePath, targetPath);
-    console.log(`✅ Installed ${file} → ${targetDir}/ (${cliName} can delegate to ${requiredCli === "codex" ? "Claude Code" : "Codex"})`);
+    console.log(`✅ Installed ${file} → ${claudeAgentsDir}/ (${cliName} can delegate to ${requiredCli === "codex" ? "Claude Code" : "Codex"})`);
     installed++;
   }
+
+  // Install Codex native agent (.toml) if codex is available
+  if (hasCodex && existsSync(codexAgentsSourceDir)) {
+    installed += installCodexNativeAgents(codexAgentsSourceDir, codexAgentsDir);
+  }
+
+  return installed;
+}
+
+/**
+ * Install .toml agent definitions to ~/.codex/agents/ and register them
+ * in ~/.codex/config.toml so Codex TUI recognizes them natively.
+ *
+ * This enables "@lazycc-delegate" mention in Codex TUI without going
+ * through LazyCodex's slash command hook (which Codex TUI intercepts).
+ */
+function installCodexNativeAgents(sourceDir: string, targetDir: string): number {
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  const tomlFiles = readdirSync(sourceDir).filter((f) => f.endsWith(".toml"));
+  if (tomlFiles.length === 0) return 0;
+
+  let installed = 0;
+  const configPath = join(homedir(), ".codex", "config.toml");
+
+  // Read existing config.toml
+  let configContent = "";
+  if (existsSync(configPath)) {
+    configContent = readFileSync(configPath, "utf-8");
+  }
+
+  for (const file of tomlFiles) {
+    const agentName = file.replace(".toml", "");
+    const sourcePath = join(sourceDir, file);
+    const targetPath = join(targetDir, file);
+
+    // Copy .toml file
+    copyFileSync(sourcePath, targetPath);
+    console.log(`✅ Installed Codex native agent: ${file} → ${targetDir}/`);
+
+    // Register in config.toml if not already present
+    const sectionHeader = `[agents.${agentName}]`;
+    if (!configContent.includes(sectionHeader)) {
+      const agentEntry = `\n${sectionHeader}\nconfig_file = "./agents/${file}"\n`;
+      configContent += agentEntry;
+      console.log(`✅ Registered ${agentName} in ~/.codex/config.toml`);
+    } else {
+      console.log(`⏭️  ${agentName} already registered in ~/.codex/config.toml`);
+    }
+
+    installed++;
+  }
+
+  // Write updated config.toml
+  writeFileSync(configPath, configContent, "utf-8");
 
   return installed;
 }
