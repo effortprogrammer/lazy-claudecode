@@ -2,8 +2,8 @@
  * Installer — merges lazy-claudecode hooks into ~/.claude/settings.json
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync } from "node:fs";
+import { join, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
 import { homedir } from "node:os";
 import { getClaudeSettingsPath } from "../utils/paths.ts";
@@ -116,6 +116,78 @@ function mergeHooks(
   return merged;
 }
 
+/**
+ * Detect which coding agent CLIs are available.
+ */
+function detectAgentCLIs(): { hasClaude: boolean; hasCodex: boolean } {
+  let hasClaude = false;
+  let hasCodex = false;
+
+  try {
+    execSync("which claude", { encoding: "utf-8", stdio: "pipe" });
+    hasClaude = true;
+  } catch { /* not found */ }
+
+  try {
+    execSync("which codex", { encoding: "utf-8", stdio: "pipe" });
+    hasCodex = true;
+  } catch { /* not found */ }
+
+  return { hasClaude, hasCodex };
+}
+
+/**
+ * Install cross-call agent files to ~/.claude/agents/.
+ * - If `codex` is installed → install claude-code-delegate.md (Codex can call Claude Code)
+ * - If `claude` is installed → install codex-delegate.md (Claude Code can call Codex)
+ * - Both → install both
+ *
+ * These .md agent files are read by both Claude Code (loadUserAgents) and
+ * Codex (mergeWithClaudeCodeAgents) from the same ~/.claude/agents/ directory.
+ */
+function installCrossCallAgents(root: string): number {
+  const { hasClaude, hasCodex } = detectAgentCLIs();
+
+  if (!hasClaude && !hasCodex) {
+    console.log("⏭️  Neither claude nor codex CLI found — skipping cross-call agent setup");
+    return 0;
+  }
+
+  const agentsSourceDir = join(root, "agents");
+  if (!existsSync(agentsSourceDir)) {
+    console.log("⏭️  No agents/ directory in package — skipping cross-call agent setup");
+    return 0;
+  }
+
+  const targetDir = join(homedir(), ".claude", "agents");
+  if (!existsSync(targetDir)) {
+    mkdirSync(targetDir, { recursive: true });
+  }
+
+  // Map: which agent file to install for which CLI
+  const agentMapping: Array<{ file: string; requiredCli: string; cliName: string }> = [
+    { file: "claude-code-delegate.md", requiredCli: "codex", cliName: "Codex" },
+    { file: "codex-delegate.md", requiredCli: "claude", cliName: "Claude Code" },
+  ];
+
+  let installed = 0;
+
+  for (const { file, requiredCli, cliName } of agentMapping) {
+    const cliAvailable = requiredCli === "codex" ? hasCodex : hasClaude;
+    if (!cliAvailable) continue;
+
+    const sourcePath = join(agentsSourceDir, file);
+    if (!existsSync(sourcePath)) continue;
+
+    const targetPath = join(targetDir, file);
+    copyFileSync(sourcePath, targetPath);
+    console.log(`✅ Installed ${file} → ${targetDir}/ (${cliName} can delegate to ${requiredCli === "codex" ? "Claude Code" : "Codex"})`);
+    installed++;
+  }
+
+  return installed;
+}
+
 export async function install(root: string): Promise<void> {
   console.log("🔧 Installing lazy-claudecode hooks...\n");
 
@@ -175,5 +247,13 @@ export async function install(root: string): Promise<void> {
   for (const event of Object.keys(hooksConfig.hooks)) {
     const count = hooksConfig.hooks[event].reduce((sum, g) => sum + g.hooks.length, 0);
     console.log(`  - ${event}: ${count} hook(s)`);
+  }
+
+  // 7. Install cross-call agent files
+  console.log("\n🤝 Setting up cross-call agents...");
+  const agentCount = installCrossCallAgents(root);
+  if (agentCount > 0) {
+    console.log(`\n✅ ${agentCount} cross-call agent(s) installed to ~/.claude/agents/`);
+    console.log("   Codex and Claude Code can now delegate tasks to each other as subagents.");
   }
 }
