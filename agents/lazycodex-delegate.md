@@ -1,7 +1,6 @@
 ---
 name: lazycodex-delegate
 description: "Delegate a task to OpenAI Codex (via LazyCodex). Use when you want Codex's implementation, code generation, or debugging capabilities on the current repository."
-model: o4-mini
 tools: Bash
 mode: subagent
 ---

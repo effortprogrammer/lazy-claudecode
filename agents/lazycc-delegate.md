@@ -1,7 +1,6 @@
 ---
 name: lazycc-delegate
 description: "Delegate a task to Claude Code (via lazy-claudecode). Use when you want Claude's analysis, implementation, review, or debugging capabilities on the current repository."
-model: claude-sonnet-4-20250514
 tools: Bash
 mode: subagent
 ---
