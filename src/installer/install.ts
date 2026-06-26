@@ -2,7 +2,7 @@
  * Installer — merges lazy-claudecode hooks into ~/.claude/settings.json
  */
 
-import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync, mkdirSync, copyFileSync, readdirSync, unlinkSync } from "node:fs";
 import { join, dirname, basename } from "node:path";
 import { execSync } from "node:child_process";
 import { homedir } from "node:os";
@@ -148,6 +148,21 @@ function detectAgentCLIs(): { hasClaude: boolean; hasCodex: boolean } {
 function installCrossCallAgents(root: string): number {
   const { hasClaude, hasCodex } = detectAgentCLIs();
 
+  const targetDir = join(homedir(), ".claude", "agents");
+
+  // Clean up deprecated agent files from previous versions
+  const deprecatedFiles = [
+    "claude-code-delegate.md",
+    "codex-delegate.md",
+  ];
+  for (const file of deprecatedFiles) {
+    const oldPath = join(targetDir, file);
+    if (existsSync(oldPath)) {
+      unlinkSync(oldPath);
+      console.log(`🧹 Removed deprecated ${file}`);
+    }
+  }
+
   if (!hasClaude && !hasCodex) {
     console.log("⏭️  Neither claude nor codex CLI found — skipping cross-call agent setup");
     return 0;
@@ -159,7 +174,6 @@ function installCrossCallAgents(root: string): number {
     return 0;
   }
 
-  const targetDir = join(homedir(), ".claude", "agents");
   if (!existsSync(targetDir)) {
     mkdirSync(targetDir, { recursive: true });
   }
