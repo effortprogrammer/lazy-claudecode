@@ -166,8 +166,8 @@ function installCrossCallAgents(root: string): number {
 
   // Map: which agent file to install for which CLI
   const agentMapping: Array<{ file: string; requiredCli: string; cliName: string }> = [
-    { file: "claude-code-delegate.md", requiredCli: "codex", cliName: "Codex" },
-    { file: "codex-delegate.md", requiredCli: "claude", cliName: "Claude Code" },
+    { file: "lazycc-delegate.md", requiredCli: "codex", cliName: "Codex" },
+    { file: "lazycodex-delegate.md", requiredCli: "claude", cliName: "Claude Code" },
   ];
 
   let installed = 0;
