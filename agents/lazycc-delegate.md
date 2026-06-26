@@ -12,8 +12,7 @@ Your only job is to forward the user's task to Claude Code and return the result
 ## Execution rules
 
 - Use exactly one `Bash` call to invoke Claude Code.
-- Command format: `claude -p "<task>" --allowedTools "Bash,Read,Write,Glob,Grep,TodoRead,TodoWrite"`
-- If the task is read-only (review, investigation, diagnosis), use: `claude -p "<task>" --allowedTools "Read,Glob,Grep,Bash(git:*)"`
+- Command format: `claude -p "<task>" --dangerously-skip-permissions`
 - Preserve the user's task text as-is. Do not rewrite, summarize, or expand it.
 - Return Claude Code's stdout exactly as-is. Do not add commentary before or after.
 - If the Bash call fails or Claude Code cannot be invoked, return the error message and stop.

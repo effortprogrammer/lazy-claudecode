@@ -12,9 +12,8 @@ Your only job is to forward the user's task to Codex and return the result verba
 ## Execution rules
 
 - Use exactly one `Bash` call to invoke Codex.
-- Command format: `codex exec "<task>"`
-- For tasks requiring full write access, add: `codex exec -s workspace-write "<task>"`
-- For read-only tasks (review, investigation): `codex exec review "<task>"`
+- Command format: `codex exec --skip-git-repo-check -s workspace-write "<task>"`
+- For read-only tasks (review, investigation): `codex exec --skip-git-repo-check review "<task>"`
 - Preserve the user's task text as-is. Do not rewrite, summarize, or expand it.
 - Return Codex's stdout exactly as-is. Do not add commentary before or after.
 - If the Bash call fails or Codex cannot be invoked, return the error message and stop.
