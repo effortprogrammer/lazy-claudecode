@@ -5,12 +5,12 @@ import { stderr as processStderr } from "node:process";
 import { fileURLToPath } from "node:url";
 
 import {
-	runCodegraphPostToolUseHookCli,
-	runCodegraphSessionStartHook,
-	runCodegraphSessionStartWorker,
 	type PostToolUseHookOptions,
 	type SessionStartHookOptions,
 	type SessionStartWorkerOptions,
+	runCodegraphPostToolUseHookCli,
+	runCodegraphSessionStartHook,
+	runCodegraphSessionStartWorker,
 } from "./hook.ts";
 import { runCodegraphServeCli } from "./serve.ts";
 
@@ -39,8 +39,12 @@ export async function runCodegraphCli(options: RunCodegraphCliOptions = {}): Pro
 	if (command === "hook" && subcommand === "session-start-worker") {
 		const workerOptions: SessionStartWorkerOptions = {
 			...options.workerOptions,
-			...(options.workerOptions?.cwd === undefined && options.cwd !== undefined ? { cwd: options.cwd } : {}),
-			...(options.workerOptions?.env === undefined && options.env !== undefined ? { env: options.env } : {}),
+			...(options.workerOptions?.cwd === undefined && options.cwd !== undefined
+				? { cwd: options.cwd }
+				: {}),
+			...(options.workerOptions?.env === undefined && options.env !== undefined
+				? { env: options.env }
+				: {}),
 		};
 		await runCodegraphSessionStartWorker(workerOptions);
 		return 0;
@@ -52,7 +56,9 @@ export async function runCodegraphCli(options: RunCodegraphCliOptions = {}): Pro
 
 if (isDirectInvocation(process.argv[1])) {
 	runCodegraphCli().catch((error: unknown) => {
-		processStderr.write(`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`);
+		processStderr.write(
+			`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
+		);
 		process.exitCode = 1;
 	});
 }

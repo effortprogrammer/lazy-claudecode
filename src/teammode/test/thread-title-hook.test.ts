@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { runPostToolUseHook } from "../src/claude-code-hook.ts";
+import { runPostToolUseHook } from "../claude-hook.ts";
 
 describe("thread title PostToolUse guidance", () => {
 	it("#given claude_app.create_thread completed #when the hook runs #then it asks Claude Code to immediately set a descriptive title", () => {
@@ -103,11 +103,11 @@ interface HookOutput {
 
 function isHookOutput(value: unknown): value is HookOutput {
 	if (!isRecord(value)) return false;
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	return (
 		isRecord(hookSpecificOutput) &&
-		hookSpecificOutput["hookEventName"] === "PostToolUse" &&
-		typeof hookSpecificOutput["additionalContext"] === "string"
+		hookSpecificOutput.hookEventName === "PostToolUse" &&
+		typeof hookSpecificOutput.additionalContext === "string"
 	);
 }
 

@@ -26,7 +26,9 @@ if (command === "hook" && subcommand === "session-start") {
 } else if (command === "hook" && subcommand === "post-compact") {
 	await runHookCli("PostCompact");
 } else {
-	process.stderr.write("Usage: lazy-claudecode-rules hook [session-start|user-prompt-submit|post-tool-use|post-compact]\n");
+	process.stderr.write(
+		"Usage: lazy-claudecode-rules hook [session-start|user-prompt-submit|post-tool-use|post-compact]\n",
+	);
 	process.exitCode = 1;
 }
 
@@ -35,18 +37,27 @@ async function runHookCli(eventName: HookCliEventName): Promise<void> {
 	if (raw.trim().length === 0) return;
 	const parsed = parseHookInput(raw);
 	if (!parsed) return;
-	const pluginDataRoot = process.env["PLUGIN_DATA"];
-	const options: ClaudeCodeRulesHookOptions = pluginDataRoot === undefined ? {} : { pluginDataRoot };
+	const pluginDataRoot = process.env.PLUGIN_DATA;
+	const options: ClaudeCodeRulesHookOptions =
+		pluginDataRoot === undefined ? {} : { pluginDataRoot };
 	const output = await runHook(eventName, parsed, options);
 	await writeStdout(output);
 }
 
-async function runHook(eventName: HookCliEventName, parsed: unknown, options: ClaudeCodeRulesHookOptions): Promise<string> {
+async function runHook(
+	eventName: HookCliEventName,
+	parsed: unknown,
+	options: ClaudeCodeRulesHookOptions,
+): Promise<string> {
 	switch (eventName) {
 		case "SessionStart":
-			return isClaudeCodeSessionStartInput(parsed) ? await runSessionStartHook(parsed, options) : "";
+			return isClaudeCodeSessionStartInput(parsed)
+				? await runSessionStartHook(parsed, options)
+				: "";
 		case "UserPromptSubmit":
-			return isClaudeCodeUserPromptSubmitInput(parsed) ? await runUserPromptSubmitHook(parsed, options) : "";
+			return isClaudeCodeUserPromptSubmitInput(parsed)
+				? await runUserPromptSubmitHook(parsed, options)
+				: "";
 		case "PostToolUse":
 			return isClaudeCodePostToolUseInput(parsed) ? await runPostToolUseHook(parsed, options) : "";
 		case "PostCompact":
@@ -66,55 +77,57 @@ function parseHookInput(raw: string): unknown | undefined {
 function isClaudeCodeSessionStartInput(value: unknown): value is ClaudeCodeSessionStartInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "SessionStart" &&
-		typeof value["session_id"] === "string" &&
-		isStringOrNull(value["transcript_path"]) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["source"] === "string"
+		value.hook_event_name === "SessionStart" &&
+		typeof value.session_id === "string" &&
+		isStringOrNull(value.transcript_path) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.source === "string"
 	);
 }
 
-function isClaudeCodeUserPromptSubmitInput(value: unknown): value is ClaudeCodeUserPromptSubmitInput {
+function isClaudeCodeUserPromptSubmitInput(
+	value: unknown,
+): value is ClaudeCodeUserPromptSubmitInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "UserPromptSubmit" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["turn_id"] === "string" &&
-		isStringOrNull(value["transcript_path"]) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["prompt"] === "string"
+		value.hook_event_name === "UserPromptSubmit" &&
+		typeof value.session_id === "string" &&
+		typeof value.turn_id === "string" &&
+		isStringOrNull(value.transcript_path) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.prompt === "string"
 	);
 }
 
 function isClaudeCodePostToolUseInput(value: unknown): value is ClaudeCodePostToolUseInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "PostToolUse" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["turn_id"] === "string" &&
-		isStringOrNull(value["transcript_path"]) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["tool_name"] === "string" &&
-		typeof value["tool_use_id"] === "string"
+		value.hook_event_name === "PostToolUse" &&
+		typeof value.session_id === "string" &&
+		typeof value.turn_id === "string" &&
+		isStringOrNull(value.transcript_path) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.tool_name === "string" &&
+		typeof value.tool_use_id === "string"
 	);
 }
 
 function isClaudeCodePostCompactInput(value: unknown): value is ClaudeCodePostCompactInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "PostCompact" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["turn_id"] === "string" &&
-		isStringOrNull(value["transcript_path"]) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		(value["trigger"] === "manual" || value["trigger"] === "auto")
+		value.hook_event_name === "PostCompact" &&
+		typeof value.session_id === "string" &&
+		typeof value.turn_id === "string" &&
+		isStringOrNull(value.transcript_path) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		(value.trigger === "manual" || value.trigger === "auto")
 	);
 }
 

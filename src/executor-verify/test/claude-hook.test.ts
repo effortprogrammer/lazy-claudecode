@@ -16,8 +16,8 @@ import { join } from "node:path";
 import { platform } from "node:process";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runSubagentStopHook } from "../src/claude-hook.ts";
-import type { SubagentStopInput } from "../src/types.ts";
+import { runSubagentStopHook } from "../claude-hook.ts";
+import type { SubagentStopInput } from "../types.ts";
 
 const cleanupRoots: string[] = [];
 
@@ -76,13 +76,19 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt.txt" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt.txt",
+			}),
 			nodeFileSystem,
 		);
 
 		// then
 		expect(output).toBe("");
-		expect(existsSync(join(cwd, ".lazy-claudecode", "lazy-claudecode-executor-verify", "sess.1-agent_1.json"))).toBe(false);
+		expect(
+			existsSync(
+				join(cwd, ".lazy-claudecode", "lazy-claudecode-executor-verify", "sess.1-agent_1.json"),
+			),
+		).toBe(false);
 	});
 
 	it("#given a zero-byte evidence receipt #when lazy-claudecode executor stops #then blocks", () => {
@@ -94,7 +100,9 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/empty.txt" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/empty.txt",
+			}),
 			nodeFileSystem,
 		);
 
@@ -109,7 +117,9 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt-dir" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/receipt-dir",
+			}),
 			nodeFileSystem,
 		);
 
@@ -126,7 +136,9 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/passwd-link" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/passwd-link",
+			}),
 			nodeFileSystem,
 		);
 
@@ -146,7 +158,9 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/outside-dir/receipt.txt" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/outside-dir/receipt.txt",
+			}),
 			nodeFileSystem,
 		);
 
@@ -191,7 +205,9 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 
 		// when
 		const output = runSubagentStopHook(
-			createInput(cwd, { last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/../outside.txt" }),
+			createInput(cwd, {
+				last_assistant_message: "done\nEVIDENCE_RECORDED: .claude/evidence/../outside.txt",
+			}),
 			nodeFileSystem,
 		);
 
@@ -230,7 +246,10 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 		const cwd = createWorkspace();
 
 		// when
-		const malformedOutput = runSubagentStopHook({ hook_event_name: "SubagentStop", session_id: 123 }, nodeFileSystem);
+		const malformedOutput = runSubagentStopHook(
+			{ hook_event_name: "SubagentStop", session_id: 123 },
+			nodeFileSystem,
+		);
 		const unknownEventOutput = runSubagentStopHook(createUnknownEventInput(cwd), nodeFileSystem);
 
 		// then
@@ -245,7 +264,10 @@ describe("lazy-claudecode executor SubagentStop verifier", () => {
 		writeFileSync(transcriptPath, "context_length_exceeded\n");
 
 		// when
-		const output = runSubagentStopHook(createInput(cwd, { transcript_path: transcriptPath }), nodeFileSystem);
+		const output = runSubagentStopHook(
+			createInput(cwd, { transcript_path: transcriptPath }),
+			nodeFileSystem,
+		);
 
 		// then
 		expect(output).toBe("");

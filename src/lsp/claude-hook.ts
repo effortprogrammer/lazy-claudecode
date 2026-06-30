@@ -44,8 +44,10 @@ interface PostToolUseHookOutput {
 
 const CLEAN_DIAGNOSTICS_TEXT = "No diagnostics found";
 const UNSUPPORTED_EXTENSION_TEXT = "No LSP server configured for extension:";
-const DIAGNOSTIC_START_PATTERN = /(?:error|warning|information|hint)\[[^\]\r\n]+\] \(\d+\) at \d+:\d+:/g;
-const DIAGNOSTIC_CHUNK_PATTERN = /^(?:error|warning|information|hint)\[[^\]\r\n]+\] \(\d+\) at \d+:\d+:/;
+const DIAGNOSTIC_START_PATTERN =
+	/(?:error|warning|information|hint)\[[^\]\r\n]+\] \(\d+\) at \d+:\d+:/g;
+const DIAGNOSTIC_CHUNK_PATTERN =
+	/^(?:error|warning|information|hint)\[[^\]\r\n]+\] \(\d+\) at \d+:\d+:/;
 const DEFAULT_MAX_HOOK_FEEDBACK_CHARS = 8000;
 const CONTEXT_PRESSURE_MAX_HOOK_FEEDBACK_CHARS = 1200;
 const MAX_CONCURRENT_DIAGNOSTICS = 4;
@@ -121,14 +123,20 @@ async function collectDiagnostics(
 			nextIndex += 1;
 			const filePath = filePaths[index];
 			if (filePath === undefined) return;
-			results[index] = { filePath, diagnostics: await collectFileDiagnostics(filePath, runDiagnostics) };
+			results[index] = {
+				filePath,
+				diagnostics: await collectFileDiagnostics(filePath, runDiagnostics),
+			};
 		}
 	}
 	await Promise.all(Array.from({ length: workerCount }, () => worker()));
 	return results;
 }
 
-async function collectFileDiagnostics(filePath: string, runDiagnostics: DiagnosticsRunner): Promise<string> {
+async function collectFileDiagnostics(
+	filePath: string,
+	runDiagnostics: DiagnosticsRunner,
+): Promise<string> {
 	try {
 		return (await runDiagnostics(filePath)).trim();
 	} catch (error) {

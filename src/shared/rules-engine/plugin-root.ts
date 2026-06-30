@@ -4,8 +4,11 @@ import { fileURLToPath } from "node:url";
 
 const PLUGIN_MANIFEST_PATH = join(".claude-plugin", "plugin.json");
 
-export function resolvePluginRulesRoot(pluginRoot: string | undefined, moduleUrl = import.meta.url): string {
-	const configuredRoot = pluginRoot ?? process.env["PLUGIN_ROOT"];
+export function resolvePluginRulesRoot(
+	pluginRoot: string | undefined,
+	moduleUrl = import.meta.url,
+): string {
+	const configuredRoot = pluginRoot ?? process.env.PLUGIN_ROOT;
 	if (configuredRoot !== undefined && configuredRoot.trim().length > 0) {
 		return resolveRulesComponentRoot(resolve(configuredRoot));
 	}

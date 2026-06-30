@@ -18,12 +18,12 @@ beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-checkpoint-"));
 	out = [];
 	err = [];
-	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env.LAZY_CLAUDECODE_SESSION_ID;
+	originalClaudeThreadId = process.env.LAZY_CLAUDECODE_THREAD_ID;
+	originalOmoSessionId = process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID;
+	process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -37,12 +37,13 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
-	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_SESSION_ID = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_THREAD_ID = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined)
+		process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 
@@ -184,7 +185,10 @@ describe("ulwLoopCommand checkpoint", () => {
 			]),
 		).toBe(0);
 
-		expect(stdoutJson()).toMatchObject({ ok: true, goal: { id: "G002-goal-b", status: "blocked" } });
+		expect(stdoutJson()).toMatchObject({
+			ok: true,
+			goal: { id: "G002-goal-b", status: "blocked" },
+		});
 	});
 
 	it("#given final completion with a missing quality-gate artifact #when checkpointed through CLI #then it is rejected", async () => {
@@ -210,6 +214,9 @@ describe("ulwLoopCommand checkpoint", () => {
 			]),
 		).toBe(1);
 		expect(err.join("")).toBe("");
-		expect(stdoutJson()).toMatchObject({ ok: false, error: { code: "ULW_LOOP_QUALITY_GATE_INVALID" } });
+		expect(stdoutJson()).toMatchObject({
+			ok: false,
+			error: { code: "ULW_LOOP_QUALITY_GATE_INVALID" },
+		});
 	});
 });

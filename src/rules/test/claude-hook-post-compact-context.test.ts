@@ -1,12 +1,12 @@
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runPostCompactHook, runSessionStartHook } from "../src/claude-code-hook.ts";
+import { runPostCompactHook, runSessionStartHook } from "../claude-hook.ts";
 import {
+	EXPANDED_POST_COMPACT_ENV,
+	PROJECT_RULES_ENV,
 	cleanupPostCompactFixtures,
 	compactSessionStartInput,
-	EXPANDED_POST_COMPACT_ENV,
 	makeOversizedProject,
-	PROJECT_RULES_ENV,
 	postCompactInput,
 	readAdditionalContext,
 	readOptionalAdditionalContext,

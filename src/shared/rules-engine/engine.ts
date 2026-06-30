@@ -67,7 +67,12 @@ export function createEngine(config: PiRulesConfig, deps: EngineDeps): Engine {
 		targetPaths: ReadonlyArray<string>,
 	): { rules: LoadedRule[]; diagnostics: RuleDiagnostic[] } {
 		state.cwd = cwd;
-		if (config.disabled || config.mode === "off" || config.mode === "static" || targetPaths.length === 0) {
+		if (
+			config.disabled ||
+			config.mode === "off" ||
+			config.mode === "static" ||
+			targetPaths.length === 0
+		) {
 			return emptyLoadResult(state);
 		}
 
@@ -82,7 +87,10 @@ export function createEngine(config: PiRulesConfig, deps: EngineDeps): Engine {
 		loadStaticRules,
 		loadDynamicRules,
 		formatStatic: (rules) =>
-			formatStaticBlock(rules, { maxRuleChars: config.maxRuleChars, maxResultChars: config.maxResultChars }),
+			formatStaticBlock(rules, {
+				maxRuleChars: config.maxRuleChars,
+				maxResultChars: config.maxResultChars,
+			}),
 		formatDynamic: (rules, target) =>
 			formatDynamicBlock(rules, target, {
 				maxRuleChars: config.maxRuleChars,
@@ -113,7 +121,10 @@ function storeLastLoad(
 	state.diagnostics.push(...diagnostics);
 }
 
-function emptyLoadResult(state: SessionState): { rules: LoadedRule[]; diagnostics: RuleDiagnostic[] } {
+function emptyLoadResult(state: SessionState): {
+	rules: LoadedRule[];
+	diagnostics: RuleDiagnostic[];
+} {
 	storeLastLoad(state, [], []);
 	return { rules: [], diagnostics: [] };
 }

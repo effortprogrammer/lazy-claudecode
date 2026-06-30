@@ -3,11 +3,11 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { configFromEnvironment } from "../src/config.ts";
 import { SOURCE_PRIORITY } from "../../shared/rules-engine/index.ts";
-import { createEngine, defaultConfig, type EngineDeps } from "../../shared/rules-engine/index.ts";
+import { type EngineDeps, createEngine, defaultConfig } from "../../shared/rules-engine/index.ts";
 import { resolvePluginRulesRoot } from "../../shared/rules-engine/index.ts";
 import type { RuleCandidate } from "../../shared/rules-engine/index.ts";
+import { configFromEnvironment } from "../config.ts";
 
 const projectRoot = "/tmp/claude-code-rules-bundled-priority";
 const bundledPath = join(projectRoot, "bundled-rules", "hephaestus.md");
@@ -22,7 +22,10 @@ afterEach(() => {
 	}
 });
 
-function globalCandidate(source: "plugin-bundled" | "~/.opencode/rules", path: string): RuleCandidate {
+function globalCandidate(
+	source: "plugin-bundled" | "~/.opencode/rules",
+	path: string,
+): RuleCandidate {
 	return {
 		path,
 		realPath: path,
@@ -30,7 +33,8 @@ function globalCandidate(source: "plugin-bundled" | "~/.opencode/rules", path: s
 		distance: 9999,
 		isGlobal: true,
 		isSingleFile: false,
-		relativePath: source === "plugin-bundled" ? "bundled-rules/hephaestus.md" : ".opencode/rules/hephaestus.md",
+		relativePath:
+			source === "plugin-bundled" ? "bundled-rules/hephaestus.md" : ".opencode/rules/hephaestus.md",
 	};
 }
 
@@ -97,7 +101,10 @@ describe("plugin bundled rule priority", () => {
 		tempDirectories.push(aggregateRoot);
 		mkdirSync(join(aggregateRoot, ".claude-code-plugin"), { recursive: true });
 		mkdirSync(componentRoot, { recursive: true });
-		writeFileSync(join(aggregateRoot, ".claude-code-plugin", "plugin.json"), JSON.stringify({ name: "lazy-claudecode" }));
+		writeFileSync(
+			join(aggregateRoot, ".claude-code-plugin", "plugin.json"),
+			JSON.stringify({ name: "lazy-claudecode" }),
+		);
 
 		// when
 		const resolvedRoot = resolvePluginRulesRoot(aggregateRoot);

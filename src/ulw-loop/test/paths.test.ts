@@ -31,9 +31,15 @@ describe("ulw-loop*Path helpers", () => {
 
 	it("#given a session id #when composing artifact filenames #then returns session-scoped paths", () => {
 		// when/then
-		expect(ulwLoopBriefPath("/r", { sessionId: "session-A" })).toBe("/r/.claude/ulw-loop/session-A/brief.md");
-		expect(ulwLoopGoalsPath("/r", { sessionId: "session-A" })).toBe("/r/.claude/ulw-loop/session-A/goals.json");
-		expect(ulwLoopLedgerPath("/r", { sessionId: "session-A" })).toBe("/r/.claude/ulw-loop/session-A/ledger.jsonl");
+		expect(ulwLoopBriefPath("/r", { sessionId: "session-A" })).toBe(
+			"/r/.claude/ulw-loop/session-A/brief.md",
+		);
+		expect(ulwLoopGoalsPath("/r", { sessionId: "session-A" })).toBe(
+			"/r/.claude/ulw-loop/session-A/goals.json",
+		);
+		expect(ulwLoopLedgerPath("/r", { sessionId: "session-A" })).toBe(
+			"/r/.claude/ulw-loop/session-A/ledger.jsonl",
+		);
 	});
 });
 
@@ -52,7 +58,9 @@ describe("normalizeUlwLoopSessionId", () => {
 describe("repoRelative", () => {
 	it("strips repo prefix when path is inside repo", () => {
 		// when/then
-		expect(repoRelative("/repo/.claude/ulw-loop/goals.json", "/repo")).toBe(".claude/ulw-loop/goals.json");
+		expect(repoRelative("/repo/.claude/ulw-loop/goals.json", "/repo")).toBe(
+			".claude/ulw-loop/goals.json",
+		);
 	});
 
 	it("returns absolute when path is outside repo", () => {

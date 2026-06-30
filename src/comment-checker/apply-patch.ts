@@ -16,7 +16,10 @@ export function extractApplyPatchRequests(event: {
 	return toCommentCheckRequests(extractApplyPatchEdits(undefined, event.input), event.toolName);
 }
 
-function extractApplyPatchMetadataRequests(details: unknown, sourceToolName: string): CommentCheckRequest[] {
+function extractApplyPatchMetadataRequests(
+	details: unknown,
+	sourceToolName: string,
+): CommentCheckRequest[] {
 	const edits = getApplyPatchMetadataFiles(details)
 		.filter((file) => file.filePath.length > 0 && file.type !== "delete")
 		.map((file) => ({

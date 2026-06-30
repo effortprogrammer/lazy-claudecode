@@ -1,12 +1,12 @@
 import { statSync } from "node:fs";
 import { resolve } from "node:path";
-import { isSameOrChildPath, toPosixPath, uniqueStrings } from "./path-utils.ts";
 import { createRuleDiscoveryCache, findRuleCandidates } from "../shared/rules-engine/index.ts";
 import { hashContent } from "../shared/rules-engine/index.ts";
 import { sortCandidates } from "../shared/rules-engine/index.ts";
 import { findProjectRoot } from "../shared/rules-engine/index.ts";
 import { disabledSourcesFromConfig } from "../shared/rules-engine/index.ts";
 import type { PiRulesConfig, RuleCandidate } from "../shared/rules-engine/index.ts";
+import { isSameOrChildPath, toPosixPath, uniqueStrings } from "./path-utils.ts";
 
 export interface DynamicTargetFingerprint {
 	targetPath: string;
@@ -43,7 +43,9 @@ export function fingerprintDynamicTargets(
 			findOptions.disabledSources = disabledSources;
 		}
 		const candidates = findRuleCandidates(findOptions);
-		const candidateFingerprint = sortCandidates(candidates).map(fingerprintCandidate).join("\u0001");
+		const candidateFingerprint = sortCandidates(candidates)
+			.map(fingerprintCandidate)
+			.join("\u0001");
 		const cacheKey = dynamicTargetCacheKey(targetPath);
 		fingerprints.push({
 			targetPath,

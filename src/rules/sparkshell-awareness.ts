@@ -13,9 +13,9 @@ const SPARKSHELL_AWARENESS_MARKER = "## Sparkshell Runtime";
 export const SPARKSHELL_AWARENESS_DEDUP_KEY = "__lcc_sparkshell_awareness__";
 
 export function isClaudeCodeAppServerActive(env: RuntimeEnv = process.env): boolean {
-	const originator = env["CLAUDE_CODE_INTERNAL_ORIGINATOR_OVERRIDE"]?.toLowerCase() ?? "";
-	const bundleIdentifier = env["__CFBundleIdentifier"]?.toLowerCase() ?? "";
-	const shellActive = isTruthy(env["CLAUDE_CODE_SHELL"]);
+	const originator = env.CLAUDE_CODE_INTERNAL_ORIGINATOR_OVERRIDE?.toLowerCase() ?? "";
+	const bundleIdentifier = env.__CFBundleIdentifier?.toLowerCase() ?? "";
+	const shellActive = isTruthy(env.CLAUDE_CODE_SHELL);
 
 	return (
 		shellActive &&
@@ -26,17 +26,25 @@ export function isClaudeCodeAppServerActive(env: RuntimeEnv = process.env): bool
 }
 
 function isSparkShellAppServerConfigured(env: RuntimeEnv = process.env): boolean {
-	const claudeCodeSocketPath = env["CLAUDE_CODE_APP_SERVER_SOCKET"]?.trim() ?? "";
-	const omoSocketPath = env["LAZY_CLAUDECODE_SPARKSHELL_APP_SERVER_SOCKET"]?.trim() ?? "";
+	const claudeCodeSocketPath = env.CLAUDE_CODE_APP_SERVER_SOCKET?.trim() ?? "";
+	const omoSocketPath = env.LAZY_CLAUDECODE_SPARKSHELL_APP_SERVER_SOCKET?.trim() ?? "";
 	return claudeCodeSocketPath.length > 0 || omoSocketPath.length > 0;
 }
 
-export function resolveOmoInvocation(env: RuntimeEnv = process.env, deps: OmoResolutionDeps = {}): string | null {
+export function resolveOmoInvocation(
+	env: RuntimeEnv = process.env,
+	deps: OmoResolutionDeps = {},
+): string | null {
 	const fileExists = deps.fileExists ?? existsSync;
 	const platform = deps.platform ?? process.platform;
-	const binNames = platform === "win32" ? ["lazy-claudecode.cmd", "lazy-claudecode.exe", "lazy-claudecode"] : ["lazy-claudecode"];
+	const binNames =
+		platform === "win32"
+			? ["lazy-claudecode.cmd", "lazy-claudecode.exe", "lazy-claudecode"]
+			: ["lazy-claudecode"];
 	const pathDelimiter = platform === "win32" ? ";" : ":";
-	const pathEntries = (env["PATH"] ?? "").split(pathDelimiter).filter((entry) => entry.trim().length > 0);
+	const pathEntries = (env.PATH ?? "")
+		.split(pathDelimiter)
+		.filter((entry) => entry.trim().length > 0);
 	for (const pathEntry of pathEntries) {
 		for (const binName of binNames) {
 			if (fileExists(join(pathEntry, binName))) return "lazy-claudecode";
@@ -53,21 +61,30 @@ export function resolveOmoInvocation(env: RuntimeEnv = process.env, deps: OmoRes
 
 function omoCandidateBinDirs(env: RuntimeEnv): readonly string[] {
 	const dirs: string[] = [];
-	const localBinDir = env["CLAUDE_CODE_LOCAL_BIN_DIR"]?.trim() ?? "";
+	const localBinDir = env.CLAUDE_CODE_LOCAL_BIN_DIR?.trim() ?? "";
 	if (localBinDir.length > 0) dirs.push(localBinDir);
-	const home = env["HOME"]?.trim() || env["USERPROFILE"]?.trim() || "";
-	const claudeCodeHome = env["CLAUDE_CODE_HOME"]?.trim() || (home.length > 0 ? join(home, ".claude-code") : "");
+	const home = env.HOME?.trim() || env.USERPROFILE?.trim() || "";
+	const claudeCodeHome =
+		env.CLAUDE_CODE_HOME?.trim() || (home.length > 0 ? join(home, ".claude-code") : "");
 	if (claudeCodeHome.length > 0) dirs.push(join(claudeCodeHome, "bin"));
 	if (home.length > 0) dirs.push(join(home, ".local", "bin"));
 	return dirs;
 }
 
-export function getSparkShellRuntimeAwareness(env: RuntimeEnv = process.env, deps: OmoResolutionDeps = {}): string {
-	const override = env["LAZY_CLAUDECODE_SPARKSHELL_AWARENESS"] ?? env["LAZYCLAUDE_CODE_SPARKSHELL_AWARENESS"];
+export function getSparkShellRuntimeAwareness(
+	env: RuntimeEnv = process.env,
+	deps: OmoResolutionDeps = {},
+): string {
+	const override =
+		env.LAZY_CLAUDECODE_SPARKSHELL_AWARENESS ?? env.LAZYCLAUDE_CODE_SPARKSHELL_AWARENESS;
 	if (isFalsy(override)) {
 		return "";
 	}
-	if (!isTruthy(override) && !isClaudeCodeAppServerActive(env) && !isSparkShellAppServerConfigured(env)) {
+	if (
+		!isTruthy(override) &&
+		!isClaudeCodeAppServerActive(env) &&
+		!isSparkShellAppServerConfigured(env)
+	) {
 		return "";
 	}
 

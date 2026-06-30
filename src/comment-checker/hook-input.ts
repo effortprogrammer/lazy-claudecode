@@ -1,4 +1,4 @@
-import type { CommentCheckerHookInput, CommentCheckRequest } from "./types.ts";
+import type { CommentCheckRequest, CommentCheckerHookInput } from "./types.ts";
 
 export function toHookInput(
 	request: CommentCheckRequest,

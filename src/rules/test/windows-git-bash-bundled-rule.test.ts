@@ -3,12 +3,13 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type ClaudeSessionStartInput, runSessionStartHook } from "../src/claude-code-hook.ts";
 import { findPluginBundledCandidates } from "../../shared/rules-engine/index.ts";
+import { type ClaudeSessionStartInput, runSessionStartHook } from "../claude-hook.ts";
 
 const WINDOWS_RULE_DESCRIPTION = "Windows Git Bash guidance for Claude Code";
 const WINDOWS_RULE_PATH = "bundled-rules/windows-git-bash.md";
-const WINDOWS_GUIDANCE = "On Windows native Claude Code sessions, prefer Git Bash for shell commands.";
+const WINDOWS_GUIDANCE =
+	"On Windows native Claude Code sessions, prefer Git Bash for shell commands.";
 const BUNDLED_ONLY_ENV = {
 	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "plugin-bundled",
 };
@@ -26,8 +27,8 @@ afterEach(() => {
 });
 
 function makeProject(): { readonly root: string; readonly pluginData: string } {
-	originalPluginRoot = process.env["PLUGIN_ROOT"];
-	process.env["PLUGIN_ROOT"] = process.cwd();
+	originalPluginRoot = process.env.PLUGIN_ROOT;
+	process.env.PLUGIN_ROOT = process.cwd();
 	const root = mkdtempSync(join(tmpdir(), "claude-code-rules-windows-git-bash-project-"));
 	const pluginData = mkdtempSync(join(tmpdir(), "claude-code-rules-windows-git-bash-data-"));
 	tempDirectories.push(root, pluginData);
@@ -95,13 +96,19 @@ describe("Windows Git Bash bundled rule content", () => {
 
 describe("Windows Git Bash bundled rule", () => {
 	it("#given packaged bundled rules #when discovering plugin-bundled candidates #then Windows Git Bash rule is included", () => {
-		const candidates = findPluginBundledCandidates({ pluginRoot: process.cwd(), platform: "win32" });
+		const candidates = findPluginBundledCandidates({
+			pluginRoot: process.cwd(),
+			platform: "win32",
+		});
 
 		expect(candidates.map((candidate) => candidate.relativePath)).toContain(WINDOWS_RULE_PATH);
 	});
 
 	it("#given packaged bundled rules off Windows #when discovering plugin-bundled candidates #then Windows Git Bash rule is excluded", () => {
-		const candidates = findPluginBundledCandidates({ pluginRoot: process.cwd(), platform: "darwin" });
+		const candidates = findPluginBundledCandidates({
+			pluginRoot: process.cwd(),
+			platform: "darwin",
+		});
 
 		expect(candidates.map((candidate) => candidate.relativePath)).not.toContain(WINDOWS_RULE_PATH);
 	});
@@ -115,7 +122,9 @@ describe("Windows Git Bash bundled rule", () => {
 			platform: "win32",
 		});
 
-		expect(occurrenceCount(output, `Instructions from: ${join(process.cwd(), WINDOWS_RULE_PATH)}`)).toBe(1);
+		expect(
+			occurrenceCount(output, `Instructions from: ${join(process.cwd(), WINDOWS_RULE_PATH)}`),
+		).toBe(1);
 		expect(output).toContain(WINDOWS_GUIDANCE);
 	});
 
@@ -139,9 +148,14 @@ describe("Windows Git Bash bundled rule", () => {
 		mkdirSync(join(root, ".claude", "rules"), { recursive: true });
 		writeFileSync(
 			projectRulePath,
-			["---", `description: ${WINDOWS_RULE_DESCRIPTION}`, "alwaysApply: true", "---", "", projectGuidance].join(
-				"\n",
-			),
+			[
+				"---",
+				`description: ${WINDOWS_RULE_DESCRIPTION}`,
+				"alwaysApply: true",
+				"---",
+				"",
+				projectGuidance,
+			].join("\n"),
 		);
 
 		const output = await runSessionStartHook(sessionStartInput(root), {

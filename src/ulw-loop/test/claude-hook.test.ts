@@ -5,17 +5,17 @@ import { Readable, Writable } from "node:stream";
 import { describe, expect, it } from "vitest";
 
 import {
+	type PreToolUsePayload,
+	type UserPromptSubmitPayload,
 	applyPreToolUseGoalBudgetGuard,
 	applyUserPromptUlwLoopSteering,
-	type PreToolUsePayload,
 	parseUserPromptSubmitPayload,
 	runPreToolUseGoalBudgetGuardCli,
 	runUlwLoopHookCli,
-	type UserPromptSubmitPayload,
-} from "../src/claude-code-hook.ts";
-import { ulwLoopDir, ulwLoopLedgerPath } from "../src/paths.ts";
-import { writePlan } from "../src/plan-io.ts";
-import type { UlwLoopPlan } from "../src/types.ts";
+} from "../claude-hook.ts";
+import { ulwLoopDir, ulwLoopLedgerPath } from "../paths.ts";
+import { writePlan } from "../plan-io.ts";
+import type { UlwLoopPlan } from "../types.ts";
 
 const NOW = "2026-05-23T00:00:00.000Z";
 const DEFAULT_SESSION_ID = "s1";
@@ -81,7 +81,11 @@ function payloadWithRuntimeEvent(hookEventName: string): UserPromptSubmitPayload
 function captureStdout(): { readonly stdout: Writable; readonly read: () => string } {
 	let captured = "";
 	const stdout = new Writable({
-		write(chunk: unknown, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+		write(
+			chunk: unknown,
+			_encoding: BufferEncoding,
+			callback: (error?: Error | null) => void,
+		): void {
 			captured += chunk instanceof Buffer ? chunk.toString() : String(chunk);
 			callback();
 		},
@@ -106,7 +110,9 @@ describe("parseUserPromptSubmitPayload", () => {
 	});
 
 	it("returns null when hook_event_name missing", () => {
-		expect(parseUserPromptSubmitPayload(JSON.stringify({ cwd: "/repo", prompt: "x", session_id: "s1" }))).toBeNull();
+		expect(
+			parseUserPromptSubmitPayload(JSON.stringify({ cwd: "/repo", prompt: "x", session_id: "s1" })),
+		).toBeNull();
 	});
 });
 
@@ -134,9 +140,9 @@ describe("applyUserPromptUlwLoopSteering - LAZY_CLAUDECODE directive patterns", 
 		);
 
 		expect(out).toContain("accepted");
-		expect(await readFile(ulwLoopLedgerPath(repoRoot, { sessionId: DEFAULT_SESSION_ID }), "utf8")).toContain(
-			"steering_accepted",
-		);
+		expect(
+			await readFile(ulwLoopLedgerPath(repoRoot, { sessionId: DEFAULT_SESSION_ID }), "utf8"),
+		).toContain("steering_accepted");
 	});
 
 	it("processes lazy-claudecode.ulw-loop.steer: pattern", async () => {
@@ -164,7 +170,9 @@ describe("applyUserPromptUlwLoopSteering - LAZY_CLAUDECODE directive patterns", 
 
 describe("applyUserPromptUlwLoopSteering - non-matching prompts", () => {
 	it("returns empty string when no directive in prompt", async () => {
-		expect(await applyUserPromptUlwLoopSteering(payload("just a normal user message", "/tmp"))).toBe("");
+		expect(
+			await applyUserPromptUlwLoopSteering(payload("just a normal user message", "/tmp")),
+		).toBe("");
 	});
 
 	it("returns empty when hook_event_name is not UserPromptSubmit", async () => {
@@ -185,7 +193,9 @@ describe("applyUserPromptUlwLoopSteering - error swallowing", () => {
 	});
 
 	it("returns empty when steering proposal is malformed JSON after marker", async () => {
-		const out = await applyUserPromptUlwLoopSteering(payload("LAZY_CLAUDECODE_ULW_LOOP_STEER: {bad", "/tmp"));
+		const out = await applyUserPromptUlwLoopSteering(
+			payload("LAZY_CLAUDECODE_ULW_LOOP_STEER: {bad", "/tmp"),
+		);
 		expect(out).toBe("");
 	});
 });
@@ -216,7 +226,10 @@ describe("runUlwLoopHookCli (stdin/stdout integration)", () => {
 describe("applyPreToolUseGoalBudgetGuard", () => {
 	it("#given create_goal sets token_budget #when PreToolUse runs #then it blocks with unlimited-goal warning", () => {
 		// given
-		const input = preToolPayload("create_goal", { objective: "Ship the feature", token_budget: 5000 });
+		const input = preToolPayload("create_goal", {
+			objective: "Ship the feature",
+			token_budget: 5000,
+		});
 
 		// when
 		const output = applyPreToolUseGoalBudgetGuard(input);
@@ -237,7 +250,10 @@ describe("applyPreToolUseGoalBudgetGuard", () => {
 
 	it("#given create_goal sets status #when PreToolUse runs #then it blocks with objective-only warning", () => {
 		// given
-		const input = preToolPayload("create_goal", { objective: "Ship the feature", status: "active" });
+		const input = preToolPayload("create_goal", {
+			objective: "Ship the feature",
+			status: "active",
+		});
 
 		// when
 		const output = applyPreToolUseGoalBudgetGuard(input);
@@ -251,7 +267,10 @@ describe("applyPreToolUseGoalBudgetGuard", () => {
 
 	it("#given create_goal sets an unknown field #when PreToolUse runs #then it blocks with objective-only warning", () => {
 		// given
-		const input = preToolPayload("create_goal", { objective: "Ship the feature", statusText: "active" });
+		const input = preToolPayload("create_goal", {
+			objective: "Ship the feature",
+			statusText: "active",
+		});
 
 		// when
 		const output = applyPreToolUseGoalBudgetGuard(input);
@@ -275,7 +294,11 @@ describe("applyPreToolUseGoalBudgetGuard", () => {
 
 	it("#given a neighboring tool includes token_budget text #when PreToolUse runs #then it stays silent", () => {
 		// given
-		const input = preToolPayload("update_goal", { status: "complete", token_budget: 5000, statusText: "done" });
+		const input = preToolPayload("update_goal", {
+			status: "complete",
+			token_budget: 5000,
+			statusText: "done",
+		});
 
 		// when
 		const output = applyPreToolUseGoalBudgetGuard(input);

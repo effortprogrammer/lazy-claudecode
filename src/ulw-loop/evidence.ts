@@ -1,8 +1,17 @@
-import { essentialCriteriaOf, hasAllCriteriaPass, hasEssentialCriteriaPass } from "./goal-status.ts";
+import {
+	essentialCriteriaOf,
+	hasAllCriteriaPass,
+	hasEssentialCriteriaPass,
+} from "./goal-status.ts";
 import type { UlwLoopScope } from "./paths.ts";
 import { appendLedger, readUlwLoopPlan, withUlwLoopMutationLock, writePlan } from "./plan-io.ts";
-import type { UlwLoopItem, UlwLoopLedgerEntry, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.ts";
-import { iso, UlwLoopError } from "./types.ts";
+import type {
+	UlwLoopItem,
+	UlwLoopLedgerEntry,
+	UlwLoopPlan,
+	UlwLoopSuccessCriterion,
+} from "./types.ts";
+import { UlwLoopError, iso } from "./types.ts";
 
 type EvidenceStatus = "pass" | "fail" | "blocked";
 type RecordEvidenceArgs = {
@@ -26,13 +35,17 @@ function ledgerKind(status: EvidenceStatus): UlwLoopLedgerEntry["kind"] {
 		case "blocked":
 			return "criterion_blocked";
 		default:
-			return ulwLoopFail("Invalid criterion status.", "ULW_LOOP_CRITERION_STATUS_INVALID", { status });
+			return ulwLoopFail("Invalid criterion status.", "ULW_LOOP_CRITERION_STATUS_INVALID", {
+				status,
+			});
 	}
 }
 
 function findGoal(plan: UlwLoopPlan, goalId: string): UlwLoopItem {
 	const goal = plan.goals.find((candidate) => candidate.id === goalId);
-	return goal ?? ulwLoopFail(`UlwLoop goal not found: ${goalId}.`, "ULW_LOOP_GOAL_NOT_FOUND", { goalId });
+	return (
+		goal ?? ulwLoopFail(`UlwLoop goal not found: ${goalId}.`, "ULW_LOOP_GOAL_NOT_FOUND", { goalId })
+	);
 }
 
 function findCriterion(goal: UlwLoopItem, criterionId: string): UlwLoopSuccessCriterion {
@@ -48,7 +61,9 @@ function findCriterion(goal: UlwLoopItem, criterionId: string): UlwLoopSuccessCr
 
 function nonEmptyEvidence(evidence: string): string {
 	const trimmed = evidence.trim();
-	return trimmed || ulwLoopFail("Evidence must be a non-empty string.", "ULW_LOOP_EVIDENCE_REQUIRED", {});
+	return (
+		trimmed || ulwLoopFail("Evidence must be a non-empty string.", "ULW_LOOP_EVIDENCE_REQUIRED", {})
+	);
 }
 
 export async function recordEvidence(
@@ -85,7 +100,14 @@ export async function recordEvidence(
 			evidence,
 			capturedEvidence: evidence,
 			before: { status: prevStatus },
-			after: { goalId: goal.id, criterionId: criterion.id, status: args.status, evidence, capturedAt, prevStatus },
+			after: {
+				goalId: goal.id,
+				criterionId: criterion.id,
+				status: args.status,
+				evidence,
+				capturedAt,
+				prevStatus,
+			},
 		};
 		await appendLedger(repoRoot, ledgerEntry, scope);
 		return { plan, goal, criterion, ledgerEntry };
@@ -110,8 +132,8 @@ export async function markCriteriaPendingResetForGoal(
 		for (const criterion of goal.successCriteria) {
 			criterion.status = "pending";
 			criterion.capturedEvidence = null;
-			delete criterion.capturedAt;
-			delete criterion.notes;
+			criterion.capturedAt = undefined;
+			criterion.notes = undefined;
 		}
 		goal.updatedAt = now;
 		plan.updatedAt = now;
@@ -172,14 +194,23 @@ export function criteriaSummary(plan: UlwLoopPlan): {
 		}
 		if (unresolved) goalsWithUnresolvedCriteria.push(goal.id);
 	}
-	return { totalCriteria, passCount, pendingCount, failCount, blockedCount, goalsWithUnresolvedCriteria };
+	return {
+		totalCriteria,
+		passCount,
+		pendingCount,
+		failCount,
+		blockedCount,
+		goalsWithUnresolvedCriteria,
+	};
 }
 
 export function unresolvedCriteriaOf(goal: UlwLoopItem): UlwLoopSuccessCriterion[] {
 	return goal.successCriteria.filter((criterion) => criterion.status !== "pass");
 }
 
-export function unresolvedEssentialCriteriaOf(goal: UlwLoopItem): readonly UlwLoopSuccessCriterion[] {
+export function unresolvedEssentialCriteriaOf(
+	goal: UlwLoopItem,
+): readonly UlwLoopSuccessCriterion[] {
 	const essentialCriteria = new Set(essentialCriteriaOf(goal).map((criterion) => criterion.id));
 	return goal.successCriteria.filter(
 		(criterion) => essentialCriteria.has(criterion.id) && criterion.status !== "pass",
@@ -188,12 +219,19 @@ export function unresolvedEssentialCriteriaOf(goal: UlwLoopItem): readonly UlwLo
 
 export function requireAllCriteriaPass(goal: UlwLoopItem): void {
 	if (hasAllCriteriaPass(goal)) return;
-	throw new UlwLoopError(`Goal ${goal.id} has unresolved success criteria.`, "ulw_loop_criteria_not_all_pass", {
-		details: {
-			goalId: goal.id,
-			unresolved: unresolvedCriteriaOf(goal).map((criterion) => ({ id: criterion.id, status: criterion.status })),
+	throw new UlwLoopError(
+		`Goal ${goal.id} has unresolved success criteria.`,
+		"ulw_loop_criteria_not_all_pass",
+		{
+			details: {
+				goalId: goal.id,
+				unresolved: unresolvedCriteriaOf(goal).map((criterion) => ({
+					id: criterion.id,
+					status: criterion.status,
+				})),
+			},
 		},
-	});
+	);
 }
 
 export function requireAllPlanCriteriaPass(plan: UlwLoopPlan): void {
@@ -205,9 +243,13 @@ export function requireAllPlanCriteriaPass(plan: UlwLoopPlan): void {
 		})),
 	);
 	if (unresolved.length === 0) return;
-	throw new UlwLoopError("Ulw-loop aggregate has unresolved success criteria.", "ulw_loop_criteria_not_all_pass", {
-		details: { unresolved },
-	});
+	throw new UlwLoopError(
+		"Ulw-loop aggregate has unresolved success criteria.",
+		"ulw_loop_criteria_not_all_pass",
+		{
+			details: { unresolved },
+		},
+	);
 }
 
 export function requireEssentialCriteriaPass(goal: UlwLoopItem): void {

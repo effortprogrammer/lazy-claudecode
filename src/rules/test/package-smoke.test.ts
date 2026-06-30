@@ -22,12 +22,12 @@ describe("plugin package metadata", () => {
 		const hookConfig = hooksJson.hooks;
 		const pluginRoot = ["$", "{PLUGIN_ROOT}"].join("");
 		const commands = [
-			hookConfig["SessionStart"]?.[0]?.hooks[0]?.command,
-			hookConfig["UserPromptSubmit"]?.[0]?.hooks[0]?.command,
-			hookConfig["PostToolUse"]?.[0]?.hooks[0]?.command,
-			hookConfig["PostCompact"]?.[0]?.hooks[0]?.command,
+			hookConfig.SessionStart?.[0]?.hooks[0]?.command,
+			hookConfig.UserPromptSubmit?.[0]?.hooks[0]?.command,
+			hookConfig.PostToolUse?.[0]?.hooks[0]?.command,
+			hookConfig.PostCompact?.[0]?.hooks[0]?.command,
 		];
-		const postToolUseMatcher = hookConfig["PostToolUse"]?.[0]?.matcher ?? "";
+		const postToolUseMatcher = hookConfig.PostToolUse?.[0]?.matcher ?? "";
 
 		// then
 		expect(packageJson.type).toBe("module");

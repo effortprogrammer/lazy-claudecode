@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { formatAdditionalContextOutput } from "../src/hook-output.ts";
+import { formatAdditionalContextOutput } from "../hook-output.ts";
 
 describe("formatAdditionalContextOutput", () => {
 	it("#given context with outer whitespace and CRLF #when serializing hook JSON #then additional context is newline-normalized", () => {
@@ -46,10 +46,11 @@ describe("formatAdditionalContextOutput", () => {
 
 function readAdditionalContext(value: unknown): string {
 	if (!isRecord(value)) throw new TypeError("Expected hook output object");
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	if (!isRecord(hookSpecificOutput)) throw new TypeError("Expected hookSpecificOutput object");
-	const additionalContext = hookSpecificOutput["additionalContext"];
-	if (typeof additionalContext !== "string") throw new TypeError("Expected additionalContext string");
+	const additionalContext = hookSpecificOutput.additionalContext;
+	if (typeof additionalContext !== "string")
+		throw new TypeError("Expected additionalContext string");
 	return additionalContext;
 }
 

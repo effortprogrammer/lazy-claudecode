@@ -54,14 +54,23 @@ export function printStatus(plan: UlwLoopPlan): void {
 		totalCriteria += counts.total;
 		passCriteria += counts.pass;
 		const marker = goal.id === plan.activeGoalId ? "*" : "-";
-		lines.push(`${marker} ${goal.id} [${goal.status}] ${goal.title} (criteria: ${counts.pass}/${counts.total})`);
+		lines.push(
+			`${marker} ${goal.id} [${goal.status}] ${goal.title} (criteria: ${counts.pass}/${counts.total})`,
+		);
 	}
-	lines.push("", "summary:", `total goals: ${plan.goals.length}`, `criteria: ${passCriteria}/${totalCriteria} pass`);
+	lines.push(
+		"",
+		"summary:",
+		`total goals: ${plan.goals.length}`,
+		`criteria: ${passCriteria}/${totalCriteria} pass`,
+	);
 	process.stdout.write(`${lines.join("\n")}\n`);
 }
 
 export function blockedDecisionHandoff(plan: UlwLoopPlan): string {
-	const blocked = plan.goals.find((goal) => goal.status === "needs_user_decision" && goal.nonRetriable);
+	const blocked = plan.goals.find(
+		(goal) => goal.status === "needs_user_decision" && goal.nonRetriable,
+	);
 	if (blocked === undefined) return "";
 	return [
 		"ulw-loop: blocked on repeated external authorization; no retryable failed goals remain.",

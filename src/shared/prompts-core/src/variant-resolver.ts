@@ -1,58 +1,58 @@
 import {
-  isClaudeOpus47Model,
-  isGeminiModel,
-  isGlmModel,
-  isGptModel,
-  isKimiK2Model,
-  isMiniMaxModel,
-} from "../../model-matchers.ts"
-import type { VariantTable } from "./types.ts"
+	isClaudeOpus47Model,
+	isGeminiModel,
+	isGlmModel,
+	isGptModel,
+	isKimiK2Model,
+	isMiniMaxModel,
+} from "../../model-matchers.ts";
+import type { VariantTable } from "./types.ts";
 
-type ModelMatcher = (modelID: string) => boolean
+type ModelMatcher = (modelID: string) => boolean;
 
 export type ResolveVariantInput = {
-  readonly modelID?: string
-  readonly agentName?: string
-  readonly variants: VariantTable
-}
+	readonly modelID?: string;
+	readonly agentName?: string;
+	readonly variants: VariantTable;
+};
 
-const PLANNER_AGENT_NAMES: ReadonlySet<string> = new Set(["prometheus"] as const)
+const PLANNER_AGENT_NAMES: ReadonlySet<string> = new Set(["prometheus"] as const);
 
 const MODEL_MATCHERS: Readonly<Record<string, ModelMatcher>> = {
-  gpt: isGptModel,
-  gemini: isGeminiModel,
-  kimi: isKimiK2Model,
-  glm: isGlmModel,
-  "opus-4-7": isClaudeOpus47Model,
-  minimax: isMiniMaxModel,
-}
+	gpt: isGptModel,
+	gemini: isGeminiModel,
+	kimi: isKimiK2Model,
+	glm: isGlmModel,
+	"opus-4-7": isClaudeOpus47Model,
+	minimax: isMiniMaxModel,
+};
 
 export function resolveVariant(input: ResolveVariantInput): string {
-  const variantNames = Object.keys(input.variants)
-  if (variantNames.length === 0) {
-    throw new TypeError("resolveVariant requires at least one prompt variant")
-  }
+	const variantNames = Object.keys(input.variants);
+	if (variantNames.length === 0) {
+		throw new TypeError("resolveVariant requires at least one prompt variant");
+	}
 
-  if (isPlannerAgent(input.agentName) && variantNames.includes("planner")) {
-    return "planner"
-  }
+	if (isPlannerAgent(input.agentName) && variantNames.includes("planner")) {
+		return "planner";
+	}
 
-  if (input.modelID !== undefined) {
-    for (const variantName of variantNames) {
-      if (matchesModelVariant(variantName, input.modelID)) return variantName
-    }
-  }
+	if (input.modelID !== undefined) {
+		for (const variantName of variantNames) {
+			if (matchesModelVariant(variantName, input.modelID)) return variantName;
+		}
+	}
 
-  if (variantNames.includes("default")) return "default"
+	if (variantNames.includes("default")) return "default";
 
-  return variantNames[0]
+	return variantNames[0];
 }
 
 function isPlannerAgent(agentName: string | undefined): boolean {
-  return agentName !== undefined && PLANNER_AGENT_NAMES.has(agentName.toLowerCase())
+	return agentName !== undefined && PLANNER_AGENT_NAMES.has(agentName.toLowerCase());
 }
 
 function matchesModelVariant(variantName: string, modelID: string): boolean {
-  const matcher = MODEL_MATCHERS[variantName]
-  return matcher?.(modelID) ?? false
+	const matcher = MODEL_MATCHERS[variantName];
+	return matcher?.(modelID) ?? false;
 }

@@ -4,8 +4,8 @@ import { join } from "node:path";
 
 import { afterAll, describe, expect, it } from "vitest";
 
-import { runSessionStartHook, runUserPromptSubmitHook } from "../src/claude-code-hook.ts";
-import { formatAdditionalContextOutput } from "../src/hook-output.ts";
+import { runSessionStartHook, runUserPromptSubmitHook } from "../claude-hook.ts";
+import { formatAdditionalContextOutput } from "../hook-output.ts";
 
 type HookOutput = {
 	readonly hookSpecificOutput?: {
@@ -34,11 +34,15 @@ function expectSparkshellFirstContract(value: string): void {
 	expect(guidance).toMatch(/\braw\b[^.]*`rg`\/`grep`\/`cat`\/`git`[^.]*\bfallbacks?\b/);
 	expect(guidance).toMatch(/\bsparkshell is unavailable\b/);
 	expect(guidance).toMatch(/\btoo narrow\b/);
-	expect(guidance).toMatch(/`lazy-claudecode sparkshell --shell '<command>'`[^.]*\bmetacharacters\b[^.]*\bpipelines\b/);
+	expect(guidance).toMatch(
+		/`lazy-claudecode sparkshell --shell '<command>'`[^.]*\bmetacharacters\b[^.]*\bpipelines\b/,
+	);
 	expect(guidance).toMatch(
 		/`lazy-claudecode sparkshell --tmux-pane <pane-id> --tail-lines 400`[^.]*\bonly\b[^.]*\binspect\b[^.]*\bexisting pane\b/,
 	);
-	expect(guidance).toMatch(/`lazy-claudecode sparkshell --tmux-pane <pane-id> --tail-lines 400`[^.]*\bnever\b[^.]*\blaunch ordinary commands\b/);
+	expect(guidance).toMatch(
+		/`lazy-claudecode sparkshell --tmux-pane <pane-id> --tail-lines 400`[^.]*\bnever\b[^.]*\blaunch ordinary commands\b/,
+	);
 	expect(guidance).not.toMatch(/\bprefer\b[^.]*\bbefore raw shell commands\b/);
 }
 
@@ -226,7 +230,9 @@ describe("Claude Code Sparkshell awareness", () => {
 
 		// then
 		const context = parseAdditionalContext(output);
-		expect(context).toContain(`${join(localBinHomeDir, ".local", "bin", "lazy-claudecode")} sparkshell <command>`);
+		expect(context).toContain(
+			`${join(localBinHomeDir, ".local", "bin", "lazy-claudecode")} sparkshell <command>`,
+		);
 		expect(context).not.toContain("`lazy-claudecode sparkshell <command>`");
 	});
 

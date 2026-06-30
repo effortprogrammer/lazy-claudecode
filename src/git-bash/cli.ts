@@ -19,7 +19,9 @@ async function main(): Promise<number> {
 		await runGitBashHookCli(process.stdin, process.stdout, "post-compact");
 		return 0;
 	}
-	process.stderr.write(`[lazy-claudecode-git-bash] unknown command: ${argv.join(" ")}\n${TOP_LEVEL_HELP}`);
+	process.stderr.write(
+		`[lazy-claudecode-git-bash] unknown command: ${argv.join(" ")}\n${TOP_LEVEL_HELP}`,
+	);
 	return 1;
 }
 
@@ -28,6 +30,8 @@ main()
 		process.exit(code);
 	})
 	.catch((error: unknown) => {
-		process.stderr.write(`[lazy-claudecode-git-bash] ${error instanceof Error ? error.message : String(error)}\n`);
+		process.stderr.write(
+			`[lazy-claudecode-git-bash] ${error instanceof Error ? error.message : String(error)}\n`,
+		);
 		process.exit(1);
 	});

@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { extractMutatedFilePaths, runLspPostToolUseHook } from "../src/claude-hook.ts";
+import { extractMutatedFilePaths, runLspPostToolUseHook } from "../claude-hook.ts";
 
 const tempDirs: string[] = [];
 
@@ -52,7 +52,8 @@ describe("codex PostToolUse hook", () => {
 			{
 				tool_name: "apply_patch",
 				tool_input: {
-					command: "*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
+					command:
+						"*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
 				},
 				tool_response: "Success. Updated files.",
 			},
@@ -87,7 +88,8 @@ describe("codex PostToolUse hook", () => {
 			{
 				tool_name: "apply_patch",
 				tool_input: {
-					command: "*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
+					command:
+						"*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
 				},
 				tool_response: "Success. Updated files.",
 			},
@@ -142,7 +144,8 @@ describe("codex PostToolUse hook", () => {
 				tool_input: { path: "src/broken.ts" },
 				tool_response: { ok: true },
 			},
-			async () => "\r\nlanguage server failed\r\n  retry detail\rbefore diagnostics could be collected\r\n",
+			async () =>
+				"\r\nlanguage server failed\r\n  retry detail\rbefore diagnostics could be collected\r\n",
 		);
 
 		// when
@@ -218,7 +221,8 @@ describe("codex PostToolUse hook", () => {
 		const startedBeforeRelease = [...calls];
 		const resolveB = resolvers.get("src/b.ts");
 		const resolveA = resolvers.get("src/a.ts");
-		if (resolveB === undefined || resolveA === undefined) throw new TypeError("Expected both diagnostics to start");
+		if (resolveB === undefined || resolveA === undefined)
+			throw new TypeError("Expected both diagnostics to start");
 		resolveB("error[typescript] (1000) at 1:1: src/b.ts failed.");
 		await Promise.resolve();
 		resolveA("error[typescript] (1000) at 1:1: src/a.ts failed.");
@@ -265,7 +269,8 @@ describe("codex PostToolUse hook", () => {
 			{
 				tool_name: "apply_patch",
 				tool_input: {
-					command: "*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
+					command:
+						"*** Begin Patch\n*** Update File: src/broken.ts\n@@\n+missing();\n*** End Patch\n",
 				},
 				tool_response: { isError: true },
 			},
@@ -343,13 +348,13 @@ interface PostToolUseHookOutput {
 
 function isPostToolUseHookOutput(value: unknown): value is PostToolUseHookOutput {
 	if (!isRecord(value)) return false;
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	return (
-		value["decision"] === "block" &&
-		typeof value["reason"] === "string" &&
+		value.decision === "block" &&
+		typeof value.reason === "string" &&
 		isRecord(hookSpecificOutput) &&
-		hookSpecificOutput["hookEventName"] === "PostToolUse" &&
-		typeof hookSpecificOutput["additionalContext"] === "string"
+		hookSpecificOutput.hookEventName === "PostToolUse" &&
+		typeof hookSpecificOutput.additionalContext === "string"
 	);
 }
 

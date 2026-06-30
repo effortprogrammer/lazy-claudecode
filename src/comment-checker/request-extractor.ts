@@ -1,6 +1,12 @@
-import { extractApplyPatchRequests } from "./apply-patch.ts";
 import { getString, isRecord } from "../shared/comment-checker-core/index.ts";
-import type { CheckerEdit, CommentCheckRequest, TextContent, ToolResultContent, ToolResultLike } from "./types.ts";
+import { extractApplyPatchRequests } from "./apply-patch.ts";
+import type {
+	CheckerEdit,
+	CommentCheckRequest,
+	TextContent,
+	ToolResultContent,
+	ToolResultLike,
+} from "./types.ts";
 
 export function extractCommentCheckRequests(event: ToolResultLike): CommentCheckRequest[] {
 	if (event.isError) return [];
@@ -62,7 +68,7 @@ function extractEditRequest(event: ToolResultLike): CommentCheckRequest[] {
 
 function extractMultiEditRequest(event: ToolResultLike): CommentCheckRequest[] {
 	const filePath = getString(event.input, ["filePath", "file_path", "path"]);
-	const edits = getEdits(event.input["edits"]);
+	const edits = getEdits(event.input.edits);
 	if (!filePath || edits.length === 0) return [];
 	return [
 		{

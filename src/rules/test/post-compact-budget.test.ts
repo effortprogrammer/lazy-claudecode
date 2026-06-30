@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { withPostCompactBudget } from "../src/post-compact-budget.ts";
 import type { PiRulesConfig } from "../../shared/rules-engine/index.ts";
+import { withPostCompactBudget } from "../post-compact-budget.ts";
 
 const tempDirectories: string[] = [];
 const CONFIG: PiRulesConfig = {

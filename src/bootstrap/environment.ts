@@ -3,7 +3,12 @@ import { readFile } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 
-import { acquireLock, DEFAULT_LOCK_STALE_MS, resolveLockPath, resolveStatePath } from "../shared/auto-update-state.ts";
+import {
+	DEFAULT_LOCK_STALE_MS,
+	acquireLock,
+	resolveLockPath,
+	resolveStatePath,
+} from "../shared/auto-update-state.ts";
 
 export type InstallFlow = "npx-local" | "marketplace" | "unknown";
 
@@ -28,14 +33,19 @@ export const INSTALL_SNAPSHOT_FILENAME = "lazyclaude-code-install.json";
 const DEFAULT_MARKETPLACE_NAME = "effortprogrammer";
 const MAX_CLAUDE_CODE_HOME_WALK_UP_LEVELS = 6;
 
-export async function detectInstallFlowDetailed(options: DetectInstallFlowOptions): Promise<InstallFlowDetection> {
+export async function detectInstallFlowDetailed(
+	options: DetectInstallFlowOptions,
+): Promise<InstallFlowDetection> {
 	const marketplaceName = options.marketplaceName ?? DEFAULT_MARKETPLACE_NAME;
 	const snapshotPresent = await isFile(join(options.pluginRoot, INSTALL_SNAPSHOT_FILENAME));
 	const snapshotSignal: InstallFlow = snapshotPresent ? "npx-local" : "marketplace";
 	const snapshotReason = snapshotPresent
 		? `${INSTALL_SNAPSHOT_FILENAME} present at plugin root (written only by the npx installer)`
 		: `${INSTALL_SNAPSHOT_FILENAME} absent from plugin root`;
-	const scan = options.configToml === undefined ? { kind: "absent" as const } : scanMarketplaceSource(options.configToml, marketplaceName);
+	const scan =
+		options.configToml === undefined
+			? { kind: "absent" as const }
+			: scanMarketplaceSource(options.configToml, marketplaceName);
 
 	if (scan.kind === "absent") {
 		return {
@@ -107,7 +117,8 @@ export async function detectInstallFlowFromEnvironment(
 
 export async function detectInstallFlowForTest(pluginRoot: string): Promise<InstallFlow> {
 	const home = await resolveClaudeCodeHome({ env: {}, pluginRoot });
-	const configToml = home.source === "walk-up" ? await readOptionalFile(join(home.path, "config.toml")) : undefined;
+	const configToml =
+		home.source === "walk-up" ? await readOptionalFile(join(home.path, "config.toml")) : undefined;
 	return detectInstallFlow({ pluginRoot, ...(configToml === undefined ? {} : { configToml }) });
 }
 
@@ -123,8 +134,10 @@ export interface ResolveClaudeCodeHomeOptions {
 	readonly pluginRoot?: string;
 }
 
-export async function resolveClaudeCodeHome(options: ResolveClaudeCodeHomeOptions): Promise<ClaudeCodeHomeResolution> {
-	const envHome = options.env["CLAUDE_CODE_HOME"]?.trim();
+export async function resolveClaudeCodeHome(
+	options: ResolveClaudeCodeHomeOptions,
+): Promise<ClaudeCodeHomeResolution> {
+	const envHome = options.env.CLAUDE_CODE_HOME?.trim();
 	if (envHome !== undefined && envHome.length > 0) {
 		return { path: resolve(envHome), source: "env" };
 	}
@@ -164,7 +177,9 @@ export function resolveBootstrapLockPath(pluginData: string): string {
 	return `${resolveBootstrapStatePath(pluginData)}.lock`;
 }
 
-export async function bootstrapLocks(options: BootstrapLocksOptions): Promise<BootstrapLockHandle | null> {
+export async function bootstrapLocks(
+	options: BootstrapLocksOptions,
+): Promise<BootstrapLockHandle | null> {
 	const staleMs = options.staleMs ?? DEFAULT_LOCK_STALE_MS;
 	const statePath = resolveBootstrapStatePath(options.pluginData);
 	const bootstrapLockPath = resolveBootstrapLockPath(options.pluginData);
@@ -177,7 +192,14 @@ export async function bootstrapLocks(options: BootstrapLocksOptions): Promise<Bo
 		return null;
 	}
 	if (autoUpdateLockPath === bootstrapLockPath) {
-		return { autoUpdateLockPath, bootstrapLockPath, release: async () => { await bootstrapRelease?.(); }, statePath };
+		return {
+			autoUpdateLockPath,
+			bootstrapLockPath,
+			release: async () => {
+				await bootstrapRelease?.();
+			},
+			statePath,
+		};
 	}
 	let autoUpdateRelease: (() => Promise<void>) | null;
 	try {
@@ -197,10 +219,16 @@ export async function bootstrapLocks(options: BootstrapLocksOptions): Promise<Bo
 	};
 }
 
-type MarketplaceSourceScan = { readonly kind: "absent" } | { readonly kind: "unparsable" } | { readonly kind: "source"; readonly source: string };
+type MarketplaceSourceScan =
+	| { readonly kind: "absent" }
+	| { readonly kind: "unparsable" }
+	| { readonly kind: "source"; readonly source: string };
 
 function scanMarketplaceSource(configToml: string, marketplaceName: string): MarketplaceSourceScan {
-	const expectedHeaders = new Set([`marketplaces.${marketplaceName}`, `marketplaces.${JSON.stringify(marketplaceName)}`]);
+	const expectedHeaders = new Set([
+		`marketplaces.${marketplaceName}`,
+		`marketplaces.${JSON.stringify(marketplaceName)}`,
+	]);
 	let inMarketplaceSection = false;
 	for (const line of configToml.split("\n")) {
 		const header = parseTomlHeader(line);
@@ -267,7 +295,12 @@ function classifyMarketplaceSource(source: string): ConfigSourceSignal {
 	const trimmed = source.trim();
 	if (trimmed.length === 0) return "unparsable";
 	if (/^(https?|ssh|git):\/\//i.test(trimmed) || trimmed.startsWith("git@")) return "marketplace";
-	if (trimmed.startsWith("/") || trimmed.startsWith("~") || trimmed.startsWith("\\\\") || /^[A-Za-z]:[\\/]/.test(trimmed)) {
+	if (
+		trimmed.startsWith("/") ||
+		trimmed.startsWith("~") ||
+		trimmed.startsWith("\\\\") ||
+		/^[A-Za-z]:[\\/]/.test(trimmed)
+	) {
 		return "npx-local";
 	}
 	if (trimmed.toLowerCase().endsWith(".git")) return "marketplace";

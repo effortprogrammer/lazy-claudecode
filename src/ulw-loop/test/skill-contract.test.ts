@@ -3,7 +3,10 @@ import { readFile } from "node:fs/promises";
 import { describe, expect, it } from "vitest";
 
 const SKILL_URL = new URL("../skills/ulw-loop/SKILL.md", import.meta.url);
-const FULL_WORKFLOW_URL = new URL("../skills/ulw-loop/references/full-workflow.md", import.meta.url);
+const FULL_WORKFLOW_URL = new URL(
+	"../skills/ulw-loop/references/full-workflow.md",
+	import.meta.url,
+);
 
 function wordCount(text: string): number {
 	return text.split(/\s+/).filter(Boolean).length;
@@ -41,7 +44,9 @@ describe("ulw-loop skill contract", () => {
 		expect(workflow).toMatch(/non-final aggregate goal[^.]+essential[^.]+pass/i);
 		expect(workflow).toMatch(/non-essential criteria may remain pending/i);
 		expect(workflow).toMatch(/final aggregate goal[^.]+every criterion across the whole plan/i);
-		expect(workflow).toMatch(/final aggregate completion requires all criteria across the whole plan/i);
+		expect(workflow).toMatch(
+			/final aggregate completion requires all criteria across the whole plan/i,
+		);
 		expect(workflow).toMatch(/5 cycles on one goal without required criteria passing/i);
 	});
 

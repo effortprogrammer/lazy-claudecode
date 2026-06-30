@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest";
 
 import {
-	iso,
 	ULW_LOOP_BRIEF,
 	ULW_LOOP_CRITERION_STATUSES,
 	ULW_LOOP_DIR,
@@ -10,6 +9,7 @@ import {
 	ULW_LOOP_STEERING_MUTATION_KINDS,
 	ULW_LOOP_SUCCESS_CRITERION_USER_MODELS,
 	UlwLoopError,
+	iso,
 } from "../src/types.ts";
 
 describe("ulw-loop domain constants", () => {
@@ -37,7 +37,12 @@ describe("ulw-loop domain constants", () => {
 
 	describe("when checking criterion user models", () => {
 		it("then exposes 4 user models including adversarial", () => {
-			expect(ULW_LOOP_SUCCESS_CRITERION_USER_MODELS).toEqual(["happy", "edge", "regression", "adversarial"]);
+			expect(ULW_LOOP_SUCCESS_CRITERION_USER_MODELS).toEqual([
+				"happy",
+				"edge",
+				"regression",
+				"adversarial",
+			]);
 		});
 	});
 

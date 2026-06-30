@@ -99,14 +99,20 @@ describe("start-work continuation CLI", () => {
 });
 
 function runCli(subcommand: "stop" | "subagent-stop", input: string) {
-	return spawnSync(execPath, [join(process.cwd(), "dist", "cli.js"), "hook", subcommand], { input, encoding: "utf8" });
+	return spawnSync(execPath, [join(process.cwd(), "dist", "cli.js"), "hook", subcommand], {
+		input,
+		encoding: "utf8",
+	});
 }
 
 function createWorkspace(sessionIds: readonly string[]): string {
 	const root = mkdtempSync(join(tmpdir(), "claude-code-continuation-cli-"));
 	cleanupRoots.push(root);
 	mkdirSync(join(root, ".claude", "plans"), { recursive: true });
-	writeFileSync(join(root, ".claude", "plans", "plan.md"), "## TODOs\n\n- [ ] Task one\n- [x] Done\n- [ ] Task two\n");
+	writeFileSync(
+		join(root, ".claude", "plans", "plan.md"),
+		"## TODOs\n\n- [ ] Task one\n- [x] Done\n- [ ] Task two\n",
+	);
 	const work = {
 		work_id: "w1",
 		active_plan: ".claude/plans/plan.md",
@@ -146,8 +152,9 @@ type ParsedStopHookOutput = {
 
 function parseStopHookOutput(stdout: string): ParsedStopHookOutput {
 	const parsed: unknown = JSON.parse(stdout);
-	if (!isRecord(parsed) || typeof parsed["reason"] !== "string") throw new Error("CLI did not emit Stop hook JSON");
-	return { decision: parsed["decision"], reason: parsed["reason"] };
+	if (!isRecord(parsed) || typeof parsed.reason !== "string")
+		throw new Error("CLI did not emit Stop hook JSON");
+	return { decision: parsed.decision, reason: parsed.reason };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

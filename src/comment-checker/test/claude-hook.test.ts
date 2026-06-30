@@ -9,7 +9,7 @@ import {
 	type ClaudePostToolUseInput,
 	extractCodexCommentCheckRequests,
 	runCommentCheckerPostToolUse,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 type CliResult = {
 	exitCode: number | null;
@@ -436,12 +436,15 @@ describe("runCommentCheckerPostToolUse", () => {
 			].join("\n"),
 		);
 
-		const output = await runCommentCheckerPostToolUse(postToolUseInput({ transcript_path: transcriptPath }), {
-			run: async () => ({
-				status: "warning",
-				message: `comment warning: explain less\n${"x".repeat(10_000)}`,
-			}),
-		});
+		const output = await runCommentCheckerPostToolUse(
+			postToolUseInput({ transcript_path: transcriptPath }),
+			{
+				run: async () => ({
+					status: "warning",
+					message: `comment warning: explain less\n${"x".repeat(10_000)}`,
+				}),
+			},
+		);
 
 		const parsed: unknown = JSON.parse(output);
 		if (!isBlockingOutput(parsed)) throw new TypeError("Expected blocking output");
@@ -505,7 +508,7 @@ interface BlockingOutput {
 }
 
 function isBlockingOutput(value: unknown): value is BlockingOutput {
-	return isRecord(value) && value["decision"] === "block" && typeof value["reason"] === "string";
+	return isRecord(value) && value.decision === "block" && typeof value.reason === "string";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

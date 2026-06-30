@@ -14,7 +14,15 @@ describe("rules formatter hook context", () => {
 		const rule = loadedRule({
 			path: "/repo/packages/CONTEXT.md",
 			relativePath: "packages/CONTEXT.md",
-			body: ["# packages", "", "## OVERVIEW", "23 sibling packages.", "", "## CONVENTIONS", "Use npm."].join("\n"),
+			body: [
+				"# packages",
+				"",
+				"## OVERVIEW",
+				"23 sibling packages.",
+				"",
+				"## CONVENTIONS",
+				"Use npm.",
+			].join("\n"),
 		});
 
 		// when
@@ -42,7 +50,7 @@ describe("rules formatter hook context", () => {
 		);
 	});
 
-	it("#given static rules #when formatting SessionStart context #then it injects rule bodies inline", () => {
+	it("#given static rules #when formatting SessionStart context #then it emits reference links", () => {
 		// given
 		const rule = loadedRule({
 			path: "/repo/CONTEXT.md",
@@ -58,9 +66,8 @@ describe("rules formatter hook context", () => {
 			[
 				"## Project Instructions",
 				"",
-				"Instructions from: /repo/CONTEXT.md",
-				"",
-				"Keep generated hook context readable.",
+				"must read project rules:",
+				"- [CONTEXT.md]{/repo/CONTEXT.md}",
 			].join("\n"),
 		);
 	});
@@ -79,7 +86,7 @@ describe("rules formatter hook context", () => {
 		expect(block).not.toContain("\r");
 	});
 
-	it("#given duplicate static rules with different line endings #when formatting context #then it injects one copy", () => {
+	it("#given duplicate static rules with different line endings #when formatting context #then it emits one reference link", () => {
 		// given
 		const lfRule = loadedRule({
 			path: "/repo/CONTEXT.md",
@@ -96,8 +103,7 @@ describe("rules formatter hook context", () => {
 		const block = formatStaticBlock([lfRule, crlfRule], FORMAT_OPTIONS);
 
 		// then
-		expect(occurrenceCount(block, "Instructions from: /repo/CONTEXT.md")).toBe(1);
-		expect(occurrenceCount(block, "Shared rule\nKeep one copy.")).toBe(1);
+		expect(occurrenceCount(block, "- [CONTEXT.md]{/repo/CONTEXT.md}")).toBe(1);
 		expect(block).not.toContain("/repo/packages/CONTEXT.md");
 	});
 
@@ -168,9 +174,21 @@ describe("rules formatter hook context", () => {
 	it("#given multiple oversized rules #when formatting under a tight result budget #then every rule receives a fair truncated share with a read-full guide", () => {
 		// given
 		const rules = [
-			loadedRule({ path: "/repo/alpha.md", relativePath: "alpha.md", body: `alpha-${"A".repeat(500)}` }),
-			loadedRule({ path: "/repo/beta.md", relativePath: "beta.md", body: `beta-${"B".repeat(500)}` }),
-			loadedRule({ path: "/repo/gamma.md", relativePath: "gamma.md", body: `gamma-${"C".repeat(500)}` }),
+			loadedRule({
+				path: "/repo/alpha.md",
+				relativePath: "alpha.md",
+				body: `alpha-${"A".repeat(500)}`,
+			}),
+			loadedRule({
+				path: "/repo/beta.md",
+				relativePath: "beta.md",
+				body: `beta-${"B".repeat(500)}`,
+			}),
+			loadedRule({
+				path: "/repo/gamma.md",
+				relativePath: "gamma.md",
+				body: `gamma-${"C".repeat(500)}`,
+			}),
 		];
 
 		// when

@@ -1,11 +1,11 @@
 import { describe, expect, it } from "bun:test";
+import { spawnSync } from "node:child_process";
 import { chmodSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
-import { resolveServeProcessInvocation, runCodegraphServe } from "../src/serve.ts";
+import { resolveServeProcessInvocation, runCodegraphServe } from "../serve.ts";
 
 const componentRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
@@ -30,7 +30,12 @@ describe("runCodegraphServe", () => {
 				CODEGRAPH_TELEMETRY: "0",
 				DO_NOT_TRACK: "1",
 			}),
-			resolve: () => ({ argsPrefix: ["shim.js"], command: "node", exists: true, source: "bundled" }),
+			resolve: () => ({
+				argsPrefix: ["shim.js"],
+				command: "node",
+				exists: true,
+				source: "bundled",
+			}),
 			runProcess: (
 				command: string,
 				args: readonly string[],
@@ -70,7 +75,12 @@ describe("runCodegraphServe", () => {
 			env: { CODEGRAPH_ALLOW_UNSAFE_NODE: "1" },
 			nodeVersion: "26.3.0",
 			buildEnv: () => ({}),
-			resolve: () => ({ argsPrefix: ["shim.js"], command: "node", exists: true, source: "bundled" }),
+			resolve: () => ({
+				argsPrefix: ["shim.js"],
+				command: "node",
+				exists: true,
+				source: "bundled",
+			}),
 			runProcess: (command: string) => {
 				spawned.push(command);
 				return Promise.resolve(0);
@@ -93,7 +103,12 @@ describe("runCodegraphServe", () => {
 			env: { CODEGRAPH_NODE_BIN: nodeBin },
 			nodeVersion: "26.3.0",
 			buildEnv: () => ({}),
-			resolve: () => ({ argsPrefix: ["codegraph.js"], command: nodeBin, exists: true, source: "bundled" }),
+			resolve: () => ({
+				argsPrefix: ["codegraph.js"],
+				command: nodeBin,
+				exists: true,
+				source: "bundled",
+			}),
 			runProcess: (command: string, args: readonly string[]) => {
 				spawned.push({ args, command });
 				return Promise.resolve(0);
@@ -148,13 +163,23 @@ describe("runCodegraphServe", () => {
 
 				// when
 				const exitCode = await runCodegraphServe({
-					config: { codegraph: { enabled: true, install_dir: installDir }, sources: [], trustedCodegraphInstallDir: installDir, warnings: [] },
+					config: {
+						codegraph: { enabled: true, install_dir: installDir },
+						sources: [],
+						trustedCodegraphInstallDir: installDir,
+						warnings: [],
+					},
 					env: { HOME: "/tmp/home" },
 					nodeVersion: "22.14.0",
 					homeDir: "/tmp/home",
 					resolve: (options) => {
 						const provisioned = options.provisioned?.();
-						return { argsPrefix: [], command: provisioned ?? "missing", exists: provisioned !== null && provisioned !== undefined, source: "provisioned" };
+						return {
+							argsPrefix: [],
+							command: provisioned ?? "missing",
+							exists: provisioned !== null && provisioned !== undefined,
+							source: "provisioned",
+						};
 					},
 					runProcess: (command, args, options) => {
 						calls.push({ args, command, env: options.env });
@@ -279,9 +304,16 @@ function readInvocations(tempRoot: string): readonly string[] {
 	return readFileSync(join(tempRoot, "invocations.log"), "utf8").trim().split("\n");
 }
 
-async function withProcessPlatform(platform: NodeJS.Platform, run: () => Promise<void>): Promise<void> {
+async function withProcessPlatform(
+	platform: NodeJS.Platform,
+	run: () => Promise<void>,
+): Promise<void> {
 	const descriptor = Object.getOwnPropertyDescriptor(process, "platform");
-	Object.defineProperty(process, "platform", { configurable: true, enumerable: true, value: platform });
+	Object.defineProperty(process, "platform", {
+		configurable: true,
+		enumerable: true,
+		value: platform,
+	});
 	try {
 		await run();
 	} finally {

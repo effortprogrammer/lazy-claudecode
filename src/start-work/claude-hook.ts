@@ -49,7 +49,10 @@ const CONTEXT_PRESSURE_MARKERS = [
 	"long threads and multiple compactions",
 ] as const;
 
-function transcriptHasContextPressureMarker(transcriptPath: string, fs: ReadonlyFileSystem): boolean {
+function transcriptHasContextPressureMarker(
+	transcriptPath: string,
+	fs: ReadonlyFileSystem,
+): boolean {
 	try {
 		const transcript = fs.readFileSync(transcriptPath, "utf8").toLowerCase();
 		return CONTEXT_PRESSURE_MARKERS.some((marker) => transcript.includes(marker));
@@ -62,15 +65,15 @@ function transcriptHasContextPressureMarker(transcriptPath: string, fs: Readonly
 function isStopInput(value: unknown): value is StopInput {
 	return (
 		isRecord(value) &&
-		isStopHookEventName(value["hook_event_name"]) &&
-		typeof value["session_id"] === "string" &&
-		typeof value["turn_id"] === "string" &&
-		typeof value["transcript_path"] === "string" &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["stop_hook_active"] === "boolean" &&
-		optionalString(value["last_assistant_message"])
+		isStopHookEventName(value.hook_event_name) &&
+		typeof value.session_id === "string" &&
+		typeof value.turn_id === "string" &&
+		typeof value.transcript_path === "string" &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.stop_hook_active === "boolean" &&
+		optionalString(value.last_assistant_message)
 	);
 }
 

@@ -11,7 +11,7 @@ import {
 	runPostToolUseHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
@@ -32,7 +32,10 @@ describe("claude-code rules PostCompact deduplication", () => {
 			pluginDataRoot: pluginData,
 			env: PROJECT_ONLY_ENV,
 		});
-		const transcriptPath = writeTranscriptWithCompactedReplacement(root, readAdditionalContext(firstOutput));
+		const transcriptPath = writeTranscriptWithCompactedReplacement(
+			root,
+			readAdditionalContext(firstOutput),
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -53,8 +56,14 @@ describe("claude-code rules PostCompact deduplication", () => {
 		const { root, pluginData } = makeTempProject();
 		const filePath = path.join(root, "src", "app.ts");
 		const input = postToolUseInput(root, filePath);
-		const firstOutput = await runPostToolUseHook(input, { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
-		const transcriptPath = writeTranscriptWithCompactedReplacement(root, readAdditionalContext(firstOutput));
+		const firstOutput = await runPostToolUseHook(input, {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
+		const transcriptPath = writeTranscriptWithCompactedReplacement(
+			root,
+			readAdditionalContext(firstOutput),
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -77,7 +86,10 @@ describe("claude-code rules PostCompact deduplication", () => {
 			pluginDataRoot: pluginData,
 			env: PROJECT_ONLY_ENV,
 		});
-		const transcriptPath = writeTranscriptWithRepeatedCompactions(root, readAdditionalContext(firstOutput));
+		const transcriptPath = writeTranscriptWithRepeatedCompactions(
+			root,
+			readAdditionalContext(firstOutput),
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -100,7 +112,10 @@ describe("claude-code rules PostCompact deduplication", () => {
 			pluginDataRoot: pluginData,
 			env: PROJECT_ONLY_ENV,
 		});
-		const transcriptPath = writeTranscriptWithCompactedReplacement(root, "summary without project instructions");
+		const transcriptPath = writeTranscriptWithCompactedReplacement(
+			root,
+			"summary without project instructions",
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -126,7 +141,10 @@ describe("claude-code rules PostCompact deduplication", () => {
 			pluginDataRoot: pluginData,
 			env: PROJECT_ONLY_ENV,
 		});
-		const transcriptPath = writeTranscriptWithCompactedReplacement(root, "summary without project instructions");
+		const transcriptPath = writeTranscriptWithCompactedReplacement(
+			root,
+			"summary without project instructions",
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -152,7 +170,10 @@ function makeTempProject(): { root: string; pluginData: string } {
 	tempDirectories.push(root, pluginData);
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 	writeFileSync(path.join(root, "AGENTS.md"), "Project AGENTS.md should stay Claude Code-native.");
-	writeFileSync(path.join(root, "CLAUDE.md"), "Project CLAUDE.md should stay outside rules hook context.");
+	writeFileSync(
+		path.join(root, "CLAUDE.md"),
+		"Project CLAUDE.md should stay outside rules hook context.",
+	);
 	writeFileSync(path.join(root, "CONTEXT.md"), "Always wear safety goggles when refactoring.");
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
@@ -203,7 +224,10 @@ function postCompactInput(root: string): ClaudePostCompactInput {
 	};
 }
 
-function userPromptSubmitInput(root: string, transcriptPath: string): Parameters<typeof runUserPromptSubmitHook>[0] {
+function userPromptSubmitInput(
+	root: string,
+	transcriptPath: string,
+): Parameters<typeof runUserPromptSubmitHook>[0] {
 	return {
 		session_id: "session-compact-dedup",
 		turn_id: "turn-after-compact",
@@ -232,7 +256,10 @@ function postToolUseInput(root: string, filePath: string): ClaudePostToolUseInpu
 	};
 }
 
-function writeTranscriptWithCompactedReplacement(root: string, ...replacementTexts: string[]): string {
+function writeTranscriptWithCompactedReplacement(
+	root: string,
+	...replacementTexts: string[]
+): string {
 	const transcriptPath = path.join(root, "transcript-compacted.jsonl");
 	const replacementHistory = replacementTexts.map((text) => ({
 		type: "message",
@@ -262,7 +289,9 @@ function writeTranscriptWithRepeatedCompactions(root: string, retainedText: stri
 				type: "compacted",
 				payload: {
 					message: "older summary",
-					replacement_history: [{ type: "message", role: "user", content: "old summary without rules" }],
+					replacement_history: [
+						{ type: "message", role: "user", content: "old summary without rules" },
+					],
 				},
 			}),
 			JSON.stringify({
@@ -296,9 +325,9 @@ function readAdditionalContext(output: string): string {
 	expect(output.trim().length).toBeGreaterThan(0);
 	const parsed: unknown = JSON.parse(output);
 	if (!isRecord(parsed)) return "";
-	const hookSpecificOutput = parsed["hookSpecificOutput"];
+	const hookSpecificOutput = parsed.hookSpecificOutput;
 	if (!isRecord(hookSpecificOutput)) return "";
-	const additionalContext = hookSpecificOutput["additionalContext"];
+	const additionalContext = hookSpecificOutput.additionalContext;
 	return typeof additionalContext === "string" ? additionalContext : "";
 }
 

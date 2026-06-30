@@ -13,7 +13,11 @@ export {
 export { matchDynamicRuleCached, findSortedCandidatesCached } from "./engine-dynamic-cache.ts";
 export { loadDynamicCandidates } from "./engine-dynamic-loader.ts";
 export { loadCandidate, ruleDedupKey, staticMatchReason } from "./engine-loader.ts";
-export { isCandidateWithinProjectCached, isSameOrChildPath, isRootSingleFile } from "./engine-paths.ts";
+export {
+	isCandidateWithinProjectCached,
+	isSameOrChildPath,
+	isRootSingleFile,
+} from "./engine-paths.ts";
 export { loadStaticCandidates } from "./engine-static-loader.ts";
 export type {
 	LoadedRuleContent,
@@ -28,7 +32,11 @@ export { UnsupportedRuleSourceError, RuleFrontmatterParseError } from "./errors.
 export { createRuleDiscoveryCache, scanRuleFilesCached } from "./finder-cache.ts";
 export type { RuleDiscoveryCache } from "./finder-cache.ts";
 export { getWalkDirectories, toRelativePath } from "./finder-paths.ts";
-export { toProjectRuleSource, toProjectSingleFileSource, toUserHomeRuleSource } from "./finder-sources.ts";
+export {
+	toProjectRuleSource,
+	toProjectSingleFileSource,
+	toUserHomeRuleSource,
+} from "./finder-sources.ts";
 export { findRuleCandidates, findPluginBundledCandidates } from "./finder.ts";
 export { formatStaticBlock, formatDynamicBlock } from "./formatter.ts";
 export { matchRule, normalizeGlobs, hashContent } from "./matcher.ts";
@@ -59,12 +67,6 @@ export type {
  * intact regardless of budget pressure.
  */
 export function isNeverTruncatedRule(displayPath: string): boolean {
-	const NEVER_TRUNCATED_SUFFIXES = [
-		"AGENTS.md",
-		"copilot-instructions.md",
-		"CLAUDE.md",
-	];
-	return NEVER_TRUNCATED_SUFFIXES.some((suffix) =>
-		displayPath.endsWith(suffix),
-	);
+	const NEVER_TRUNCATED_SUFFIXES = ["AGENTS.md", "copilot-instructions.md", "CLAUDE.md"];
+	return NEVER_TRUNCATED_SUFFIXES.some((suffix) => displayPath.endsWith(suffix));
 }

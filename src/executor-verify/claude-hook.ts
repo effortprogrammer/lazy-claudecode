@@ -2,7 +2,7 @@ import { lstatSync as nodeLstatSync, realpathSync as nodeRealpathSync } from "no
 import { isAbsolute, relative, resolve } from "node:path";
 
 import { renderDirective } from "./directive.ts";
-import { clearAttemptState, MAX_ATTEMPTS, readAttemptState, writeAttemptState } from "./state.ts";
+import { MAX_ATTEMPTS, clearAttemptState, readAttemptState, writeAttemptState } from "./state.ts";
 import type { HookFileSystem, StopHookOutput, SubagentStopInput } from "./types.ts";
 import { SUBAGENT_STOP_EVENT } from "./types.ts";
 
@@ -53,7 +53,9 @@ function hasValidEvidenceReceipt(input: SubagentStopInput, fs: HookFileSystem): 
 	const receiptPath = extractEvidencePath(input.last_assistant_message);
 	if (receiptPath === null) return false;
 	const evidenceRoot = resolve(input.cwd, ".lazy-claudecode", "evidence");
-	const resolvedPath = isAbsolute(receiptPath) ? resolve(receiptPath) : resolve(input.cwd, receiptPath);
+	const resolvedPath = isAbsolute(receiptPath)
+		? resolve(receiptPath)
+		: resolve(input.cwd, receiptPath);
 	if (!isPathInsideDirectory(resolvedPath, evidenceRoot)) return false;
 	try {
 		return isNonEmptyFileInsideEvidenceRoot(resolvedPath, evidenceRoot, input.cwd, fs);
@@ -106,17 +108,17 @@ function extractEvidencePath(message: string | undefined): string | null {
 function isSubagentStopInput(value: unknown): value is SubagentStopInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === SUBAGENT_STOP_EVENT &&
-		typeof value["agent_type"] === "string" &&
-		typeof value["agent_id"] === "string" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["cwd"] === "string" &&
-		typeof value["transcript_path"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["stop_hook_active"] === "boolean" &&
-		optionalString(value["turn_id"]) &&
-		optionalString(value["last_assistant_message"])
+		value.hook_event_name === SUBAGENT_STOP_EVENT &&
+		typeof value.agent_type === "string" &&
+		typeof value.agent_id === "string" &&
+		typeof value.session_id === "string" &&
+		typeof value.cwd === "string" &&
+		typeof value.transcript_path === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.stop_hook_active === "boolean" &&
+		optionalString(value.turn_id) &&
+		optionalString(value.last_assistant_message)
 	);
 }
 

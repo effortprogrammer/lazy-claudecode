@@ -74,11 +74,11 @@ function formatIdentifier(value: string): string {
 
 function extractThreadCreationReference(toolResponse: unknown): ThreadCreationReference | null {
 	if (!isRecord(toolResponse)) return null;
-	const threadId = toolResponse["threadId"];
+	const threadId = toolResponse.threadId;
 	if (typeof threadId === "string" && threadId.trim().length > 0) {
 		return { kind: "thread", id: threadId };
 	}
-	const pendingWorktreeId = toolResponse["pendingWorktreeId"];
+	const pendingWorktreeId = toolResponse.pendingWorktreeId;
 	if (typeof pendingWorktreeId === "string" && pendingWorktreeId.trim().length > 0) {
 		return { kind: "pendingWorktree", id: pendingWorktreeId };
 	}
@@ -88,19 +88,19 @@ function extractThreadCreationReference(toolResponse: unknown): ThreadCreationRe
 function isPostToolUsePayload(value: unknown): value is PostToolUsePayload {
 	if (!isRecord(value)) return false;
 	return (
-		value["hook_event_name"] === "PostToolUse" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["tool_name"] === "string" &&
+		value.hook_event_name === "PostToolUse" &&
+		typeof value.session_id === "string" &&
+		typeof value.tool_name === "string" &&
 		Object.hasOwn(value, "tool_input") &&
 		Object.hasOwn(value, "tool_response") &&
-		optionalString(value["turn_id"]) &&
-		optionalString(value["cwd"]) &&
-		optionalString(value["model"]) &&
-		optionalString(value["permission_mode"]) &&
-		optionalString(value["tool_use_id"]) &&
-		(value["transcript_path"] === undefined ||
-			value["transcript_path"] === null ||
-			typeof value["transcript_path"] === "string")
+		optionalString(value.turn_id) &&
+		optionalString(value.cwd) &&
+		optionalString(value.model) &&
+		optionalString(value.permission_mode) &&
+		optionalString(value.tool_use_id) &&
+		(value.transcript_path === undefined ||
+			value.transcript_path === null ||
+			typeof value.transcript_path === "string")
 	);
 }
 

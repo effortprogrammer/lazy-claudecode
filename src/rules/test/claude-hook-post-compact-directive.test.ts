@@ -12,7 +12,7 @@ import {
 	runPostToolUseHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
@@ -30,12 +30,21 @@ describe("claude-code rules post-compaction read directive", () => {
 	it("#given injected rules dropped by compaction #when UserPromptSubmit recovers #then it lists rule paths in a mandatory read directive instead of bodies", async () => {
 		// given
 		const { root, pluginData } = makeProject();
-		await runSessionStartHook(sessionStartInput(root), { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
-		const dynamicOutput = await runPostToolUseHook(postToolUseInput(root, path.join(root, "src", "app.ts")), {
+		await runSessionStartHook(sessionStartInput(root), {
 			pluginDataRoot: pluginData,
 			env: PROJECT_ONLY_ENV,
 		});
-		const transcriptPath = writeCompactedTranscript(root, "summary that dropped every injected rule");
+		const dynamicOutput = await runPostToolUseHook(
+			postToolUseInput(root, path.join(root, "src", "app.ts")),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
+		const transcriptPath = writeCompactedTranscript(
+			root,
+			"summary that dropped every injected rule",
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -62,8 +71,14 @@ describe("claude-code rules post-compaction read directive", () => {
 	it("#given recovery directive already emitted #when UserPromptSubmit runs again #then it emits nothing", async () => {
 		// given
 		const { root, pluginData } = makeProject();
-		await runSessionStartHook(sessionStartInput(root), { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
-		const transcriptPath = writeCompactedTranscript(root, "summary that dropped every injected rule");
+		await runSessionStartHook(sessionStartInput(root), {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
+		const transcriptPath = writeCompactedTranscript(
+			root,
+			"summary that dropped every injected rule",
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -74,10 +89,13 @@ describe("claude-code rules post-compaction read directive", () => {
 		});
 
 		// when
-		const secondOutput = await runUserPromptSubmitHook(userPromptSubmitInput(root, transcriptPath), {
-			pluginDataRoot: pluginData,
-			env: PROJECT_ONLY_ENV,
-		});
+		const secondOutput = await runUserPromptSubmitHook(
+			userPromptSubmitInput(root, transcriptPath),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
 
 		// then
 		expect(secondOutput).toBe("");
@@ -111,7 +129,10 @@ describe("claude-code rules post-compaction read directive", () => {
 		const { root, pluginData } = makeProject();
 		const env = { LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,plugin-bundled" };
 		await runSessionStartHook(sessionStartInput(root), { pluginDataRoot: pluginData, env });
-		const transcriptPath = writeCompactedTranscript(root, "summary that dropped every injected rule");
+		const transcriptPath = writeCompactedTranscript(
+			root,
+			"summary that dropped every injected rule",
+		);
 		await runPostCompactHook(
 			{ ...postCompactInput(root), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData },
@@ -234,8 +255,8 @@ function readAdditionalContext(output: string): string {
 	}
 	const parsed: unknown = JSON.parse(output);
 	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return "";
-	const hookSpecificOutput = (parsed as Record<string, unknown>)["hookSpecificOutput"];
+	const hookSpecificOutput = (parsed as Record<string, unknown>).hookSpecificOutput;
 	if (typeof hookSpecificOutput !== "object" || hookSpecificOutput === null) return "";
-	const additionalContext = (hookSpecificOutput as Record<string, unknown>)["additionalContext"];
+	const additionalContext = (hookSpecificOutput as Record<string, unknown>).additionalContext;
 	return typeof additionalContext === "string" ? additionalContext : "";
 }

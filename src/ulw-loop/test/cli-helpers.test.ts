@@ -13,7 +13,7 @@ import {
 	readRepeated,
 	readValue,
 } from "../src/cli-arg-parser.ts";
-import { normalizeClaudeGoalMode, printStatus, ULW_LOOP_HELP } from "../src/cli-output.ts";
+import { ULW_LOOP_HELP, normalizeClaudeGoalMode, printStatus } from "../src/cli-output.ts";
 import type { UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.ts";
 import { UlwLoopError } from "../src/types.ts";
 
@@ -65,10 +65,12 @@ function plan(overrides: Partial<UlwLoopPlan> = {}): UlwLoopPlan {
 
 function captureStdout(action: () => void): string {
 	let output = "";
-	const write = vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
-		output += chunk.toString();
-		return true;
-	});
+	const write = vi
+		.spyOn(process.stdout, "write")
+		.mockImplementation((chunk: string | Uint8Array): boolean => {
+			output += chunk.toString();
+			return true;
+		});
 	action();
 	write.mockRestore();
 	return output;
@@ -113,7 +115,9 @@ describe("parseGoalArg", () => {
 
 describe("positionalText", () => {
 	it("returns joined positional args after subcommand", () => {
-		expect(positionalText(["create-goals", "Build", "auth", "--json", "--brief", "ignored"])).toBe("Build auth");
+		expect(positionalText(["create-goals", "Build", "auth", "--json", "--brief", "ignored"])).toBe(
+			"Build auth",
+		);
 	});
 });
 
@@ -158,7 +162,15 @@ describe("parseRecordEvidenceArgs", () => {
 
 	it("throws when goal-id missing", () => {
 		expect(() =>
-			parseRecordEvidenceArgs(["record-evidence", "--criterion-id", "C001", "--status", "pass", "--evidence", "x"]),
+			parseRecordEvidenceArgs([
+				"record-evidence",
+				"--criterion-id",
+				"C001",
+				"--status",
+				"pass",
+				"--evidence",
+				"x",
+			]),
 		).toThrow(UlwLoopError);
 	});
 
@@ -221,7 +233,11 @@ describe("printStatus", () => {
 
 	it("shows aggregate counts", () => {
 		const output = captureStdout(() =>
-			printStatus(plan({ goals: [goal(), goal({ id: "G002", successCriteria: [criterion({ status: "pass" })] })] })),
+			printStatus(
+				plan({
+					goals: [goal(), goal({ id: "G002", successCriteria: [criterion({ status: "pass" })] })],
+				}),
+			),
 		);
 
 		expect(output).toContain("total goals: 2");

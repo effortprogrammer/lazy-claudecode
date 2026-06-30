@@ -3,14 +3,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
+import { createRuleDiscoveryCache, findRuleCandidates } from "../../shared/rules-engine/index.ts";
 import {
 	type ClaudePostCompactInput,
 	type ClaudeSessionStartInput,
 	runPostCompactHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
-import { createRuleDiscoveryCache, findRuleCandidates } from "../../shared/rules-engine/index.ts";
+} from "../claude-hook.ts";
 
 interface FixtureOptions {
 	readonly writeProjectDuplicate?: boolean;
@@ -47,7 +47,7 @@ const tempDirectories: string[] = [];
 let originalPluginRoot: string | undefined;
 
 beforeEach(() => {
-	originalPluginRoot = process.env["PLUGIN_ROOT"];
+	originalPluginRoot = process.env.PLUGIN_ROOT;
 });
 
 afterEach(() => {
@@ -76,7 +76,7 @@ function makeFixture(options: FixtureOptions = {}): Fixture {
 		writeFileSync(projectRulePath, ruleMarkdown(SHARED_BODY));
 	}
 
-	process.env["PLUGIN_ROOT"] = pluginRoot;
+	process.env.PLUGIN_ROOT = pluginRoot;
 	return { root, pluginRoot, pluginData, bundledRulePath, projectRulePath };
 }
 
@@ -141,7 +141,12 @@ describe("plugin bundled rules", () => {
 		const cache = createRuleDiscoveryCache();
 
 		// when
-		const candidates = findRuleCandidates({ projectRoot: null, targetFile: null, skipUserHome: true, cache });
+		const candidates = findRuleCandidates({
+			projectRoot: null,
+			targetFile: null,
+			skipUserHome: true,
+			cache,
+		});
 
 		// then
 		expect(candidates.map((candidate) => `${candidate.source}:${candidate.relativePath}`)).toEqual([
@@ -171,7 +176,9 @@ describe("plugin bundled rules", () => {
 
 	it("#given same project and bundled body #when SessionStart runs #then project rule file wins", async () => {
 		// given
-		const { root, pluginData, bundledRulePath, projectRulePath } = makeFixture({ writeProjectDuplicate: true });
+		const { root, pluginData, bundledRulePath, projectRulePath } = makeFixture({
+			writeProjectDuplicate: true,
+		});
 
 		// when
 		const output = await runSessionStartHook(sessionStartInput(root), {
@@ -211,7 +218,9 @@ describe("plugin bundled rules", () => {
 		expect(firstOutput).toContain(BUNDLED_BODY);
 
 		// when
-		const compactOutput = await runPostCompactHook(postCompactInput(root), { pluginDataRoot: pluginData });
+		const compactOutput = await runPostCompactHook(postCompactInput(root), {
+			pluginDataRoot: pluginData,
+		});
 		const output = await runUserPromptSubmitHook(userPromptSubmitInput(root), {
 			pluginDataRoot: pluginData,
 			env: BUNDLED_ONLY_ENV,
@@ -238,7 +247,7 @@ describe("plugin bundled rules", () => {
 		const bundledRulePath = join(pluginRoot, "bundled-rules", "hephaestus.md");
 		const bundledBody = `${oversizedBody}\n\n${tailMarker}\n`;
 		writeFileSync(bundledRulePath, ruleMarkdown(bundledBody));
-		process.env["PLUGIN_ROOT"] = pluginRoot;
+		process.env.PLUGIN_ROOT = pluginRoot;
 
 		// when
 		const output = await runSessionStartHook(sessionStartInput(root), {
@@ -262,13 +271,14 @@ describe("plugin bundled rules", () => {
 		writeFileSync(join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 		mkdirSync(join(root, ".claude", "rules"), { recursive: true });
 		mkdirSync(join(pluginRoot, "bundled-rules"), { recursive: true });
-		const oversizedBody = "The project rule body is intentionally oversized for the cap test. ".repeat(300);
+		const oversizedBody =
+			"The project rule body is intentionally oversized for the cap test. ".repeat(300);
 		expect(oversizedBody.length).toBeGreaterThan(12000);
 		const tailMarker = "PROJECT_TAIL_SENTINEL_SHOULD_NOT_LAND";
 		const projectRulePath = join(root, ".claude", "rules", "oversized.md");
 		const projectBody = `${oversizedBody}\n\n${tailMarker}\n`;
 		writeFileSync(projectRulePath, ruleMarkdown(projectBody));
-		process.env["PLUGIN_ROOT"] = pluginRoot;
+		process.env.PLUGIN_ROOT = pluginRoot;
 
 		// when
 		const output = await runSessionStartHook(sessionStartInput(root), {

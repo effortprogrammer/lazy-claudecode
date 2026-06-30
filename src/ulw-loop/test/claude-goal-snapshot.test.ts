@@ -63,7 +63,9 @@ describe("readCodexGoalSnapshotInput", () => {
 
 	it("parses inline JSON string", async () => {
 		// when
-		const snapshot = await readCodexGoalSnapshotInput('{"goal":{"objective":"X","status":"active"}}');
+		const snapshot = await readCodexGoalSnapshotInput(
+			'{"goal":{"objective":"X","status":"active"}}',
+		);
 
 		// then
 		expect(snapshot?.available).toBe(true);
@@ -97,7 +99,9 @@ describe("readCodexGoalSnapshotInput", () => {
 
 	it("throws CodexGoalSnapshotError when input is neither JSON nor a path", async () => {
 		// when/then
-		await expect(readCodexGoalSnapshotInput("not json and not a path")).rejects.toThrow(CodexGoalSnapshotError);
+		await expect(readCodexGoalSnapshotInput("not json and not a path")).rejects.toThrow(
+			CodexGoalSnapshotError,
+		);
 	});
 });
 

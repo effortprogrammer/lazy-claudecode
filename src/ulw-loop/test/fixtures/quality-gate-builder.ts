@@ -16,7 +16,10 @@ export async function writeQualityGateArtifacts(repoRoot: string): Promise<void>
 	await writeFile(join(repoRoot, REJECTION_LOG_PATH), "invalid gate rejected\n", "utf8");
 }
 
-export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PASS_PATH): Promise<string> {
+export async function qualityGateJson(
+	repoRoot: string,
+	cliArtifactPath = CLI_PASS_PATH,
+): Promise<string> {
 	await writeQualityGateArtifacts(repoRoot);
 	return JSON.stringify({
 		codeReview: {
@@ -46,7 +49,8 @@ export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PA
 					id: "adv-missing-artifact",
 					criterionRef: "C002",
 					scenario: "quality gate references a missing artifact",
-					expectedBehavior: "checkpoint rejects the final completion with ULW_LOOP_QUALITY_GATE_INVALID",
+					expectedBehavior:
+						"checkpoint rejects the final completion with ULW_LOOP_QUALITY_GATE_INVALID",
 					verdict: "passed",
 					artifactRefs: ["artifact-cli-reject"],
 				},
@@ -82,9 +86,12 @@ export async function qualityGateJson(repoRoot: string, cliArtifactPath = CLI_PA
 		criteriaCoverage: {
 			totalCriteria: 2,
 			passCount: 2,
-			originalIntent: "User wanted a final checkpoint that only accepts artifact-backed completion.",
-			desiredOutcome: "Checkpoint completes only after code review, manual QA, and gate review all pass.",
-			userOutcomeReview: "The artifacts show the requested checkpoint behavior from the user's perspective.",
+			originalIntent:
+				"User wanted a final checkpoint that only accepts artifact-backed completion.",
+			desiredOutcome:
+				"Checkpoint completes only after code review, manual QA, and gate review all pass.",
+			userOutcomeReview:
+				"The artifacts show the requested checkpoint behavior from the user's perspective.",
 			adversarialClassesCovered: ["missing_artifact", "role_mismatch"],
 		},
 	});

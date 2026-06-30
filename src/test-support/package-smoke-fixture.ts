@@ -1,6 +1,6 @@
 /// <reference path="../../node_modules/@types/node/index.d.ts" />
 
-import { readdirSync, readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 
 export type ComponentPackageJson = {
 	readonly version?: string;
@@ -76,12 +76,17 @@ export function listDirectoryEntries(path: string): readonly string[] {
 }
 
 export function requireFiles(packageJson: ComponentPackageJson, path: string): readonly string[] {
-	if (packageJson.files === undefined) throw new TypeError(`Package metadata missing files: ${path}`);
+	if (packageJson.files === undefined)
+		throw new TypeError(`Package metadata missing files: ${path}`);
 	return packageJson.files;
 }
 
-export function requireScripts(packageJson: ComponentPackageJson, path: string): Readonly<Record<string, string>> {
-	if (packageJson.scripts === undefined) throw new TypeError(`Package metadata missing scripts: ${path}`);
+export function requireScripts(
+	packageJson: ComponentPackageJson,
+	path: string,
+): Readonly<Record<string, string>> {
+	if (packageJson.scripts === undefined)
+		throw new TypeError(`Package metadata missing scripts: ${path}`);
 	return packageJson.scripts;
 }
 
@@ -89,20 +94,20 @@ export function collectHookCommandsFromValue(value: unknown): readonly string[] 
 	if (typeof value === "string") return [];
 	if (Array.isArray(value)) return value.flatMap(collectHookCommandsFromValue);
 	if (!isRecord(value)) return [];
-	const ownCommand = typeof value["command"] === "string" ? [value["command"]] : [];
+	const ownCommand = typeof value.command === "string" ? [value.command] : [];
 	return [...ownCommand, ...Object.values(value).flatMap(collectHookCommandsFromValue)];
 }
 
 function isComponentPackageJson(value: unknown): value is ComponentPackageJson {
 	if (!isRecord(value)) return false;
-	const dependencies = value["dependencies"];
-	const optionalDependencies = value["optionalDependencies"];
-	const scripts = value["scripts"];
-	const files = value["files"];
+	const dependencies = value.dependencies;
+	const optionalDependencies = value.optionalDependencies;
+	const scripts = value.scripts;
+	const files = value.files;
 	return (
-		value["type"] === "module" &&
-		value["packageManager"] === "npm@11.12.1" &&
-		isStringRecord(value["bin"]) &&
+		value.type === "module" &&
+		value.packageManager === "npm@11.12.1" &&
+		isStringRecord(value.bin) &&
 		(dependencies === undefined || isStringRecord(dependencies)) &&
 		(optionalDependencies === undefined || isStringRecord(optionalDependencies)) &&
 		(scripts === undefined || isStringRecord(scripts)) &&
@@ -111,8 +116,8 @@ function isComponentPackageJson(value: unknown): value is ComponentPackageJson {
 }
 
 function isHooksJson(value: unknown): value is HooksJson {
-	if (!isRecord(value) || !isRecord(value["hooks"])) return false;
-	return Object.values(value["hooks"]).every(isHookEntries);
+	if (!isRecord(value) || !isRecord(value.hooks)) return false;
+	return Object.values(value.hooks).every(isHookEntries);
 }
 
 function isHookEntries(value: unknown): value is readonly HookEntry[] {
@@ -120,29 +125,29 @@ function isHookEntries(value: unknown): value is readonly HookEntry[] {
 }
 
 function isHookEntry(value: unknown): value is HookEntry {
-	return isRecord(value) && Array.isArray(value["hooks"]) && value["hooks"].every(isHookCommand);
+	return isRecord(value) && Array.isArray(value.hooks) && value.hooks.every(isHookCommand);
 }
 
 function isHookCommand(value: unknown): value is HookCommand {
-	return isRecord(value) && typeof value["command"] === "string";
+	return isRecord(value) && typeof value.command === "string";
 }
 
 function isMcpJson(value: unknown): value is McpJson {
-	if (!isRecord(value) || !isRecord(value["mcpServers"])) return false;
-	return Object.values(value["mcpServers"]).every(isMcpServer);
+	if (!isRecord(value) || !isRecord(value.mcpServers)) return false;
+	return Object.values(value.mcpServers).every(isMcpServer);
 }
 
 function isMcpServer(value: unknown): value is McpServer {
 	return (
 		isRecord(value) &&
-		typeof value["command"] === "string" &&
-		Array.isArray(value["args"]) &&
-		value["args"].every((item) => typeof item === "string")
+		typeof value.command === "string" &&
+		Array.isArray(value.args) &&
+		value.args.every((item) => typeof item === "string")
 	);
 }
 
 function isPluginJson(value: unknown): value is PluginJson {
-	return isRecord(value) && typeof value["hooks"] === "string";
+	return isRecord(value) && typeof value.hooks === "string";
 }
 
 function isStringArray(value: unknown): value is readonly string[] {

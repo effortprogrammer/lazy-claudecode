@@ -5,13 +5,7 @@
 	"type": "module",
 	"packageManager": "npm@11.12.1",
 	"license": "MIT",
-	"keywords": [
-		"claude-code",
-		"claude-code-plugin",
-		"lazy-claudecode",
-		"hooks",
-		"evidence"
-	],
+	"keywords": ["claude-code", "claude-code-plugin", "lazy-claudecode", "hooks", "evidence"],
 	"bin": {
 		"lazy-claudecode-executor-verify": "./dist/cli.js"
 	},
@@ -24,14 +18,7 @@
 		"lint:fix": "biome check --write .",
 		"check": "tsc --noEmit && biome check . && npm run build"
 	},
-	"files": [
-		"dist",
-		"directive.md",
-		"hooks",
-		"README.md",
-		"LICENSE",
-		"NOTICE"
-	],
+	"files": ["dist", "directive.md", "hooks", "README.md", "LICENSE", "NOTICE"],
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
 		"@types/node": "^25.9.3",

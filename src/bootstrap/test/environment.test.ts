@@ -44,11 +44,17 @@ async function withTempDir<T>(prefix: string, run: (directory: string) => Promis
 	}
 }
 
-async function writePluginRoot(directory: string, options: { readonly withSnapshot: boolean }): Promise<string> {
+async function writePluginRoot(
+	directory: string,
+	options: { readonly withSnapshot: boolean },
+): Promise<string> {
 	const pluginRoot = join(directory, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
 	await mkdir(pluginRoot, { recursive: true });
 	if (options.withSnapshot) {
-		await writeFile(join(pluginRoot, "lazy-claudecode-install.json"), '{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n');
+		await writeFile(
+			join(pluginRoot, "lazy-claudecode-install.json"),
+			'{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n',
+		);
 	}
 	return pluginRoot;
 }
@@ -71,35 +77,45 @@ describe("detectInstallFlow", () => {
 	it("#given no snapshot and a git marketplace source #when detecting #then both signals agree on marketplace", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			expect(await detectInstallFlow({ configToml: GIT_SOURCE_CONFIG, pluginRoot })).toBe("marketplace");
+			expect(await detectInstallFlow({ configToml: GIT_SOURCE_CONFIG, pluginRoot })).toBe(
+				"marketplace",
+			);
 		});
 	});
 
 	it("#given a snapshot and a local absolute marketplace source #when detecting #then both signals agree on npx-local", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
-			expect(await detectInstallFlow({ configToml: LOCAL_SOURCE_CONFIG, pluginRoot })).toBe("npx-local");
+			expect(await detectInstallFlow({ configToml: LOCAL_SOURCE_CONFIG, pluginRoot })).toBe(
+				"npx-local",
+			);
 		});
 	});
 
 	it("#given a snapshot but a git marketplace source #when detecting #then the disagreement reports unknown", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
-			expect(await detectInstallFlow({ configToml: GIT_SOURCE_CONFIG, pluginRoot })).toBe("unknown");
+			expect(await detectInstallFlow({ configToml: GIT_SOURCE_CONFIG, pluginRoot })).toBe(
+				"unknown",
+			);
 		});
 	});
 
 	it("#given no snapshot but a local marketplace source #when detecting #then the disagreement reports unknown", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			expect(await detectInstallFlow({ configToml: LOCAL_SOURCE_CONFIG, pluginRoot })).toBe("unknown");
+			expect(await detectInstallFlow({ configToml: LOCAL_SOURCE_CONFIG, pluginRoot })).toBe(
+				"unknown",
+			);
 		});
 	});
 
 	it("#given an unclassifiable marketplace source #when detecting #then reports unknown", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			const config = ['[marketplaces.effortprogrammer]', 'source = "./relative/checkout"', ""].join("\n");
+			const config = ["[marketplaces.effortprogrammer]", 'source = "./relative/checkout"', ""].join(
+				"\n",
+			);
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("unknown");
 		});
 	});
@@ -107,7 +123,11 @@ describe("detectInstallFlow", () => {
 	it("#given a quoted marketplace header #when detecting #then the section is still recognized", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: false });
-			const config = ['[marketplaces."effortprogrammer"]', 'source = "https://github.com/lazy-claudecode-ai/lazy-claudecode"', ""].join("\n");
+			const config = [
+				'[marketplaces."effortprogrammer"]',
+				'source = "https://github.com/lazy-claudecode-ai/lazy-claudecode"',
+				"",
+			].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("marketplace");
 		});
 	});
@@ -115,7 +135,11 @@ describe("detectInstallFlow", () => {
 	it("#given a config without the effortprogrammer marketplace #when detecting #then only the snapshot signal decides", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
-			const config = ['[marketplaces.other]', 'source = "https://github.com/other/marketplace.git"', ""].join("\n");
+			const config = [
+				"[marketplaces.other]",
+				'source = "https://github.com/other/marketplace.git"',
+				"",
+			].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("npx-local");
 		});
 	});
@@ -123,7 +147,11 @@ describe("detectInstallFlow", () => {
 	it("#given a windows drive marketplace source #when detecting with a snapshot #then reports npx-local", async () => {
 		await withTempDir("lazy-claudecode-flow-", async (directory) => {
 			const pluginRoot = await writePluginRoot(directory, { withSnapshot: true });
-			const config = ["[marketplaces.effortprogrammer]", 'source = "C:\\\\workspaces\\\\lazy-claudecode"', ""].join("\n");
+			const config = [
+				"[marketplaces.effortprogrammer]",
+				'source = "C:\\\\workspaces\\\\lazy-claudecode"',
+				"",
+			].join("\n");
 			expect(await detectInstallFlow({ configToml: config, pluginRoot })).toBe("npx-local");
 		});
 	});
@@ -133,7 +161,13 @@ describe("detectInstallFlowFromEnvironment", () => {
 	it("#given a claude-code store layout with a git marketplace config #when detecting from environment #then reports marketplace", async () => {
 		await withTempDir("lazy-claudecode-flow-env-", async (directory) => {
 			const claudeHome = join(directory, ".claude-code");
-			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
+			const pluginRoot = join(
+				claudeHome,
+				"plugins",
+				"effortprogrammer",
+				"lazy-claudecode",
+				"4.9.2",
+			);
 			await mkdir(pluginRoot, { recursive: true });
 			await writeFile(join(claudeHome, "config.toml"), GIT_SOURCE_CONFIG);
 
@@ -147,10 +181,19 @@ describe("detectInstallFlowFromEnvironment", () => {
 	it("#given a claude-code store layout with a local source and an install snapshot #when detecting from environment #then reports npx-local", async () => {
 		await withTempDir("lazy-claudecode-flow-env-", async (directory) => {
 			const claudeHome = join(directory, ".claude-code");
-			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
+			const pluginRoot = join(
+				claudeHome,
+				"plugins",
+				"effortprogrammer",
+				"lazy-claudecode",
+				"4.9.2",
+			);
 			await mkdir(pluginRoot, { recursive: true });
 			await writeFile(join(claudeHome, "config.toml"), LOCAL_SOURCE_CONFIG);
-			await writeFile(join(pluginRoot, "lazy-claudecode-install.json"), '{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n');
+			await writeFile(
+				join(pluginRoot, "lazy-claudecode-install.json"),
+				'{"packageName":"lazy-claudecode-ai","version":"4.9.2"}\n',
+			);
 
 			const detection = await detectInstallFlowFromEnvironment({ env: {}, pluginRoot });
 
@@ -169,7 +212,12 @@ describe("sync-lazy-claudecode-marketplace output", () => {
 
 			const sync = spawnSync(
 				process.execPath,
-				["run", join(repoRoot, "script", "sync-lazy-claudecode-marketplace.ts"), sourceRoot, lazyClaudeRoot],
+				[
+					"run",
+					join(repoRoot, "script", "sync-lazy-claudecode-marketplace.ts"),
+					sourceRoot,
+					lazyClaudeRoot,
+				],
 				{ encoding: "utf8" },
 			);
 			expect(sync.status).toBe(0);
@@ -202,7 +250,13 @@ describe("resolveClaudeHome", () => {
 	it("#given a claude-code store layout #when resolving without env #then walking up finds the config.toml dir", async () => {
 		await withTempDir("lazy-claudecode-home-", async (directory) => {
 			const claudeHome = join(directory, ".claude-code");
-			const pluginRoot = join(claudeHome, "plugins", "effortprogrammer", "lazy-claudecode", "4.9.2");
+			const pluginRoot = join(
+				claudeHome,
+				"plugins",
+				"effortprogrammer",
+				"lazy-claudecode",
+				"4.9.2",
+			);
 			await mkdir(pluginRoot, { recursive: true });
 			await writeFile(join(claudeHome, "config.toml"), GIT_SOURCE_CONFIG);
 
@@ -306,7 +360,9 @@ describe("bootstrapLocks", () => {
 	});
 
 	it("#given the path helpers #when resolving state and lock paths #then they follow the PLUGIN_DATA bootstrap layout", () => {
-		expect(resolveBootstrapStatePath("/data/lazy-claudecode-effortprogrammer")).toBe(join("/data/lazy-claudecode-effortprogrammer", "bootstrap", "state.json"));
+		expect(resolveBootstrapStatePath("/data/lazy-claudecode-effortprogrammer")).toBe(
+			join("/data/lazy-claudecode-effortprogrammer", "bootstrap", "state.json"),
+		);
 		expect(resolveBootstrapLockPath("/data/lazy-claudecode-effortprogrammer")).toBe(
 			join("/data/lazy-claudecode-effortprogrammer", "bootstrap", "state.json.lock"),
 		);
@@ -331,8 +387,14 @@ async function writeSyncSourceFixture(sourceRoot: string): Promise<void> {
 		name: "effortprogrammer",
 		plugins: [{ name: "lazy-claudecode", source: "./plugins/lazy-claudecode" }],
 	});
-	await writeJson(join(pluginSource, ".claude-code-plugin", "plugin.json"), { name: "lazy-claudecode", version: "1.2.3" });
-	await writeJson(join(pluginSource, "package.json"), { name: "@effortprogrammer/lazy-claudecode-claude-code-plugin", version: "1.2.3" });
+	await writeJson(join(pluginSource, ".claude-code-plugin", "plugin.json"), {
+		name: "lazy-claudecode",
+		version: "1.2.3",
+	});
+	await writeJson(join(pluginSource, "package.json"), {
+		name: "@effortprogrammer/lazy-claudecode-claude-code-plugin",
+		version: "1.2.3",
+	});
 	const bootstrapSessionStart = {
 		hooks: {
 			SessionStart: [
@@ -352,24 +414,54 @@ async function writeSyncSourceFixture(sourceRoot: string): Promise<void> {
 		},
 	};
 	await writeJson(join(pluginSource, "hooks", "hooks.json"), bootstrapSessionStart);
-	await writeJson(join(pluginSource, "components", "bootstrap", "hooks", "hooks.json"), bootstrapSessionStart);
+	await writeJson(
+		join(pluginSource, "components", "bootstrap", "hooks", "hooks.json"),
+		bootstrapSessionStart,
+	);
 	await writeJson(join(pluginSource, ".mcp.json"), {
 		mcpServers: {
-			ast_grep: { args: ["./components/ast-grep-skill/dist/cli.js", "mcp"], command: "node", cwd: "." },
+			ast_grep: {
+				args: ["./components/ast-grep-skill/dist/cli.js", "mcp"],
+				command: "node",
+				cwd: ".",
+			},
 			git_bash: { args: ["../../git-bash-mcp/dist/cli.js", "mcp"], command: "node", cwd: "." },
 			lsp: { args: ["../../lsp-daemon/dist/cli.js", "mcp"], command: "node", cwd: "." },
 		},
 	});
-	await mkdir(join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazy-claudecode-repository", ".github", "workflows"), { recursive: true });
+	await mkdir(
+		join(
+			sourceRoot,
+			"packages",
+			"lazy-claudecode-claude-code",
+			"lazy-claudecode-repository",
+			".github",
+			"workflows",
+		),
+		{ recursive: true },
+	);
 	await writeFile(
-		join(sourceRoot, "packages", "lazy-claudecode-claude-code", "lazy-claudecode-repository", ".github", "workflows", "pr-source-guidance.yml"),
+		join(
+			sourceRoot,
+			"packages",
+			"lazy-claudecode-claude-code",
+			"lazy-claudecode-repository",
+			".github",
+			"workflows",
+			"pr-source-guidance.yml",
+		),
 		"name: PR source guidance\n\non:\n  pull_request_target:\n",
 	);
 	await writeExecutableStub(join(pluginSource, "components", "bootstrap", "dist", "cli.js"));
 	await writeExecutableStub(join(pluginSource, "components", "ast-grep-skill", "dist", "cli.js"));
 	await mkdir(join(pluginSource, "components", "bootstrap", "scripts"), { recursive: true });
-	await writeFile(join(pluginSource, "components", "bootstrap", "scripts", "bootstrap.ps1"), "exit 0\n");
-	await writeExecutableStub(join(sourceRoot, "packages", ["ast", "grep", "mcp"].join("-"), "dist", "cli.js"));
+	await writeFile(
+		join(pluginSource, "components", "bootstrap", "scripts", "bootstrap.ps1"),
+		"exit 0\n",
+	);
+	await writeExecutableStub(
+		join(sourceRoot, "packages", ["ast", "grep", "mcp"].join("-"), "dist", "cli.js"),
+	);
 	await writeExecutableStub(join(sourceRoot, "packages", "git-bash-mcp", "dist", "cli.js"));
 	await writeExecutableStub(join(sourceRoot, "packages", "lsp-tools-mcp", "dist", "cli.js"));
 	await writeExecutableStub(join(sourceRoot, "packages", "lsp-daemon", "dist", "cli.js"));

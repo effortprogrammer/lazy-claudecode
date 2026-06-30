@@ -4,11 +4,15 @@ import { disposeDefaultLspManager } from "../lsp-daemon/dist/index.ts";
 
 import { isRecord, runLspPostCompactHook, runLspPostToolUseHook } from "./claude-hook.ts";
 
-export async function runPostToolUseHookCli(stdin: NodeJS.ReadStream = processStdin): Promise<void> {
+export async function runPostToolUseHookCli(
+	stdin: NodeJS.ReadStream = processStdin,
+): Promise<void> {
 	await runHookCli((input) => runLspPostToolUseHook(input), stdin);
 }
 
-export async function runPostCompactHookCli(stdin: NodeJS.ReadStream = processStdin): Promise<void> {
+export async function runPostCompactHookCli(
+	stdin: NodeJS.ReadStream = processStdin,
+): Promise<void> {
 	await runHookCli((input) => runLspPostCompactHook(input), stdin);
 }
 

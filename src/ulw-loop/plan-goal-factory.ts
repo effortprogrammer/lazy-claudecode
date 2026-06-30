@@ -38,7 +38,10 @@ function truncateObjective(objective: string): string {
 	return objective.length > 80 ? `${objective.slice(0, 77).trimEnd()}...` : objective;
 }
 
-export function seedDefaultSuccessCriteria(goalIndex: number, objective: string): UlwLoopSuccessCriterion[] {
+export function seedDefaultSuccessCriteria(
+	goalIndex: number,
+	objective: string,
+): UlwLoopSuccessCriterion[] {
 	const subject = truncateObjective(normalizeObjective(objective) || `Goal ${goalIndex + 1}`);
 	const rows = [
 		[
@@ -101,7 +104,12 @@ export function deriveGoalCandidates(brief: string): Array<{ title: string; obje
 	}));
 }
 
-export function makeGoal(title: string, objective: string, index: number, now: string): UlwLoopItem {
+export function makeGoal(
+	title: string,
+	objective: string,
+	index: number,
+	now: string,
+): UlwLoopItem {
 	const cleanTitle = assertNonEmpty(title, "title");
 	const cleanObjective = assertNonEmpty(objective, "objective");
 	return {
@@ -116,7 +124,12 @@ export function makeGoal(title: string, objective: string, index: number, now: s
 	};
 }
 
-export function appendGoalToPlan(plan: UlwLoopPlan, title: string, objective: string, now: string): UlwLoopItem {
+export function appendGoalToPlan(
+	plan: UlwLoopPlan,
+	title: string,
+	objective: string,
+	now: string,
+): UlwLoopItem {
 	const goal = makeGoal(title, objective, plan.goals.length, now);
 	plan.goals.push(goal);
 	plan.updatedAt = now;

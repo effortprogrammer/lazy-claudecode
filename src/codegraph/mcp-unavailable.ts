@@ -2,12 +2,12 @@
 import type { Readable, Writable } from "node:stream";
 
 import {
+	type JsonRpcResponse,
 	errorResponse,
 	isPlainRecord,
 	jsonRpcId,
 	runJsonRpcStdioServer,
 	successResponse,
-	type JsonRpcResponse,
 } from "@modelcontextprotocol/sdk/server/index.js";
 
 export interface UnavailableCodegraphMcpOptions {
@@ -44,14 +44,14 @@ async function handleUnavailableCodegraphMcpRequest(
 		return errorResponse(null, -32600, "Invalid Request");
 	}
 
-	const id = jsonRpcId(input["id"]);
-	const method = input["method"];
+	const id = jsonRpcId(input.id);
+	const method = input.method;
 	if (method === "notifications/initialized") return undefined;
 	if (method === "ping") return successResponse(id, {});
 	if (method === "initialize") {
 		return successResponse(id, {
 			capabilities: { tools: { listChanged: false } },
-			protocolVersion: requestedProtocolVersion(input["params"]),
+			protocolVersion: requestedProtocolVersion(input.params),
 			serverInfo: { name: "codegraph", version: options.serverVersion },
 		});
 	}
@@ -71,6 +71,6 @@ async function handleUnavailableCodegraphMcpRequest(
 }
 
 function requestedProtocolVersion(params: unknown): string {
-	if (!isPlainRecord(params) || typeof params["protocolVersion"] !== "string") return "2024-11-05";
-	return params["protocolVersion"];
+	if (!isPlainRecord(params) || typeof params.protocolVersion !== "string") return "2024-11-05";
+	return params.protocolVersion;
 }

@@ -37,7 +37,12 @@ export {
 	sgProvisionDestination,
 } from "./provision.ts";
 export type { ResolvePreexistingSgOptions, SgProvisionSeams } from "./provision.ts";
-export { GIT_BASH_INSTALL_HINT, runWorkerSetup, SETUP_MARKETPLACE_NAME, SETUP_PLUGIN_NAME } from "./setup.ts";
+export {
+	GIT_BASH_INSTALL_HINT,
+	runWorkerSetup,
+	SETUP_MARKETPLACE_NAME,
+	SETUP_PLUGIN_NAME,
+} from "./setup.ts";
 export type { SetupRunCommand, WorkerSetupOptions } from "./setup.ts";
 export type {
 	SessionStartAction,
@@ -76,7 +81,9 @@ const TOP_LEVEL_HELP =
 async function runDownloadCommand(args: readonly string[]): Promise<number> {
 	const [manifestName, platformKey, destinationDir] = args;
 	if (manifestName === undefined || platformKey === undefined || destinationDir === undefined) {
-		process.stderr.write(`[lazy-claudecode-bootstrap] download requires <manifest> <platform> <destination-dir>\n${TOP_LEVEL_HELP}`);
+		process.stderr.write(
+			`[lazy-claudecode-bootstrap] download requires <manifest> <platform> <destination-dir>\n${TOP_LEVEL_HELP}`,
+		);
 		return 1;
 	}
 	try {
@@ -84,7 +91,9 @@ async function runDownloadCommand(args: readonly string[]): Promise<number> {
 		process.stdout.write(`OK:${destination}\n`);
 		return 0;
 	} catch (error) {
-		process.stderr.write(`[lazy-claudecode-bootstrap] download failed: ${error instanceof Error ? error.message : String(error)}\n`);
+		process.stderr.write(
+			`[lazy-claudecode-bootstrap] download failed: ${error instanceof Error ? error.message : String(error)}\n`,
+		);
 		return 1;
 	}
 }
@@ -105,7 +114,9 @@ async function runWorkerCommand(args: readonly string[]): Promise<number> {
 		return 0;
 	}
 	process.stdout.write(
-		result.ran ? `[lazy-claudecode-bootstrap] worker finished: ${result.status}\n` : `[lazy-claudecode-bootstrap] worker skipped: ${result.reason}\n`,
+		result.ran
+			? `[lazy-claudecode-bootstrap] worker finished: ${result.status}\n`
+			: `[lazy-claudecode-bootstrap] worker skipped: ${result.reason}\n`,
 	);
 	return 0;
 }
@@ -126,7 +137,9 @@ async function main(): Promise<number> {
 	if (command === "download") {
 		return runDownloadCommand(argv.slice(1));
 	}
-	process.stderr.write(`[lazy-claudecode-bootstrap] unknown command: ${argv.join(" ")}\n${TOP_LEVEL_HELP}`);
+	process.stderr.write(
+		`[lazy-claudecode-bootstrap] unknown command: ${argv.join(" ")}\n${TOP_LEVEL_HELP}`,
+	);
 	return 1;
 }
 
@@ -147,7 +160,9 @@ if (isProcessEntry()) {
 		})
 		.catch((error: unknown) => {
 			// The SessionStart hook path must never fail the session: log and exit 0.
-			process.stderr.write(`[lazy-claudecode-bootstrap] ${error instanceof Error ? error.message : String(error)}\n`);
+			process.stderr.write(
+				`[lazy-claudecode-bootstrap] ${error instanceof Error ? error.message : String(error)}\n`,
+			);
 			process.exit(0);
 		});
 }

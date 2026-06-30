@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { configFromEnvironment } from "../src/config.ts";
+import { configFromEnvironment } from "../config.ts";
 
 const REMOVED_AGENT_DOC_SOURCE_LISTS = ["AGENTS.md", "CLAUDE.md", "AGENTS.md,CLAUDE.md"] as const;
 

@@ -4,12 +4,7 @@
 	"description": "Claude Code SessionStart bootstrap component that provisions LazyClaude runtime dependencies from a detached worker.",
 	"type": "module",
 	"private": true,
-	"files": [
-		"dist",
-		"hooks",
-		"scripts",
-		"manifests"
-	],
+	"files": ["dist", "hooks", "scripts", "manifests"],
 	"scripts": {
 		"build": "node scripts/build.mjs",
 		"test": "bun test test/*.test.ts"

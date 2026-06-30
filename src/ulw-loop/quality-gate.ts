@@ -75,7 +75,10 @@ function passedVerdict(value: unknown, field: string): "passed" {
 	return literal(value, "passed", field);
 }
 
-function artifactCompatible(surface: UlwLoopManualQaSurface, kind: UlwLoopManualQaArtifactKind): boolean {
+function artifactCompatible(
+	surface: UlwLoopManualQaSurface,
+	kind: UlwLoopManualQaArtifactKind,
+): boolean {
 	switch (surface) {
 		case "cli":
 		case "tmux":
@@ -88,7 +91,10 @@ function artifactCompatible(surface: UlwLoopManualQaSurface, kind: UlwLoopManual
 		case "data":
 			return kind === "data-diff";
 		default:
-			invalid("manualQa.surfaceEvidence has an unsupported surface.", "manualQa.surfaceEvidence.surface");
+			invalid(
+				"manualQa.surfaceEvidence has an unsupported surface.",
+				"manualQa.surfaceEvidence.surface",
+			);
 	}
 }
 
@@ -100,26 +106,32 @@ function checkFile(path: string, field: string, opts?: ValidateQualityGateOption
 	if (stat.size <= 0) invalid(`${field} must point to a non-empty artifact.`, field);
 }
 
-function artifactMap(refs: readonly UlwLoopManualQaArtifactRef[]): Map<string, UlwLoopManualQaArtifactRef> {
+function artifactMap(
+	refs: readonly UlwLoopManualQaArtifactRef[],
+): Map<string, UlwLoopManualQaArtifactRef> {
 	const byId = new Map<string, UlwLoopManualQaArtifactRef>();
 	for (const ref of refs) {
-		if (byId.has(ref.id)) invalid(`manualQa.artifactRefs contains duplicate ${ref.id}.`, "manualQa.artifactRefs");
+		if (byId.has(ref.id))
+			invalid(`manualQa.artifactRefs contains duplicate ${ref.id}.`, "manualQa.artifactRefs");
 		byId.set(ref.id, ref);
 	}
 	return byId;
 }
 
-function parseArtifactRefs(value: unknown, opts?: ValidateQualityGateOptions): readonly UlwLoopManualQaArtifactRef[] {
+function parseArtifactRefs(
+	value: unknown,
+	opts?: ValidateQualityGateOptions,
+): readonly UlwLoopManualQaArtifactRef[] {
 	if (!Array.isArray(value) || value.length === 0)
 		invalid("manualQa.artifactRefs must not be empty.", "manualQa.artifactRefs");
 	return value.map((item, index) => {
 		const ref = section(item, `manualQa.artifactRefs[${index}]`);
-		const path = textField(ref["path"], `manualQa.artifactRefs[${index}].path`);
+		const path = textField(ref.path, `manualQa.artifactRefs[${index}].path`);
 		checkFile(path, `manualQa.artifactRefs[${index}].path`, opts);
 		return {
-			id: textField(ref["id"], `manualQa.artifactRefs[${index}].id`),
-			kind: kindField(ref["kind"], `manualQa.artifactRefs[${index}].kind`),
-			description: textField(ref["description"], `manualQa.artifactRefs[${index}].description`),
+			id: textField(ref.id, `manualQa.artifactRefs[${index}].id`),
+			kind: kindField(ref.kind, `manualQa.artifactRefs[${index}].kind`),
+			description: textField(ref.description, `manualQa.artifactRefs[${index}].description`),
 			path,
 		};
 	});
@@ -137,63 +149,73 @@ function referencedArtifacts(
 	});
 }
 
-export function validateQualityGate(input: unknown, opts?: ValidateQualityGateOptions): UlwLoopQualityGate {
+export function validateQualityGate(
+	input: unknown,
+	opts?: ValidateQualityGateOptions,
+): UlwLoopQualityGate {
 	const gate = section(input, "qualityGate");
-	const codeReview = section(gate["codeReview"], "codeReview");
-	const manualQa = section(gate["manualQa"], "manualQa");
-	const gateReview = section(gate["gateReview"], "gateReview");
-	const iteration = section(gate["iteration"], "iteration");
-	const coverage = section(gate["criteriaCoverage"], "criteriaCoverage");
-	const totalCriteria = numberField(coverage["totalCriteria"], "criteriaCoverage.totalCriteria");
-	const passCount = numberField(coverage["passCount"], "criteriaCoverage.passCount");
+	const codeReview = section(gate.codeReview, "codeReview");
+	const manualQa = section(gate.manualQa, "manualQa");
+	const gateReview = section(gate.gateReview, "gateReview");
+	const iteration = section(gate.iteration, "iteration");
+	const coverage = section(gate.criteriaCoverage, "criteriaCoverage");
+	const totalCriteria = numberField(coverage.totalCriteria, "criteriaCoverage.totalCriteria");
+	const passCount = numberField(coverage.passCount, "criteriaCoverage.passCount");
 	if (passCount < totalCriteria)
 		invalid("criteriaCoverage.passCount must cover totalCriteria.", "criteriaCoverage.passCount");
-	const artifactRefs = parseArtifactRefs(manualQa["artifactRefs"], opts);
+	const artifactRefs = parseArtifactRefs(manualQa.artifactRefs, opts);
 	const byId = artifactMap(artifactRefs);
-	const surfaceEvidence = parseSurfaceEvidence(manualQa["surfaceEvidence"], byId);
-	const adversarialCases = parseAdversarialCases(manualQa["adversarialCases"], byId);
-	const codeReportPath = textField(codeReview["reportPath"], "codeReview.reportPath");
-	const gateReportPath = textField(gateReview["reportPath"], "gateReview.reportPath");
+	const surfaceEvidence = parseSurfaceEvidence(manualQa.surfaceEvidence, byId);
+	const adversarialCases = parseAdversarialCases(manualQa.adversarialCases, byId);
+	const codeReportPath = textField(codeReview.reportPath, "codeReview.reportPath");
+	const gateReportPath = textField(gateReview.reportPath, "gateReview.reportPath");
 	checkFile(codeReportPath, "codeReview.reportPath", opts);
 	checkFile(gateReportPath, "gateReview.reportPath", opts);
 	return {
 		codeReview: {
-			by: reviewerRoleField(codeReview["by"], REVIEWER_ROLES.codeReview, "codeReview.by"),
-			recommendation: literal(codeReview["recommendation"], "APPROVE", "codeReview.recommendation"),
-			codeQualityStatus: literal(codeReview["codeQualityStatus"], "CLEAR", "codeReview.codeQualityStatus"),
+			by: reviewerRoleField(codeReview.by, REVIEWER_ROLES.codeReview, "codeReview.by"),
+			recommendation: literal(codeReview.recommendation, "APPROVE", "codeReview.recommendation"),
+			codeQualityStatus: literal(
+				codeReview.codeQualityStatus,
+				"CLEAR",
+				"codeReview.codeQualityStatus",
+			),
 			reportPath: codeReportPath,
-			evidence: textField(codeReview["evidence"], "codeReview.evidence"),
-			blockers: emptyBlockers(codeReview["blockers"], "codeReview.blockers"),
+			evidence: textField(codeReview.evidence, "codeReview.evidence"),
+			blockers: emptyBlockers(codeReview.blockers, "codeReview.blockers"),
 		},
 		manualQa: {
-			by: reviewerRoleField(manualQa["by"], REVIEWER_ROLES.manualQa, "manualQa.by"),
-			status: literal(manualQa["status"], "passed", "manualQa.status"),
-			evidence: textField(manualQa["evidence"], "manualQa.evidence"),
+			by: reviewerRoleField(manualQa.by, REVIEWER_ROLES.manualQa, "manualQa.by"),
+			status: literal(manualQa.status, "passed", "manualQa.status"),
+			evidence: textField(manualQa.evidence, "manualQa.evidence"),
 			surfaceEvidence,
 			adversarialCases,
 			artifactRefs,
 		},
 		gateReview: {
-			by: reviewerRoleField(gateReview["by"], REVIEWER_ROLES.gateReview, "gateReview.by"),
-			recommendation: literal(gateReview["recommendation"], "APPROVE", "gateReview.recommendation"),
+			by: reviewerRoleField(gateReview.by, REVIEWER_ROLES.gateReview, "gateReview.by"),
+			recommendation: literal(gateReview.recommendation, "APPROVE", "gateReview.recommendation"),
 			reportPath: gateReportPath,
-			evidence: textField(gateReview["evidence"], "gateReview.evidence"),
-			blockers: emptyBlockers(gateReview["blockers"], "gateReview.blockers"),
+			evidence: textField(gateReview.evidence, "gateReview.evidence"),
+			blockers: emptyBlockers(gateReview.blockers, "gateReview.blockers"),
 		},
 		iteration: {
-			fullRerun: literal(iteration["fullRerun"], true, "iteration.fullRerun"),
-			status: literal(iteration["status"], "passed", "iteration.status"),
-			rerunCommands: stringArray(iteration["rerunCommands"], "iteration.rerunCommands"),
-			evidence: textField(iteration["evidence"], "iteration.evidence"),
+			fullRerun: literal(iteration.fullRerun, true, "iteration.fullRerun"),
+			status: literal(iteration.status, "passed", "iteration.status"),
+			rerunCommands: stringArray(iteration.rerunCommands, "iteration.rerunCommands"),
+			evidence: textField(iteration.evidence, "iteration.evidence"),
 		},
 		criteriaCoverage: {
 			totalCriteria,
 			passCount,
-			originalIntent: textField(coverage["originalIntent"], "criteriaCoverage.originalIntent"),
-			desiredOutcome: textField(coverage["desiredOutcome"], "criteriaCoverage.desiredOutcome"),
-			userOutcomeReview: textField(coverage["userOutcomeReview"], "criteriaCoverage.userOutcomeReview"),
+			originalIntent: textField(coverage.originalIntent, "criteriaCoverage.originalIntent"),
+			desiredOutcome: textField(coverage.desiredOutcome, "criteriaCoverage.desiredOutcome"),
+			userOutcomeReview: textField(
+				coverage.userOutcomeReview,
+				"criteriaCoverage.userOutcomeReview",
+			),
 			adversarialClassesCovered: stringArray(
-				coverage["adversarialClassesCovered"],
+				coverage.adversarialClassesCovered,
 				"criteriaCoverage.adversarialClassesCovered",
 			),
 		},
@@ -208,9 +230,9 @@ function parseSurfaceEvidence(
 		invalid("manualQa.surfaceEvidence must not be empty.", "manualQa.surfaceEvidence");
 	return value.map((item, index) => {
 		const row = section(item, `manualQa.surfaceEvidence[${index}]`);
-		const surface = surfaceField(row["surface"], `manualQa.surfaceEvidence[${index}].surface`);
+		const surface = surfaceField(row.surface, `manualQa.surfaceEvidence[${index}].surface`);
 		const artifacts = referencedArtifacts(
-			row["artifactRefs"],
+			row.artifactRefs,
 			`manualQa.surfaceEvidence[${index}].artifactRefs`,
 			byId,
 		);
@@ -223,11 +245,11 @@ function parseSurfaceEvidence(
 			}
 		}
 		return {
-			id: textField(row["id"], `manualQa.surfaceEvidence[${index}].id`),
-			criterionRef: textField(row["criterionRef"], `manualQa.surfaceEvidence[${index}].criterionRef`),
+			id: textField(row.id, `manualQa.surfaceEvidence[${index}].id`),
+			criterionRef: textField(row.criterionRef, `manualQa.surfaceEvidence[${index}].criterionRef`),
 			surface,
-			invocation: textField(row["invocation"], `manualQa.surfaceEvidence[${index}].invocation`),
-			verdict: passedVerdict(row["verdict"], `manualQa.surfaceEvidence[${index}].verdict`),
+			invocation: textField(row.invocation, `manualQa.surfaceEvidence[${index}].invocation`),
+			verdict: passedVerdict(row.verdict, `manualQa.surfaceEvidence[${index}].verdict`),
 			artifactRefs: artifacts.map((artifact) => artifact.id),
 		};
 	});
@@ -242,16 +264,19 @@ function parseAdversarialCases(
 	return value.map((item, index) => {
 		const row = section(item, `manualQa.adversarialCases[${index}]`);
 		const artifacts = referencedArtifacts(
-			row["artifactRefs"],
+			row.artifactRefs,
 			`manualQa.adversarialCases[${index}].artifactRefs`,
 			byId,
 		);
 		return {
-			id: textField(row["id"], `manualQa.adversarialCases[${index}].id`),
-			criterionRef: textField(row["criterionRef"], `manualQa.adversarialCases[${index}].criterionRef`),
-			scenario: textField(row["scenario"], `manualQa.adversarialCases[${index}].scenario`),
-			expectedBehavior: textField(row["expectedBehavior"], `manualQa.adversarialCases[${index}].expectedBehavior`),
-			verdict: passedVerdict(row["verdict"], `manualQa.adversarialCases[${index}].verdict`),
+			id: textField(row.id, `manualQa.adversarialCases[${index}].id`),
+			criterionRef: textField(row.criterionRef, `manualQa.adversarialCases[${index}].criterionRef`),
+			scenario: textField(row.scenario, `manualQa.adversarialCases[${index}].scenario`),
+			expectedBehavior: textField(
+				row.expectedBehavior,
+				`manualQa.adversarialCases[${index}].expectedBehavior`,
+			),
+			verdict: passedVerdict(row.verdict, `manualQa.adversarialCases[${index}].verdict`),
 			artifactRefs: artifacts.map((artifact) => artifact.id),
 		};
 	});

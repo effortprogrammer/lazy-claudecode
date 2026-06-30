@@ -4,7 +4,15 @@ import { describe, expect, it } from "vitest";
 import { checkpointUlwLoop } from "../src/checkpoint.ts";
 import { ulwLoopBriefPath } from "../src/paths.ts";
 import { startNextUlwLoop } from "../src/plan-crud.ts";
-import { criterion, expectCode, goal, passGoal, plan, repoWith, snapshot } from "./fixtures/checkpoint-builders.ts";
+import {
+	criterion,
+	expectCode,
+	goal,
+	passGoal,
+	plan,
+	repoWith,
+	snapshot,
+} from "./fixtures/checkpoint-builders.ts";
 import { MISSING_ARTIFACT_PATH, qualityGateJson } from "./fixtures/quality-gate-builder.ts";
 
 describe("checkpointUlwLoop final story", () => {
@@ -121,7 +129,11 @@ describe("checkpointUlwLoop final story", () => {
 
 	it("explains final task-scoped objective mapping when completed Claude Code objective is unrelated", async () => {
 		const repo = await repoWith(plan([passGoal("G001")], { activeGoalId: "G001" }));
-		await writeFile(ulwLoopBriefPath(repo), "Fix ulw-loop objective mismatch and install local ulw\n", "utf8");
+		await writeFile(
+			ulwLoopBriefPath(repo),
+			"Fix ulw-loop objective mismatch and install local ulw\n",
+			"utf8",
+		);
 
 		await expect(
 			checkpointUlwLoop(repo, {
@@ -144,14 +156,19 @@ describe("checkpointUlwLoop final story", () => {
 				criterion("C002", "pending", { essential: false }),
 			],
 		});
-		const second = goal({ id: "G002", status: "pending", objective: "Implement second accepted story" });
+		const second = goal({
+			id: "G002",
+			status: "pending",
+			objective: "Implement second accepted story",
+		});
 		const repo = await repoWith(plan([first, second], { activeGoalId: "G001" }));
 		await writeFile(ulwLoopBriefPath(repo), `${taskObjective}\n`, "utf8");
 
 		const result = await checkpointUlwLoop(repo, {
 			goalId: "G001",
 			status: "complete",
-			evidence: "G001 updated .claude/ulw-loop/goals.json after implementation completed and validation passed",
+			evidence:
+				"G001 updated .claude/ulw-loop/goals.json after implementation completed and validation passed",
 			claudeGoalJson: snapshot("complete", taskObjective),
 			qualityGateJson: await qualityGateJson(repo),
 		});
@@ -170,7 +187,9 @@ describe("checkpointUlwLoop final story", () => {
 				criterion("C002", "pending", { essential: false }),
 			],
 		});
-		const repo = await repoWith(plan([current], { claudeCodeGoalMode: "per_story", activeGoalId: "G001" }));
+		const repo = await repoWith(
+			plan([current], { claudeCodeGoalMode: "per_story", activeGoalId: "G001" }),
+		);
 
 		await expectCode(
 			() =>

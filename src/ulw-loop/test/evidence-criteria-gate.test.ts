@@ -93,8 +93,8 @@ describe("requireAllCriteriaPass", () => {
 			expect(error).toBeInstanceOf(UlwLoopError);
 			if (!(error instanceof UlwLoopError)) throw error;
 			expect(error.code).toBe("ulw_loop_criteria_not_all_pass");
-			expect(error.details?.["goalId"]).toBe("G001");
-			expect(Array.isArray(error.details?.["unresolved"])).toBe(true);
+			expect(error.details?.goalId).toBe("G001");
+			expect(Array.isArray(error.details?.unresolved)).toBe(true);
 		}
 	});
 });

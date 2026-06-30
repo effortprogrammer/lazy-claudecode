@@ -16,12 +16,12 @@ beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-"));
 	out = [];
 	err = [];
-	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env.LAZY_CLAUDECODE_SESSION_ID;
+	originalClaudeThreadId = process.env.LAZY_CLAUDECODE_THREAD_ID;
+	originalOmoSessionId = process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID;
+	process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -35,12 +35,13 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
-	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_SESSION_ID = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_THREAD_ID = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined)
+		process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 
@@ -121,7 +122,15 @@ describe("ulwLoopCommand record-evidence", () => {
 
 	it("returns 1 + error on missing flags", async () => {
 		expect(
-			await ulwLoopCommand(["record-evidence", "--criterion-id", "C001", "--status", "pass", "--evidence", "x"]),
+			await ulwLoopCommand([
+				"record-evidence",
+				"--criterion-id",
+				"C001",
+				"--status",
+				"pass",
+				"--evidence",
+				"x",
+			]),
 		).toBe(1);
 		expect(err.join("")).toContain("Missing --goal-id");
 	});
@@ -172,7 +181,11 @@ describe("ulwLoopCommand steer", () => {
 				goals: [
 					{ id: "G001-goal-a" },
 					{ id: "G002-goal-b" },
-					{ id: "G003", title: "Extra", successCriteria: [{ id: "C001" }, { id: "C002" }, { id: "C003" }] },
+					{
+						id: "G003",
+						title: "Extra",
+						successCriteria: [{ id: "C001" }, { id: "C002" }, { id: "C003" }],
+					},
 				],
 			},
 		});
@@ -183,7 +196,9 @@ describe("ulwLoopCommand add-goal", () => {
 	it("appends a pending goal", async () => {
 		await createPlan();
 
-		expect(await ulwLoopCommand(["add-goal", "--title", "Later", "--objective", "Do later", "--json"])).toBe(0);
+		expect(
+			await ulwLoopCommand(["add-goal", "--title", "Later", "--objective", "Do later", "--json"]),
+		).toBe(0);
 		expect(stdoutJson()).toMatchObject({ ok: true, goal: { title: "Later", status: "pending" } });
 	});
 });

@@ -39,7 +39,9 @@ describe("rules source selection", () => {
 		expect(disabledSources.has("~/.claude/rules")).toBe(true);
 		expect(disabledSources).toEqual(
 			new Set(
-				[...SOURCE_PRIORITY.keys()].filter((source) => source !== ".claude/rules" && source !== "plugin-bundled"),
+				[...SOURCE_PRIORITY.keys()].filter(
+					(source) => source !== ".claude/rules" && source !== "plugin-bundled",
+				),
 			),
 		);
 	});

@@ -8,13 +8,13 @@ import { getTelemetryDiagnosticsFilePath } from "../diagnostics.ts";
 import type { PostHogClient } from "../posthog.ts";
 
 const tempDirectories: string[] = [];
-const originalXdgDataHome = process.env["XDG_DATA_HOME"];
+const originalXdgDataHome = process.env.XDG_DATA_HOME;
 
 afterEach(() => {
 	if (originalXdgDataHome === undefined) {
-		delete process.env["XDG_DATA_HOME"];
+		process.env.XDG_DATA_HOME = undefined;
 	} else {
-		process.env["XDG_DATA_HOME"] = originalXdgDataHome;
+		process.env.XDG_DATA_HOME = originalXdgDataHome;
 	}
 
 	for (const directory of tempDirectories.splice(0)) {
@@ -22,7 +22,9 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> = {}): ClaudeCodeSessionStartInput {
+function makeSessionStartInput(
+	overrides: Partial<ClaudeCodeSessionStartInput> = {},
+): ClaudeCodeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,
@@ -38,7 +40,7 @@ function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> =
 function createDiagnosticsDataDir(): string {
 	const dataDir = mkdtempSync(path.join(tmpdir(), "lazy-claudecode-telemetry-diagnostics-"));
 	tempDirectories.push(dataDir);
-	process.env["XDG_DATA_HOME"] = dataDir;
+	process.env.XDG_DATA_HOME = dataDir;
 	return dataDir;
 }
 

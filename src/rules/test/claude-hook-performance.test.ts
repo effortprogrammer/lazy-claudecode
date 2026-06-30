@@ -5,7 +5,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import type { ClaudePostToolUseInput } from "../src/claude-code-hook.ts";
+import type { ClaudePostToolUseInput } from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 
@@ -15,7 +15,11 @@ afterEach(() => {
 	}
 });
 
-function makeTempProject(ruleCount: number): { root: string; pluginData: string; targetPath: string } {
+function makeTempProject(ruleCount: number): {
+	root: string;
+	pluginData: string;
+	targetPath: string;
+} {
 	const root = fs.mkdtempSync(path.join(tmpdir(), "claude-code-rules-hook-perf-project-"));
 	const pluginData = fs.mkdtempSync(path.join(tmpdir(), "claude-code-rules-hook-perf-data-"));
 	tempDirectories.push(root, pluginData);
@@ -71,7 +75,7 @@ describe("claude-code rules hook performance", () => {
 		}) as typeof fs.readFileSync;
 		fs.readFileSync = wrappedReadFileSync;
 		syncBuiltinESMExports();
-		const { runPostToolUseHook } = await import("../src/claude-code-hook.js");
+		const { runPostToolUseHook } = await import("../claude-hook.js");
 
 		try {
 			// when

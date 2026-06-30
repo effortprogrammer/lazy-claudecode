@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { runCodegraphSessionStartWorker } from "../src/hook.ts";
+import { runCodegraphSessionStartWorker } from "../hook.ts";
 
 describe("CodeGraph SessionStart worker availability", () => {
 	it("#given CodeGraph cannot be resolved or provisioned #when worker runs #then it logs a graceful skip", async () => {
@@ -36,7 +36,12 @@ describe("CodeGraph SessionStart worker availability", () => {
 							projectLink: join(workspace, ".codegraph"),
 						};
 					},
-					resolveCommand: () => ({ argsPrefix: [], command: "codegraph", exists: false, source: "path" }),
+					resolveCommand: () => ({
+						argsPrefix: [],
+						command: "codegraph",
+						exists: false,
+						source: "path",
+					}),
 					runCommand: () => {
 						calls.push("runCommand");
 						return Promise.resolve({ exitCode: 0, stdout: "", timedOut: false });
@@ -64,7 +69,9 @@ describe("CodeGraph SessionStart worker availability", () => {
 	it("#given CodeGraph is unavailable and auto provisioning is disabled #when worker runs #then it leaves the project untouched", async () => {
 		// given
 		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-unavailable-"));
-		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-unavailable-home-"));
+		const homeDir = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-unavailable-home-"),
+		);
 		const outcomes: unknown[] = [];
 
 		try {
@@ -79,7 +86,12 @@ describe("CodeGraph SessionStart worker availability", () => {
 					ensureProvisioned: () => {
 						throw new Error("auto provision should not run");
 					},
-					resolveCommand: () => ({ argsPrefix: [], command: "missing-codegraph", exists: false, source: "path" }),
+					resolveCommand: () => ({
+						argsPrefix: [],
+						command: "missing-codegraph",
+						exists: false,
+						source: "path",
+					}),
 					runCommand: () => {
 						throw new Error("codegraph command should not run");
 					},

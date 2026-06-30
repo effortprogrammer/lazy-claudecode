@@ -5,7 +5,11 @@ export interface UlwLoopScope {
 	readonly sessionId?: string | null;
 }
 
-const SESSION_ENV_KEYS = ["LAZY_CLAUDECODE_ULW_SESSION_ID", "CLAUDE_CODE_SESSION_ID", "CLAUDE_CODE_THREAD_ID"] as const;
+const SESSION_ENV_KEYS = [
+	"LAZY_CLAUDECODE_ULW_SESSION_ID",
+	"CLAUDE_CODE_SESSION_ID",
+	"CLAUDE_CODE_THREAD_ID",
+] as const;
 type EnvMap = Readonly<Record<string, string | undefined>>;
 
 export function normalizeUlwLoopSessionId(sessionId: string | null | undefined): string | null {
@@ -66,7 +70,8 @@ export function ulwLoopLedgerPath(repoRoot: string, scope?: UlwLoopScope): strin
 export function repoRelative(absolutePath: string, repoRoot: string): string {
 	const slashPrefix = `${repoRoot}/`;
 	const backslashPrefix = `${repoRoot}\\`;
-	if (absolutePath.startsWith(slashPrefix)) return absolutePath.slice(slashPrefix.length).split("\\").join("/");
+	if (absolutePath.startsWith(slashPrefix))
+		return absolutePath.slice(slashPrefix.length).split("\\").join("/");
 	if (absolutePath.startsWith(backslashPrefix))
 		return absolutePath.slice(backslashPrefix.length).split("\\").join("/");
 	return absolutePath.split("\\").join("/");

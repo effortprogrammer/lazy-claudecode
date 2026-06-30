@@ -84,7 +84,9 @@ describe("checkpointUlwLoop status=complete criteria gate", () => {
 	});
 
 	it("THROWS when criteria list is empty", async () => {
-		const repo = await repoWith(plan([goal({ successCriteria: [] }), goal({ id: "G002", status: "pending" })]));
+		const repo = await repoWith(
+			plan([goal({ successCriteria: [] }), goal({ id: "G002", status: "pending" })]),
+		);
 
 		await expectCode(
 			() =>

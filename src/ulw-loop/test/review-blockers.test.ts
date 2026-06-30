@@ -96,7 +96,12 @@ function finalPlan(): UlwLoopPlan {
 		activeGoalId: "G002",
 		goals: [
 			makeGoal({ id: "G001", status: "complete" }),
-			makeGoal({ id: "G002", status: "in_progress", title: "ship it", objective: "Finish final story" }),
+			makeGoal({
+				id: "G002",
+				status: "in_progress",
+				title: "ship it",
+				objective: "Finish final story",
+			}),
 		],
 	});
 }
@@ -140,16 +145,25 @@ describe("recordFinalReviewBlockers error cases", () => {
 	it("throws ulw_loop_goal_not_in_progress when goal.status !== in_progress", async () => {
 		const repo = await bootstrapRepo(
 			makePlan({
-				goals: [makeGoal({ id: "G001", status: "in_progress" }), makeGoal({ id: "G002", status: "pending" })],
+				goals: [
+					makeGoal({ id: "G001", status: "in_progress" }),
+					makeGoal({ id: "G002", status: "pending" }),
+				],
 			}),
 		);
-		await expectUlwLoopCode(() => recordFinalReviewBlockers(repo, validArgs), "ulw_loop_goal_not_in_progress");
+		await expectUlwLoopCode(
+			() => recordFinalReviewBlockers(repo, validArgs),
+			"ulw_loop_goal_not_in_progress",
+		);
 	});
 
 	it("throws ulw_loop_not_final_story when other unresolved goals remain", async () => {
 		const repo = await bootstrapRepo(
 			makePlan({
-				goals: [makeGoal({ id: "G001", status: "in_progress" }), makeGoal({ id: "G002", status: "pending" })],
+				goals: [
+					makeGoal({ id: "G001", status: "in_progress" }),
+					makeGoal({ id: "G002", status: "pending" }),
+				],
 			}),
 		);
 		await expectUlwLoopCode(
@@ -175,6 +189,10 @@ describe("recordFinalReviewBlockers ledger entries", () => {
 
 		await recordFinalReviewBlockers(repo, validArgs);
 
-		expect(await ledgerKinds(repo)).toEqual(["goal_review_blocked", "goal_added", "blocker_recorded"]);
+		expect(await ledgerKinds(repo)).toEqual([
+			"goal_review_blocked",
+			"goal_added",
+			"blocker_recorded",
+		]);
 	});
 });

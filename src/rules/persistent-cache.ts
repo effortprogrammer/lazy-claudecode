@@ -2,6 +2,7 @@ import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 
+import type { Engine } from "../shared/rules-engine/index.ts";
 import {
 	type PostCompactPendingKind,
 	type PostCompactPendingState,
@@ -9,7 +10,6 @@ import {
 	postCompactPendingKinds,
 	postCompactRecoveringKinds,
 } from "./post-compact-state.ts";
-import type { Engine } from "../shared/rules-engine/index.ts";
 import { SESSION_STATE_LOCK_CONTENDED, withSessionStateLock } from "./session-state-lock.ts";
 
 export type PostCompactClaimResult = "claimed" | "not-pending" | "contended";
@@ -90,7 +90,10 @@ export function isPostCompactPending(cachePath: string, kind: PostCompactPending
 	return postCompactPendingKinds(readSessionState(cachePath)).has(kind);
 }
 
-export function claimPostCompactPending(cachePath: string, kind: PostCompactPendingKind): PostCompactClaimResult {
+export function claimPostCompactPending(
+	cachePath: string,
+	kind: PostCompactPendingKind,
+): PostCompactClaimResult {
 	const result = withSessionStateLock(cachePath, () => {
 		const state = readSessionState(cachePath);
 		const pendingKinds = postCompactPendingKinds(state);
@@ -107,7 +110,10 @@ export function claimPostCompactPending(cachePath: string, kind: PostCompactPend
 	return result === SESSION_STATE_LOCK_CONTENDED ? "contended" : result;
 }
 
-export function isPostCompactRecoveryInProgress(cachePath: string, kind: PostCompactPendingKind): boolean {
+export function isPostCompactRecoveryInProgress(
+	cachePath: string,
+	kind: PostCompactPendingKind,
+): boolean {
 	return postCompactRecoveringKinds(readSessionState(cachePath)).has(kind);
 }
 
@@ -122,7 +128,10 @@ export function completePostCompactRecovery(cachePath: string, kind: PostCompact
 }
 
 export function sessionCachePath(sessionId: string, pluginDataRoot: string | undefined): string {
-	const root = pluginDataRoot ?? process.env["PLUGIN_DATA"] ?? join(homedir(), ".claude-code", "claude-code-rules");
+	const root =
+		pluginDataRoot ??
+		process.env.PLUGIN_DATA ??
+		join(homedir(), ".claude-code", "claude-code-rules");
 	return join(root, "sessions", `${safePathSegment(sessionId)}.json`);
 }
 
@@ -199,15 +208,15 @@ function safePathSegment(value: string): string {
 }
 
 function isSerializedSessionState(value: unknown): value is SerializedSessionState {
-	if (!isRecord(value) || !Array.isArray(value["staticDedup"]) || !isRecord(value["dynamicDedup"])) {
+	if (!isRecord(value) || !Array.isArray(value.staticDedup) || !isRecord(value.dynamicDedup)) {
 		return false;
 	}
-	const staticDedup = value["staticDedup"];
-	const dynamicDedup = value["dynamicDedup"];
-	const dynamicTargetFingerprints = value["dynamicTargetFingerprints"];
-	const postCompactPending = value["postCompactPending"];
-	const postCompactRecovering = value["postCompactRecovering"];
-	const compacted = value["compacted"];
+	const staticDedup = value.staticDedup;
+	const dynamicDedup = value.dynamicDedup;
+	const dynamicTargetFingerprints = value.dynamicTargetFingerprints;
+	const postCompactPending = value.postCompactPending;
+	const postCompactRecovering = value.postCompactRecovering;
+	const compacted = value.compacted;
 	return (
 		staticDedup.every((item) => typeof item === "string") &&
 		Object.values(dynamicDedup).every(
@@ -216,7 +225,8 @@ function isSerializedSessionState(value: unknown): value is SerializedSessionSta
 		(dynamicTargetFingerprints === undefined ||
 			(isRecord(dynamicTargetFingerprints) &&
 				Object.entries(dynamicTargetFingerprints).every(
-					([targetKey, fingerprint]) => typeof targetKey === "string" && typeof fingerprint === "string",
+					([targetKey, fingerprint]) =>
+						typeof targetKey === "string" && typeof fingerprint === "string",
 				))) &&
 		(postCompactPending === undefined || isPostCompactPendingState(postCompactPending)) &&
 		(postCompactRecovering === undefined || isPostCompactPendingState(postCompactRecovering)) &&
@@ -227,8 +237,8 @@ function isSerializedSessionState(value: unknown): value is SerializedSessionSta
 function isPostCompactPendingState(value: unknown): value is PostCompactPendingState {
 	return (
 		isRecord(value) &&
-		(value["static"] === undefined || typeof value["static"] === "boolean") &&
-		(value["dynamic"] === undefined || typeof value["dynamic"] === "boolean")
+		(value.static === undefined || typeof value.static === "boolean") &&
+		(value.dynamic === undefined || typeof value.dynamic === "boolean")
 	);
 }
 

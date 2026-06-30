@@ -13,7 +13,15 @@ export async function stampGitBashMcpEnv(options: StampGitBashMcpEnvOptions): Pr
 	const envDir = join(options.claudeCodeHome, "mcp-env");
 	await mkdir(envDir, { recursive: true });
 	const envPath = join(envDir, "git-bash.json");
-	await writeFile(envPath, JSON.stringify({
-		GIT_BASH_PATH: options.gitBashPath,
-	}, null, "\t"), "utf-8");
+	await writeFile(
+		envPath,
+		JSON.stringify(
+			{
+				GIT_BASH_PATH: options.gitBashPath,
+			},
+			null,
+			"\t",
+		),
+		"utf-8",
+	);
 }

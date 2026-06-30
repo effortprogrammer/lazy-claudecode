@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+	ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
 	aggregateClaudeCodeObjective,
 	claudeCodeGoalMode,
 	compatibleClaudeCodeObjectives,
@@ -10,7 +11,6 @@ import {
 	hasEssentialCriteriaPass,
 	isFinalRunCompletionCandidate,
 	isUlwLoopDone,
-	ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
 } from "../src/goal-status.ts";
 import type { UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.ts";
 
@@ -71,7 +71,9 @@ describe("isUlwLoopDone", () => {
 
 	it("returns false when any pending remains", () => {
 		// given
-		const plan = makePlan({ goals: [makeGoal({ status: "complete" }), makeGoal({ id: "G002", status: "pending" })] });
+		const plan = makePlan({
+			goals: [makeGoal({ status: "complete" }), makeGoal({ id: "G002", status: "pending" })],
+		});
 
 		// when
 		const done = isUlwLoopDone(plan);
@@ -147,7 +149,10 @@ describe("expectedClaudeCodeObjective", () => {
 	it("aggregate mode returns plan.claudeCodeObjective", () => {
 		// given
 		const goal = makeGoal({ objective: "story objective" });
-		const plan = makePlan({ claudeCodeGoalMode: "aggregate", claudeCodeObjective: "aggregate objective" });
+		const plan = makePlan({
+			claudeCodeGoalMode: "aggregate",
+			claudeCodeObjective: "aggregate objective",
+		});
 
 		// when
 		const objective = expectedClaudeCodeObjective(plan, goal);
@@ -171,7 +176,10 @@ describe("expectedClaudeCodeObjective", () => {
 	it("per_story mode returns goal.objective", () => {
 		// given
 		const goal = makeGoal({ objective: "story objective" });
-		const plan = makePlan({ claudeCodeGoalMode: "per_story", claudeCodeObjective: "aggregate objective" });
+		const plan = makePlan({
+			claudeCodeGoalMode: "per_story",
+			claudeCodeObjective: "aggregate objective",
+		});
 
 		// when
 		const objective = expectedClaudeCodeObjective(plan, goal);
@@ -184,7 +192,9 @@ describe("expectedClaudeCodeObjective", () => {
 describe("aggregateClaudeCodeObjective", () => {
 	it("returns plan.claudeCodeObjective when set", () => {
 		// when
-		const objective = aggregateClaudeCodeObjective(makePlan({ claudeCodeObjective: "aggregate objective" }));
+		const objective = aggregateClaudeCodeObjective(
+			makePlan({ claudeCodeObjective: "aggregate objective" }),
+		);
 
 		// then
 		expect(objective).toBe("aggregate objective");
@@ -219,7 +229,10 @@ describe("hasAllCriteriaPass", () => {
 	it("returns true when all criteria pass", () => {
 		// given
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), makeCriterion({ id: "C002", status: "pass" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				makeCriterion({ id: "C002", status: "pass" }),
+			],
 		});
 
 		// when
@@ -232,7 +245,10 @@ describe("hasAllCriteriaPass", () => {
 	it("returns false when any criterion pending", () => {
 		// given
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), makeCriterion({ id: "C002", status: "pending" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				makeCriterion({ id: "C002", status: "pending" }),
+			],
 		});
 
 		// when
@@ -245,7 +261,10 @@ describe("hasAllCriteriaPass", () => {
 	it("returns false when any criterion fail", () => {
 		// given
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), makeCriterion({ id: "C002", status: "fail" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				makeCriterion({ id: "C002", status: "fail" }),
+			],
 		});
 
 		// when
@@ -258,7 +277,10 @@ describe("hasAllCriteriaPass", () => {
 	it("returns false when any criterion blocked", () => {
 		// given
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), makeCriterion({ id: "C002", status: "blocked" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				makeCriterion({ id: "C002", status: "blocked" }),
+			],
 		});
 
 		// when
@@ -327,7 +349,10 @@ describe("firstUnresolvedCriterion", () => {
 	it("returns undefined when all pass", () => {
 		// given
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), makeCriterion({ id: "C002", status: "pass" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				makeCriterion({ id: "C002", status: "pass" }),
+			],
 		});
 
 		// when
@@ -341,7 +366,11 @@ describe("firstUnresolvedCriterion", () => {
 		// given
 		const pending = makeCriterion({ id: "C002", status: "pending" });
 		const goal = makeGoal({
-			successCriteria: [makeCriterion({ status: "pass" }), pending, makeCriterion({ id: "C003", status: "fail" })],
+			successCriteria: [
+				makeCriterion({ status: "pass" }),
+				pending,
+				makeCriterion({ id: "C003", status: "fail" }),
+			],
 		});
 
 		// when

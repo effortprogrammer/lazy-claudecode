@@ -3,10 +3,10 @@ import { stdin as processStdin, stdout as processStdout } from "node:process";
 
 import {
 	type CommentCheckRequest,
-	extractCommentCheckRequests,
-	isRecord,
 	type ToolResultContent,
 	type ToolResultLike,
+	extractCommentCheckRequests,
+	isRecord,
 	toHookInput,
 } from "./core.ts";
 import { type CommentCheckerRunner, runCommentChecker } from "./runner.ts";
@@ -41,7 +41,9 @@ const CONTEXT_PRESSURE_MARKERS = [
 	"long threads and multiple compactions",
 ] as const;
 
-export function extractClaudeCodeCommentCheckRequests(input: ClaudeCodePostToolUseInput): CommentCheckRequest[] {
+export function extractClaudeCodeCommentCheckRequests(
+	input: ClaudeCodePostToolUseInput,
+): CommentCheckRequest[] {
 	return extractCommentCheckRequests(toToolResultLike(input));
 }
 
@@ -90,7 +92,9 @@ export async function runClaudeCodeHookCli(): Promise<void> {
 	}
 }
 
-export function parseClaudeCodePostToolUseInput(input: string): ClaudeCodePostToolUseInput | undefined {
+export function parseClaudeCodePostToolUseInput(
+	input: string,
+): ClaudeCodePostToolUseInput | undefined {
 	let parsed: unknown;
 	try {
 		parsed = JSON.parse(input);
@@ -110,12 +114,15 @@ function toToolResultLike(input: ClaudeCodePostToolUseInput): ToolResultLike {
 	};
 }
 
-function normalizeToolInput(toolName: string, toolInput: Record<string, unknown>): Record<string, unknown> {
-	if (toolName === "Edit" && typeof toolInput["command"] === "string") {
+function normalizeToolInput(
+	toolName: string,
+	toolInput: Record<string, unknown>,
+): Record<string, unknown> {
+	if (toolName === "Edit" && typeof toolInput.command === "string") {
 		return {
 			...toolInput,
-			input: toolInput["command"],
-			patch: toolInput["command"],
+			input: toolInput.command,
+			patch: toolInput.command,
 		};
 	}
 	return toolInput;
@@ -125,14 +132,14 @@ function normalizeToolResponse(toolResponse: unknown): ToolResultContent[] {
 	if (typeof toolResponse === "string") {
 		return [{ type: "text", text: toolResponse }];
 	}
-	if (isRecord(toolResponse) && typeof toolResponse["text"] === "string") {
-		return [{ type: "text", text: toolResponse["text"] }];
+	if (isRecord(toolResponse) && typeof toolResponse.text === "string") {
+		return [{ type: "text", text: toolResponse.text }];
 	}
 	return [];
 }
 
 function isErrorResponse(toolResponse: unknown): boolean {
-	return isRecord(toolResponse) && toolResponse["is_error"] === true;
+	return isRecord(toolResponse) && toolResponse.is_error === true;
 }
 
 function formatWarnings(warnings: Array<{ filePath: string; message: string }>): string {
@@ -177,16 +184,16 @@ function limitHookText(text: string, maxChars: number): string {
 function isClaudeCodePostToolUseInput(value: unknown): value is ClaudeCodePostToolUseInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "PostToolUse" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["turn_id"] === "string" &&
-		(typeof value["transcript_path"] === "string" || value["transcript_path"] === null) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["tool_name"] === "string" &&
-		isRecord(value["tool_input"]) &&
-		typeof value["tool_use_id"] === "string"
+		value.hook_event_name === "PostToolUse" &&
+		typeof value.session_id === "string" &&
+		typeof value.turn_id === "string" &&
+		(typeof value.transcript_path === "string" || value.transcript_path === null) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.tool_name === "string" &&
+		isRecord(value.tool_input) &&
+		typeof value.tool_use_id === "string"
 	);
 }
 

@@ -7,7 +7,11 @@ describe("checkpointUlwLoop status=failed", () => {
 	it("sets goal.status=failed, goal.failedAt, appends ledger", async () => {
 		const repo = await repoWith(plan([goal({ successCriteria: [criterion("C001", "pending")] })]));
 
-		const result = await checkpointUlwLoop(repo, { goalId: "G001", status: "failed", evidence: "tests failed" });
+		const result = await checkpointUlwLoop(repo, {
+			goalId: "G001",
+			status: "failed",
+			evidence: "tests failed",
+		});
 
 		expect(result.goal.status).toBe("failed");
 		expect(result.goal.failedAt).toMatch(/^\d{4}-\d{2}-\d{2}T/u);
@@ -32,8 +36,16 @@ describe("checkpointUlwLoop status=failed", () => {
 		const repo = await repoWith(
 			plan(
 				[
-					goal({ id: "G001", status: "failed", blockerSignature: "EXTERNAL_AUTHORIZATION_REQUIRED" }),
-					goal({ id: "G002", status: "blocked", blockerSignature: "EXTERNAL_AUTHORIZATION_REQUIRED" }),
+					goal({
+						id: "G001",
+						status: "failed",
+						blockerSignature: "EXTERNAL_AUTHORIZATION_REQUIRED",
+					}),
+					goal({
+						id: "G002",
+						status: "blocked",
+						blockerSignature: "EXTERNAL_AUTHORIZATION_REQUIRED",
+					}),
 					goal({ id: "G003" }),
 				],
 				{ activeGoalId: "G003" },
@@ -79,7 +91,11 @@ describe("checkpointUlwLoop status=blocked", () => {
 		const repo = await repoWith(plan([goal({ successCriteria: [criterion("C001", "pending")] })]));
 
 		await expect(
-			checkpointUlwLoop(repo, { goalId: "G001", status: "blocked", evidence: "waiting for approval" }),
+			checkpointUlwLoop(repo, {
+				goalId: "G001",
+				status: "blocked",
+				evidence: "waiting for approval",
+			}),
 		).resolves.toMatchObject({ goal: { status: "blocked" } });
 	});
 });

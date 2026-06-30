@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
-import type { CheckerEdit, CheckerToolInput, CommentCheckRequest, ToolResultLike } from "../src/core.ts";
-import { extractCommentCheckRequests, toHookInput } from "../src/core.ts";
+import type {
+	CheckerEdit,
+	CheckerToolInput,
+	CommentCheckRequest,
+	ToolResultLike,
+} from "../core.ts";
+import { extractCommentCheckRequests, toHookInput } from "../core.ts";
 import {
 	metadataApplyPatchRequests,
 	mixedApplyPatch,
@@ -11,16 +16,34 @@ describe("extractCommentCheckRequests", () => {
 	it("#given apply_patch metadata files #when extracting #then supports direct result and metadata shapes", () => {
 		// given
 		const directEvent = applyPatchEvent({
-			files: [{ filePath: "src/direct.ts", before: "", after: "// explains direct\nconst direct = true;\n" }],
+			files: [
+				{
+					filePath: "src/direct.ts",
+					before: "",
+					after: "// explains direct\nconst direct = true;\n",
+				},
+			],
 		});
 		const resultEvent = applyPatchEvent({
 			result: {
-				files: [{ file_path: "src/result.ts", old: "const result = false;\n", new: "const result = true;\n" }],
+				files: [
+					{
+						file_path: "src/result.ts",
+						old: "const result = false;\n",
+						new: "const result = true;\n",
+					},
+				],
 			},
 		});
 		const metadataEvent = applyPatchEvent({
 			metadata: {
-				files: [{ path: "src/metadata.ts", before: "", after: "// explains metadata\nconst metadata = true;\n" }],
+				files: [
+					{
+						path: "src/metadata.ts",
+						before: "",
+						after: "// explains metadata\nconst metadata = true;\n",
+					},
+				],
 			},
 		});
 
@@ -50,7 +73,9 @@ describe("extractCommentCheckRequests", () => {
 		const patch = mixedApplyPatch;
 
 		// when
-		const requests = extractCommentCheckRequests(applyPatchEvent(undefined, { input: { command: patch } }));
+		const requests = extractCommentCheckRequests(
+			applyPatchEvent(undefined, { input: { command: patch } }),
+		);
 
 		// then
 		expect(requests).toEqual(mixedApplyPatchRequests);
@@ -184,7 +209,10 @@ describe("public contract mutability", () => {
 	});
 });
 
-function applyPatchEvent(details: unknown, overrides: Partial<ToolResultLike> = {}): ToolResultLike {
+function applyPatchEvent(
+	details: unknown,
+	overrides: Partial<ToolResultLike> = {},
+): ToolResultLike {
 	return {
 		toolName: "apply_patch",
 		input: {

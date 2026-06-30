@@ -4,11 +4,7 @@
 	"description": "Claude Code team-mode hook component that keeps background thread titles descriptive after create_thread.",
 	"type": "module",
 	"private": true,
-	"files": [
-		"dist",
-		"hooks",
-		"skills"
-	],
+	"files": ["dist", "hooks", "skills"],
 	"scripts": {
 		"build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && bun build src/cli.ts --target node --format esm --outfile dist/cli.js",
 		"test": "bun test test/*.test.ts",

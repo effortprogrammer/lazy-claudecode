@@ -1,12 +1,12 @@
 import { mkdirSync, rmSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runPostCompactHook, runSessionStartHook } from "../src/claude-code-hook.ts";
-import { sessionCachePath } from "../src/persistent-cache.ts";
+import { runPostCompactHook, runSessionStartHook } from "../claude-hook.ts";
+import { sessionCachePath } from "../persistent-cache.ts";
 import {
+	EXPANDED_POST_COMPACT_ENV,
 	cleanupPostCompactFixtures,
 	compactSessionStartInput,
-	EXPANDED_POST_COMPACT_ENV,
 	makeOversizedProject,
 	postCompactInput,
 	writeCompactedWarningTranscript,
@@ -32,10 +32,13 @@ describe("claude-code rules post-compact lock contention", () => {
 
 		try {
 			// when
-			const output = await runSessionStartHook(compactSessionStartInput(root, transcriptPath, SESSION_ID), {
-				pluginDataRoot: pluginData,
-				env: EXPANDED_POST_COMPACT_ENV,
-			});
+			const output = await runSessionStartHook(
+				compactSessionStartInput(root, transcriptPath, SESSION_ID),
+				{
+					pluginDataRoot: pluginData,
+					env: EXPANDED_POST_COMPACT_ENV,
+				},
+			);
 
 			// then
 			expect(output).toBe("");

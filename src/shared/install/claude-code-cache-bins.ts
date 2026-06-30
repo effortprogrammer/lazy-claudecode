@@ -16,18 +16,37 @@ export async function linkCachedPluginBins(options: LinkCachedPluginBinsOptions)
 	for (const name of options.binNames) {
 		const target = join(options.pluginRoot, "dist", `${name}.js`);
 		const link = join(binDir, name);
-		try { await unlink(link); } catch { /* ok */ }
-		try { await symlink(target, link); } catch { /* ok */ }
+		try {
+			await unlink(link);
+		} catch {
+			/* ok */
+		}
+		try {
+			await symlink(target, link);
+		} catch {
+			/* ok */
+		}
 	}
 }
 
-export async function linkRootRuntimeBin(claudeCodeHome: string, pluginRoot: string): Promise<void> {
+export async function linkRootRuntimeBin(
+	claudeCodeHome: string,
+	pluginRoot: string,
+): Promise<void> {
 	const { join } = await import("node:path");
 	const { mkdir, symlink, unlink } = await import("node:fs/promises");
 	const binDir = join(claudeCodeHome, "bin");
 	await mkdir(binDir, { recursive: true });
 	const target = join(pluginRoot, "dist", "cli.js");
 	const link = join(binDir, "lazy-claudecode");
-	try { await unlink(link); } catch { /* ok */ }
-	try { await symlink(target, link); } catch { /* ok */ }
+	try {
+		await unlink(link);
+	} catch {
+		/* ok */
+	}
+	try {
+		await symlink(target, link);
+	} catch {
+		/* ok */
+	}
 }

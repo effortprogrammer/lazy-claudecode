@@ -15,7 +15,9 @@ export function hasContextPressureMarker(text: string): boolean {
 	return CONTEXT_PRESSURE_MARKERS.some((marker) => normalizedText.includes(marker));
 }
 
-export function transcriptHasContextPressureMarker(transcriptPath: string | null | undefined): boolean {
+export function transcriptHasContextPressureMarker(
+	transcriptPath: string | null | undefined,
+): boolean {
 	if (transcriptPath === undefined || transcriptPath === null) return false;
 	try {
 		return hasContextPressureMarker(readFileSync(transcriptPath, "utf8"));

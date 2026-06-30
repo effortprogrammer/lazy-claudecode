@@ -1,12 +1,16 @@
 import { spawn } from "node:child_process";
 import { homedir } from "node:os";
-import { cwd as processCwd, env as processEnv, stdin as processStdin, stdout as processStdout } from "node:process";
+import {
+	cwd as processCwd,
+	env as processEnv,
+	stdin as processStdin,
+	stdout as processStdout,
+} from "node:process";
 import type { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
 import { buildCodegraphInitGuidanceForToolResult } from "../shared/codegraph/guidance.ts";
 import { getLazyClaudeCodeConfig } from "../shared/config-loader.ts";
-import { SESSION_START_CWD_ENV } from "./session-start-worker.ts";
 import type {
 	HookStdout,
 	PostToolUseHookOptions,
@@ -15,6 +19,7 @@ import type {
 	SessionStartHookResult,
 	WorkerSpawnInvocation,
 } from "./hook-types.ts";
+import { SESSION_START_CWD_ENV } from "./session-start-worker.ts";
 
 export type {
 	CodegraphCommandResult,
@@ -35,19 +40,29 @@ export type {
 	WorkerAction,
 	WorkerSpawnInvocation,
 } from "./hook-types.ts";
-export { resolveCodegraphCommandInvocation, runCodegraphSessionStartWorker } from "./session-start-worker.ts";
+export {
+	resolveCodegraphCommandInvocation,
+	runCodegraphSessionStartWorker,
+} from "./session-start-worker.ts";
 
-export const CODEGRAPH_SESSION_START_NOTICE = "LazyClaude Code CodeGraph bootstrap scheduled in background";
+export const CODEGRAPH_SESSION_START_NOTICE =
+	"LazyClaude Code CodeGraph bootstrap scheduled in background";
 
-export async function runCodegraphSessionStartHook(options: SessionStartHookOptions = {}): Promise<number> {
+export async function runCodegraphSessionStartHook(
+	options: SessionStartHookOptions = {},
+): Promise<number> {
 	return (await executeCodegraphSessionStartHook(options)).exitCode;
 }
 
-export async function runCodegraphPostToolUseHookCli(options: PostToolUseHookOptions = {}): Promise<number> {
+export async function runCodegraphPostToolUseHookCli(
+	options: PostToolUseHookOptions = {},
+): Promise<number> {
 	return (await executeCodegraphPostToolUseHook(options)).exitCode;
 }
 
-export async function executeCodegraphSessionStartHook(options: SessionStartHookOptions = {}): Promise<SessionStartHookResult> {
+export async function executeCodegraphSessionStartHook(
+	options: SessionStartHookOptions = {},
+): Promise<SessionStartHookResult> {
 	const env = options.env ?? processEnv;
 	const input = await readHookInput(options.stdin ?? processStdin);
 	const projectRoot = resolveProjectRoot(input, options.cwd ?? processCwd());
@@ -67,7 +82,9 @@ export async function executeCodegraphSessionStartHook(options: SessionStartHook
 	return { action: "spawned", exitCode: 0 };
 }
 
-export async function executeCodegraphPostToolUseHook(options: PostToolUseHookOptions = {}): Promise<PostToolUseHookResult> {
+export async function executeCodegraphPostToolUseHook(
+	options: PostToolUseHookOptions = {},
+): Promise<PostToolUseHookResult> {
 	const env = options.env ?? processEnv;
 	const input = await readHookInput(options.stdin ?? processStdin);
 	const output = runCodegraphPostToolUseHook(input, { homeDir: resolveHomeDir(env) });
@@ -77,10 +94,15 @@ export async function executeCodegraphPostToolUseHook(options: PostToolUseHookOp
 	return { action: "emitted-guidance", exitCode: 0 };
 }
 
-export function runCodegraphPostToolUseHook(input: unknown, options: { readonly homeDir?: string } = {}): string {
-	const toolName = isRecord(input) ? input["tool_name"] : undefined;
-	const cwd = isRecord(input) ? input["cwd"] : undefined;
-	const toolOutput = isRecord(input) ? (input["tool_response"] ?? input["tool_output"] ?? input["response"]) : input;
+export function runCodegraphPostToolUseHook(
+	input: unknown,
+	options: { readonly homeDir?: string } = {},
+): string {
+	const toolName = isRecord(input) ? input.tool_name : undefined;
+	const cwd = isRecord(input) ? input.cwd : undefined;
+	const toolOutput = isRecord(input)
+		? (input.tool_response ?? input.tool_output ?? input.response)
+		: input;
 	const guidance = buildCodegraphInitGuidanceForToolResult({ available: true } as any);
 	if (guidance === null) return "";
 
@@ -103,17 +125,21 @@ function writeHookJson(stdout: HookStdout): void {
 }
 
 function spawnDetachedWorker(invocation: WorkerSpawnInvocation): void {
-	const child = spawn(invocation.command, [...invocation.args], { detached: true, env: invocation.env, stdio: "ignore" });
+	const child = spawn(invocation.command, [...invocation.args], {
+		detached: true,
+		env: invocation.env,
+		stdio: "ignore",
+	});
 	child.unref();
 }
 
 function resolveHomeDir(env: Record<string, string | undefined>): string {
-	return env["HOME"] ?? env["USERPROFILE"] ?? homedir();
+	return env.HOME ?? env.USERPROFILE ?? homedir();
 }
 
 function resolveProjectRoot(input: unknown, fallback: string): string {
 	if (!isRecord(input)) return fallback;
-	const cwd = input["cwd"];
+	const cwd = input.cwd;
 	return typeof cwd === "string" && cwd.trim().length > 0 ? cwd : fallback;
 }
 

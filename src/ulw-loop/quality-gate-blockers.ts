@@ -1,10 +1,12 @@
 import type { UlwLoopItem, UlwLoopPlan } from "./types.ts";
 
-const BLOCKER_FIELD_KEYS = "blocker blockerSignature blockerEvidence blockerOccurrences blockedAt".split(" ");
+const BLOCKER_FIELD_KEYS =
+	"blocker blockerSignature blockerEvidence blockerOccurrences blockedAt".split(" ");
 const URL_PATTERN = /https?:\/\/\S+/g;
 const PUNCTUATION_PATTERN = /[`"'()[\]{}:,;]/g;
 const WHITESPACE_PATTERN = /\s+/g;
-const AUTH_PATTERN = /\b(auth\w*|credential\w*|token|permission\w*|scope\w*|access|unauthorized|forbidden|401|403)\b/;
+const AUTH_PATTERN =
+	/\b(auth\w*|credential\w*|token|permission\w*|scope\w*|access|unauthorized|forbidden|401|403)\b/;
 const MISSING_PATTERN =
 	/\b(unset|missing|required|requires|without|omit\w*|not set|not available|no read packages|read packages)\b/;
 const GHCR_PATTERN =
@@ -24,7 +26,8 @@ export function normalizeBlockerEvidence(evidence: string): string {
 
 export function classifyExternalAuthorizationBlocker(evidence: string): string | null {
 	const normalized = normalizeBlockerEvidence(evidence);
-	if (!normalized || !AUTH_PATTERN.test(normalized) || !MISSING_PATTERN.test(normalized)) return null;
+	if (!normalized || !AUTH_PATTERN.test(normalized) || !MISSING_PATTERN.test(normalized))
+		return null;
 	if (!GHCR_PATTERN.test(normalized)) return "EXTERNAL_AUTHORIZATION_REQUIRED";
 	const status401 = GHCR_401_PATTERN.test(normalized) ? "HTTP_401_ANONYMOUS" : null;
 	const status403 = GHCR_403_PATTERN.test(normalized) ? "HTTP_403_NO_READ_PACKAGES" : null;
@@ -34,13 +37,14 @@ export function classifyExternalAuthorizationBlocker(evidence: string): string |
 
 function nestedBlockerSignature(goal: UlwLoopItem): string | null {
 	const blocker = Reflect.get(goal, "blocker");
-	const signature = isRecord(blocker) ? blocker["signature"] : null;
+	const signature = isRecord(blocker) ? blocker.signature : null;
 	return typeof signature === "string" ? signature : null;
 }
 
 export function sameBlockerOccurrences(plan: UlwLoopPlan, signature: string): number {
-	return plan.goals.filter((goal) => goal.blockerSignature === signature || nestedBlockerSignature(goal) === signature)
-		.length;
+	return plan.goals.filter(
+		(goal) => goal.blockerSignature === signature || nestedBlockerSignature(goal) === signature,
+	).length;
 }
 
 export function clearGoalBlockerFields(goal: UlwLoopItem): void {

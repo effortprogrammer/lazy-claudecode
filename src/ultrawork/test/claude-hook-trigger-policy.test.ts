@@ -1,7 +1,11 @@
 import { afterEach, describe, expect, it } from "vitest";
 
 import { isUltraworkPrompt, runUserPromptSubmitHook } from "../src/claude-hook.ts";
-import { cleanupTempDirectories, parseHookOutput, writeTranscript } from "./claude-hook-test-helpers.ts";
+import {
+	cleanupTempDirectories,
+	parseHookOutput,
+	writeTranscript,
+} from "./claude-hook-test-helpers.ts";
 
 afterEach(() => {
 	cleanupTempDirectories();
@@ -10,17 +14,21 @@ afterEach(() => {
 describe("codex ultrawork trigger policy", () => {
 	it("#given ultrawork variants in current prompt #when hook runs #then emits directive", () => {
 		// given
-		const prompts = ["ultrawork this change", "Ultrawork this change", "ULTRAWORK this change"] as const;
+		const prompts = [
+			"ultrawork this change",
+			"Ultrawork this change",
+			"ULTRAWORK this change",
+		] as const;
 
 		// when
-		const outputs = prompts.map((prompt) => runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }));
+		const outputs = prompts.map((prompt) =>
+			runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }),
+		);
 
 		// then
-		expect(outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName)).toEqual([
-			"UserPromptSubmit",
-			"UserPromptSubmit",
-			"UserPromptSubmit",
-		]);
+		expect(
+			outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName),
+		).toEqual(["UserPromptSubmit", "UserPromptSubmit", "UserPromptSubmit"]);
 		expect(prompts.map((prompt) => isUltraworkPrompt(prompt))).toEqual([true, true, true]);
 	});
 
@@ -35,17 +43,27 @@ describe("codex ultrawork trigger policy", () => {
 		] as const;
 
 		// when
-		const outputs = prompts.map((prompt) => runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }));
+		const outputs = prompts.map((prompt) =>
+			runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }),
+		);
 
 		// then
-		expect(outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName)).toEqual([
+		expect(
+			outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName),
+		).toEqual([
 			"UserPromptSubmit",
 			"UserPromptSubmit",
 			"UserPromptSubmit",
 			"UserPromptSubmit",
 			"UserPromptSubmit",
 		]);
-		expect(prompts.map((prompt) => isUltraworkPrompt(prompt))).toEqual([true, true, true, true, true]);
+		expect(prompts.map((prompt) => isUltraworkPrompt(prompt))).toEqual([
+			true,
+			true,
+			true,
+			true,
+			true,
+		]);
 	});
 
 	it("#given sentence-level triggers in current prompt #when hook runs #then emits directive", () => {
@@ -53,13 +71,14 @@ describe("codex ultrawork trigger policy", () => {
 		const prompts = ["please ulw this change", "why did ultrawork trigger here?"] as const;
 
 		// when
-		const outputs = prompts.map((prompt) => runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }));
+		const outputs = prompts.map((prompt) =>
+			runUserPromptSubmitHook({ hook_event_name: "UserPromptSubmit", prompt }),
+		);
 
 		// then
-		expect(outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName)).toEqual([
-			"UserPromptSubmit",
-			"UserPromptSubmit",
-		]);
+		expect(
+			outputs.map((output) => parseHookOutput(output).hookSpecificOutput.hookEventName),
+		).toEqual(["UserPromptSubmit", "UserPromptSubmit"]);
 		expect(prompts.map((prompt) => isUltraworkPrompt(prompt))).toEqual([true, true]);
 	});
 

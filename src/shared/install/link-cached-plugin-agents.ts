@@ -9,7 +9,9 @@ export interface LinkCachedPluginAgentsOptions {
 	readonly pluginName: string;
 }
 
-export async function linkCachedPluginAgents(options: LinkCachedPluginAgentsOptions): Promise<void> {
+export async function linkCachedPluginAgents(
+	options: LinkCachedPluginAgentsOptions,
+): Promise<void> {
 	// Registers agent configs in Claude Code's settings directory
 	const { join } = await import("node:path");
 	const { mkdir, writeFile } = await import("node:fs/promises");

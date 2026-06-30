@@ -36,7 +36,9 @@ export function runUserPromptSubmitHook(input: unknown): string {
 	return isUltraworkPrompt(input.prompt) ? formatAdditionalContextOutput(ULTRAWORK_DIRECTIVE) : "";
 }
 
-function hasUltraworkDirectiveAlreadyInTranscript(transcriptPath: string | null | undefined): boolean {
+function hasUltraworkDirectiveAlreadyInTranscript(
+	transcriptPath: string | null | undefined,
+): boolean {
 	if (transcriptPath === undefined || transcriptPath === null) return false;
 	try {
 		const rawTranscript = readTranscriptTail(transcriptPath);
@@ -50,18 +52,18 @@ function hasUltraworkDirectiveAlreadyInTranscript(transcriptPath: string | null 
 				continue;
 			}
 
-			const hookSpecificOutput = parsed["hookSpecificOutput"];
+			const hookSpecificOutput = parsed.hookSpecificOutput;
 			if (!isRecord(hookSpecificOutput)) {
 				continue;
 			}
 
-			if (hookSpecificOutput["hookEventName"] !== "UserPromptSubmit") {
+			if (hookSpecificOutput.hookEventName !== "UserPromptSubmit") {
 				continue;
 			}
 
 			if (
-				typeof hookSpecificOutput["additionalContext"] === "string" &&
-				hookSpecificOutput["additionalContext"].includes(ULTRAWORK_DIRECTIVE_MARKER)
+				typeof hookSpecificOutput.additionalContext === "string" &&
+				hookSpecificOutput.additionalContext.includes(ULTRAWORK_DIRECTIVE_MARKER)
 			) {
 				return true;
 			}
@@ -76,7 +78,9 @@ function hasUltraworkDirectiveAlreadyInTranscript(transcriptPath: string | null 
 
 function readTranscriptTail(transcriptPath: string): string {
 	const rawTranscript = readFileSync(transcriptPath);
-	return rawTranscript.subarray(Math.max(0, rawTranscript.byteLength - TRANSCRIPT_SEARCH_BYTES)).toString("utf8");
+	return rawTranscript
+		.subarray(Math.max(0, rawTranscript.byteLength - TRANSCRIPT_SEARCH_BYTES))
+		.toString("utf8");
 }
 
 export function isUltraworkPrompt(prompt: string): boolean {
@@ -133,11 +137,11 @@ function parseJsonLine(line: string): unknown | null {
 function isClaudeUserPromptSubmitInput(value: unknown): value is ClaudeUserPromptSubmitInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "UserPromptSubmit" &&
-		typeof value["prompt"] === "string" &&
-		(value["transcript_path"] === undefined ||
-			value["transcript_path"] === null ||
-			typeof value["transcript_path"] === "string")
+		value.hook_event_name === "UserPromptSubmit" &&
+		typeof value.prompt === "string" &&
+		(value.transcript_path === undefined ||
+			value.transcript_path === null ||
+			typeof value.transcript_path === "string")
 	);
 }
 

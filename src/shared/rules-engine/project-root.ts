@@ -3,7 +3,10 @@ import { dirname, join, resolve } from "node:path";
 
 import { PROJECT_MARKERS } from "./constants.ts";
 
-export function findProjectRoot(startPath: string, markers: ReadonlyArray<string> = PROJECT_MARKERS): string | null {
+export function findProjectRoot(
+	startPath: string,
+	markers: ReadonlyArray<string> = PROJECT_MARKERS,
+): string | null {
 	const resolvedStartPath = resolve(startPath);
 
 	if (!existsSync(resolvedStartPath)) {

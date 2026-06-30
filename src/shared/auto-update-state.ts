@@ -1,8 +1,8 @@
+import { homedir } from "node:os";
 /**
  * Auto-update state management — lock acquisition and state persistence.
  */
 import { join } from "node:path";
-import { homedir } from "node:os";
 
 export const DEFAULT_LOCK_STALE_MS = 30_000;
 
@@ -14,7 +14,10 @@ export function resolveStatePath(name: string): string {
 	return join(homedir(), ".claude", "state", `${name}.json`);
 }
 
-export async function acquireLock(lockPath: string, staleMs = DEFAULT_LOCK_STALE_MS): Promise<() => Promise<void>> {
+export async function acquireLock(
+	lockPath: string,
+	staleMs = DEFAULT_LOCK_STALE_MS,
+): Promise<() => Promise<void>> {
 	const { mkdir, writeFile, unlink, stat } = await import("node:fs/promises");
 	const { dirname } = await import("node:path");
 
@@ -25,10 +28,18 @@ export async function acquireLock(lockPath: string, staleMs = DEFAULT_LOCK_STALE
 		if (Date.now() - lockStat.mtimeMs > staleMs) {
 			await unlink(lockPath);
 		}
-	} catch { /* no lock file */ }
+	} catch {
+		/* no lock file */
+	}
 
 	await writeFile(lockPath, String(process.pid), { flag: "wx" });
-	return async () => { try { await unlink(lockPath); } catch { /* ok */ } };
+	return async () => {
+		try {
+			await unlink(lockPath);
+		} catch {
+			/* ok */
+		}
+	};
 }
 
 export async function readState<T>(statePath: string): Promise<T | null> {

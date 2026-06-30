@@ -1,5 +1,5 @@
 import { hasFlag, readValue } from "./cli-arg-parser.ts";
-import { printJsonError, ULW_LOOP_HELP } from "./cli-output.ts";
+import { ULW_LOOP_HELP, printJsonError } from "./cli-output.ts";
 import {
 	addGoal,
 	captureEvidence,
@@ -11,7 +11,7 @@ import {
 	status,
 	steer,
 } from "./cli-subcommands.ts";
-import { resolveUlwLoopSessionIdFromEnv, type UlwLoopScope } from "./paths.ts";
+import { type UlwLoopScope, resolveUlwLoopSessionIdFromEnv } from "./paths.ts";
 import { UlwLoopError } from "./types.ts";
 
 export const ULW_LOOP_SUBCOMMANDS = [
@@ -44,9 +44,13 @@ export async function ulwLoopCommand(argv: readonly string[]): Promise<number> {
 		if (!isUlwLoopSubcommand(command)) {
 			if (json) {
 				printJsonError(
-					new UlwLoopError(`Unknown ulw-loop subcommand: ${command}.`, "ULW_LOOP_SUBCOMMAND_UNKNOWN", {
-						details: { command },
-					}),
+					new UlwLoopError(
+						`Unknown ulw-loop subcommand: ${command}.`,
+						"ULW_LOOP_SUBCOMMAND_UNKNOWN",
+						{
+							details: { command },
+						},
+					),
 				);
 				return 1;
 			}
@@ -84,14 +88,18 @@ export async function ulwLoopCommand(argv: readonly string[]): Promise<number> {
 			return 1;
 		}
 		if (error instanceof UlwLoopError) process.stderr.write(`[ulw-loop] ${error.message}\n`);
-		else if (error instanceof Error) process.stderr.write(`[ulw-loop] unexpected: ${error.message}\n`);
+		else if (error instanceof Error)
+			process.stderr.write(`[ulw-loop] unexpected: ${error.message}\n`);
 		else process.stderr.write("[ulw-loop] unknown error\n");
 		return 1;
 	}
 }
 
 function unhandledSubcommand(command: never): never {
-	throw new UlwLoopError(`Unhandled ulw-loop subcommand: ${String(command)}.`, "ULW_LOOP_SUBCOMMAND_UNHANDLED");
+	throw new UlwLoopError(
+		`Unhandled ulw-loop subcommand: ${String(command)}.`,
+		"ULW_LOOP_SUBCOMMAND_UNHANDLED",
+	);
 }
 
 function commandScope(argv: readonly string[]): UlwLoopScope | undefined {

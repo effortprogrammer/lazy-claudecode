@@ -10,7 +10,7 @@ import {
 	runPostToolUseHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {
@@ -29,10 +29,13 @@ describe("claude-code rules per-event injection budgets", () => {
 		const { root, pluginData } = makeProject({ dynamicRuleChars: 30_000 });
 
 		// when
-		const output = await runPostToolUseHook(postToolUseInput(root, path.join(root, "src", "app.ts")), {
-			pluginDataRoot: pluginData,
-			env: PROJECT_ONLY_ENV,
-		});
+		const output = await runPostToolUseHook(
+			postToolUseInput(root, path.join(root, "src", "app.ts")),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
 
 		// then
 		const context = readAdditionalContext(output);
@@ -77,14 +80,17 @@ describe("claude-code rules per-event injection budgets", () => {
 		const { root, pluginData } = makeProject({ dynamicRuleChars: 30_000 });
 
 		// when
-		const output = await runPostToolUseHook(postToolUseInput(root, path.join(root, "src", "app.ts")), {
-			pluginDataRoot: pluginData,
-			env: {
-				...PROJECT_ONLY_ENV,
-				LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RULE_CHARS: "1000",
-				LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RESULT_CHARS: "1500",
+		const output = await runPostToolUseHook(
+			postToolUseInput(root, path.join(root, "src", "app.ts")),
+			{
+				pluginDataRoot: pluginData,
+				env: {
+					...PROJECT_ONLY_ENV,
+					LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RULE_CHARS: "1000",
+					LAZY_CLAUDECODE_RULES_DYNAMIC_MAX_RESULT_CHARS: "1500",
+				},
 			},
-		});
+		);
 
 		// then
 		const context = readAdditionalContext(output);
@@ -101,13 +107,20 @@ function makeProject(sizes: { staticRuleChars?: number; dynamicRuleChars?: numbe
 	const pluginData = mkdtempSync(path.join(tmpdir(), "claude-code-rules-event-budget-data-"));
 	tempDirectories.push(root, pluginData);
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
-	writeFileSync(path.join(root, "CONTEXT.md"), `Project rule\n${"A".repeat(sizes.staticRuleChars ?? 100)}`);
+	writeFileSync(
+		path.join(root, "CONTEXT.md"),
+		`Project rule\n${"A".repeat(sizes.staticRuleChars ?? 100)}`,
+	);
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
 		path.join(root, ".claude", "rules", "typescript.md"),
-		["---", 'globs: "**/*.ts"', "---", "", `TypeScript rule\n${"B".repeat(sizes.dynamicRuleChars ?? 100)}`].join(
-			"\n",
-		),
+		[
+			"---",
+			'globs: "**/*.ts"',
+			"---",
+			"",
+			`TypeScript rule\n${"B".repeat(sizes.dynamicRuleChars ?? 100)}`,
+		].join("\n"),
 	);
 	mkdirSync(path.join(root, "src"), { recursive: true });
 	writeFileSync(path.join(root, "src", "app.ts"), "export const app = 1;\n");
@@ -161,8 +174,8 @@ function readAdditionalContext(output: string): string {
 	}
 	const parsed: unknown = JSON.parse(output);
 	if (typeof parsed !== "object" || parsed === null || Array.isArray(parsed)) return "";
-	const hookSpecificOutput = (parsed as Record<string, unknown>)["hookSpecificOutput"];
+	const hookSpecificOutput = (parsed as Record<string, unknown>).hookSpecificOutput;
 	if (typeof hookSpecificOutput !== "object" || hookSpecificOutput === null) return "";
-	const additionalContext = (hookSpecificOutput as Record<string, unknown>)["additionalContext"];
+	const additionalContext = (hookSpecificOutput as Record<string, unknown>).additionalContext;
 	return typeof additionalContext === "string" ? additionalContext : "";
 }

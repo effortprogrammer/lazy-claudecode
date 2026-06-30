@@ -1,5 +1,5 @@
 export interface LockHandle {
-    release(): void;
+	release(): void;
 }
 export declare function isProcessAlive(pid: number): boolean;
 export declare function readLockPid(lockPath: string): number | null;

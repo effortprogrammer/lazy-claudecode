@@ -13,13 +13,7 @@
 	"bugs": {
 		"url": "https://github.com/effortprogrammer/lazy-claudecode-comment-checker/issues"
 	},
-	"keywords": [
-		"claude-code",
-		"claude-code-hook",
-		"comment-checker",
-		"hooks",
-		"typescript"
-	],
+	"keywords": ["claude-code", "claude-code-hook", "comment-checker", "hooks", "typescript"],
 	"bin": {
 		"lazy-claudecode-comment-checker": "./dist/cli.js"
 	},

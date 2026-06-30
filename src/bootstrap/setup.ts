@@ -3,6 +3,15 @@ import { copyFile, mkdir, readdir, rm, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { promisify } from "node:util";
 
+import {
+	linkCachedPluginBins,
+	linkRootRuntimeBin,
+} from "../shared/install/claude-code-cache-bins.ts";
+import { updateClaudeCodeConfig } from "../shared/install/claude-code-config-toml.ts";
+import { stampGitBashMcpEnv } from "../shared/install/claude-code-git-bash-mcp-env.ts";
+import { trustedHookStatesForPlugin } from "../shared/install/claude-code-hook-trust.ts";
+import { resolveClaudeCodeInstallerBinDir } from "../shared/install/claude-code-installer-bin-dir.ts";
+import { prepareGitBashForInstall } from "../shared/install/git-bash.ts";
 // These relative imports resolve at BUILD time in the monorepo; esbuild
 // inlines the installer source modules into dist/cli.js so PLUGIN_ROOT ships
 // nothing beyond the bundle.
@@ -12,21 +21,19 @@ import {
 	// capturePreservedAgentServiceTier,
 	linkCachedPluginAgents,
 } from "../shared/install/link-cached-plugin-agents.ts";
-import { linkCachedPluginBins, linkRootRuntimeBin } from "../shared/install/claude-code-cache-bins.ts";
-import { updateClaudeCodeConfig } from "../shared/install/claude-code-config-toml.ts";
-import { stampGitBashMcpEnv } from "../shared/install/claude-code-git-bash-mcp-env.ts";
-import { trustedHookStatesForPlugin } from "../shared/install/claude-code-hook-trust.ts";
-import { resolveClaudeCodeInstallerBinDir } from "../shared/install/claude-code-installer-bin-dir.ts";
-import { prepareGitBashForInstall } from "../shared/install/git-bash.ts";
 import type { ClaudeCodeAgentConfig, GitBashResolution } from "../shared/install/types.ts";
-import { appendBootstrapLog, BOOTSTRAP_DOCTOR_HINT } from "./worker.ts";
+import { BOOTSTRAP_DOCTOR_HINT, appendBootstrapLog } from "./worker.ts";
 import type { BootstrapDegradedEntry, BootstrapStepOutcome } from "./worker.ts";
 
 export const SETUP_MARKETPLACE_NAME = "effortprogrammer";
 export const SETUP_PLUGIN_NAME = "lazy-claudecode";
 export const GIT_BASH_INSTALL_HINT = "winget install --id Git.Git -e --source winget";
 
-export type SetupRunCommand = (command: string, args: readonly string[], options: { cwd: string }) => Promise<unknown>;
+export type SetupRunCommand = (
+	command: string,
+	args: readonly string[],
+	options: { cwd: string },
+) => Promise<unknown>;
 
 export interface WorkerSetupOptions {
 	readonly claudeCodeHome: string;
@@ -65,7 +72,10 @@ export async function runWorkerSetup(options: WorkerSetupOptions): Promise<Boots
 	return { degraded };
 }
 
-async function resolveGitBashStep(options: WorkerSetupOptions, degraded: BootstrapDegradedEntry[]): Promise<boolean> {
+async function resolveGitBashStep(
+	options: WorkerSetupOptions,
+	degraded: BootstrapDegradedEntry[],
+): Promise<boolean> {
 	if (options.platform !== "win32") return false;
 	try {
 		const resolution = await prepareGitBashForInstall({
@@ -79,7 +89,8 @@ async function resolveGitBashStep(options: WorkerSetupOptions, degraded: Bootstr
 		degraded.push({
 			component: "git-bash",
 			hint: GIT_BASH_INSTALL_HINT,
-			reason: "Git Bash was not found on this Windows machine; the lazy-claudecode git-bash MCP server stays disabled",
+			reason:
+				"Git Bash was not found on this Windows machine; the lazy-claudecode git-bash MCP server stays disabled",
 		});
 	} catch (error) {
 		degraded.push({
@@ -100,8 +111,12 @@ async function linkBundledAgentsStep(options: WorkerSetupOptions): Promise<Agent
 		// Claude Code-managed marketplace cache).
 		const stageRoot = join(options.pluginData, "bootstrap", "agents-stage");
 		await stageBundledAgents(options.pluginRoot, stageRoot);
-		const preservedReasoning = await capturePreservedAgentReasoning({ claudeCodeHome: options.claudeCodeHome });
-		const preservedServiceTier = await capturePreservedAgentServiceTier({ claudeCodeHome: options.claudeCodeHome });
+		const preservedReasoning = await capturePreservedAgentReasoning({
+			claudeCodeHome: options.claudeCodeHome,
+		});
+		const preservedServiceTier = await capturePreservedAgentServiceTier({
+			claudeCodeHome: options.claudeCodeHome,
+		});
 		const linked = await linkCachedPluginAgents({
 			claudeCodeHome: options.claudeCodeHome,
 			pluginRoot: stageRoot,
@@ -187,7 +202,8 @@ async function updateConfigStep(
 
 async function assertWritableConfigIfPresent(configPath: string): Promise<void> {
 	try {
-		if (((await stat(configPath)).mode & 0o222) === 0) throw new Error(`${configPath} has no write permission bits set`);
+		if (((await stat(configPath)).mode & 0o222) === 0)
+			throw new Error(`${configPath} has no write permission bits set`);
 	} catch (error) {
 		if (errorCode(error) === "ENOENT") return;
 		throw error;
@@ -195,13 +211,25 @@ async function assertWritableConfigIfPresent(configPath: string): Promise<void> 
 }
 
 function errorCode(error: unknown): string | undefined {
-	return error instanceof Error && "code" in error && typeof error.code === "string" ? error.code : undefined;
+	return error instanceof Error && "code" in error && typeof error.code === "string"
+		? error.code
+		: undefined;
 }
 
-async function linkComponentBinsStep(options: WorkerSetupOptions, degraded: BootstrapDegradedEntry[]): Promise<void> {
-	const binDir = resolveClaudeCodeInstallerBinDir({ claudeCodeHome: options.claudeCodeHome, env: options.env });
+async function linkComponentBinsStep(
+	options: WorkerSetupOptions,
+	degraded: BootstrapDegradedEntry[],
+): Promise<void> {
+	const binDir = resolveClaudeCodeInstallerBinDir({
+		claudeCodeHome: options.claudeCodeHome,
+		env: options.env,
+	});
 	try {
-		await linkCachedPluginBins({ binDir, pluginRoot: options.pluginRoot, platform: options.platform });
+		await linkCachedPluginBins({
+			binDir,
+			pluginRoot: options.pluginRoot,
+			platform: options.platform,
+		});
 	} catch (error) {
 		degraded.push({
 			component: "bin-links",
@@ -235,9 +263,14 @@ async function linkRuntimeWrapperStep(
 			hint: "use npx lazy-claudecode for the lazy-claudecode CLI",
 			reason: "marketplace payload has no dist/cli",
 		});
-		await appendBootstrapLog(options.pluginData, options.now ?? Date.now(), "lazy-claudecode-cli-degraded", {
-			warning: `Warning: skipped the lazy-claudecode runtime wrapper because ${cliPath} is missing; lazy-claudecode ulw/ulw-loop commands will be unavailable until a package shipping dist/cli is installed`,
-		});
+		await appendBootstrapLog(
+			options.pluginData,
+			options.now ?? Date.now(),
+			"lazy-claudecode-cli-degraded",
+			{
+				warning: `Warning: skipped the lazy-claudecode runtime wrapper because ${cliPath} is missing; lazy-claudecode ulw/ulw-loop commands will be unavailable until a package shipping dist/cli is installed`,
+			},
+		);
 	} catch (error) {
 		degraded.push({
 			component: "lazy-claudecode-cli",
@@ -247,9 +280,16 @@ async function linkRuntimeWrapperStep(
 	}
 }
 
-async function stampGitBashEnvStep(options: WorkerSetupOptions, degraded: BootstrapDegradedEntry[]): Promise<void> {
+async function stampGitBashEnvStep(
+	options: WorkerSetupOptions,
+	degraded: BootstrapDegradedEntry[],
+): Promise<void> {
 	try {
-		await stampGitBashMcpEnv({ env: options.env, platform: options.platform, pluginRoot: options.pluginRoot });
+		await stampGitBashMcpEnv({
+			env: options.env,
+			platform: options.platform,
+			pluginRoot: options.pluginRoot,
+		});
 	} catch (error) {
 		degraded.push({
 			component: "git-bash-env",
@@ -261,7 +301,11 @@ async function stampGitBashEnvStep(options: WorkerSetupOptions, degraded: Bootst
 
 const execFileAsync = promisify(execFile);
 
-async function defaultRunCommand(command: string, args: readonly string[], options: { cwd: string }): Promise<unknown> {
+async function defaultRunCommand(
+	command: string,
+	args: readonly string[],
+	options: { cwd: string },
+): Promise<unknown> {
 	return execFileAsync(command, [...args], { cwd: options.cwd });
 }
 
@@ -273,7 +317,10 @@ async function fileNames(root: string): Promise<string[]> {
 	return entryNames(root, (entry) => entry.isFile());
 }
 
-async function entryNames(root: string, keep: (entry: { isDirectory(): boolean; isFile(): boolean }) => boolean): Promise<string[]> {
+async function entryNames(
+	root: string,
+	keep: (entry: { isDirectory(): boolean; isFile(): boolean }) => boolean,
+): Promise<string[]> {
 	try {
 		const entries = await readdir(root, { withFileTypes: true });
 		return entries

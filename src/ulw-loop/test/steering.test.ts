@@ -101,7 +101,10 @@ describe("validateUlwLoopSteeringProposal", () => {
 		["missing evidence", { evidence: "" }],
 		["missing rationale", { rationale: "" }],
 		["unknown kind", { kind: "teleport_goal" }],
-		["protected payload mutations", { after: { claudeCodeObjective: "replace", qualityGate: { status: "passed" } } }],
+		[
+			"protected payload mutations",
+			{ after: { claudeCodeObjective: "replace", qualityGate: { status: "passed" } } },
+		],
 		["weakened completion text", { objective: "skip tests and mark complete faster" }],
 	])("rejects %s", (_name, overrides) => {
 		const audit = validateUlwLoopSteeringProposal(plan(), { ...steering(), ...overrides });
@@ -110,12 +113,17 @@ describe("validateUlwLoopSteeringProposal", () => {
 	});
 
 	it("rejects when plan already complete", () => {
-		const done = plan({ goals: [goal({ status: "complete" }), goal({ id: "G002", status: "complete" })] });
+		const done = plan({
+			goals: [goal({ status: "complete" }), goal({ id: "G002", status: "complete" })],
+		});
 		expect(validateUlwLoopSteeringProposal(done, steering()).invariant.accepted).toBe(false);
 	});
 
 	it("rejects split_subgoal without children", () => {
-		const audit = validateUlwLoopSteeringProposal(plan(), steering({ kind: "split_subgoal", targetGoalId: "G001" }));
+		const audit = validateUlwLoopSteeringProposal(
+			plan(),
+			steering({ kind: "split_subgoal", targetGoalId: "G001" }),
+		);
 		expect(audit.invariant.accepted).toBe(false);
 	});
 
@@ -143,7 +151,10 @@ describe("validateUlwLoopSteeringProposal", () => {
 		["unknown criterionId", { goalId: "G001", criterionId: "missing", scenario: "new" }],
 		["no updates", { goalId: "G001", criterionId: "C001" }],
 	])("rejects revise_criterion with %s", (_name, overrides) => {
-		const audit = validateUlwLoopSteeringProposal(plan(), steering({ kind: "revise_criterion", ...overrides }));
+		const audit = validateUlwLoopSteeringProposal(
+			plan(),
+			steering({ kind: "revise_criterion", ...overrides }),
+		);
 		expect(audit.invariant.accepted).toBe(false);
 	});
 });
@@ -160,7 +171,11 @@ describe("steerUlwLoop", () => {
 		}
 
 		for (const [name, proposal, goalIndex] of [
-			["add_subgoal: uses next numeric id + default success criteria", steering({ idempotencyKey: "slug-add" }), -1],
+			[
+				"add_subgoal: uses next numeric id + default success criteria",
+				steering({ idempotencyKey: "slug-add" }),
+				-1,
+			],
 			[
 				"split_subgoal: replacement goals use default success criteria",
 				steering({
@@ -183,7 +198,8 @@ describe("steerUlwLoop", () => {
 			it(name, async () => {
 				const repoRoot = await repoWithPlan(sluggedPlan());
 				const result = await steerUlwLoop(repoRoot, proposal);
-				const createdGoal = goalIndex === -1 ? result.plan.goals.at(-1) : result.plan.goals[goalIndex];
+				const createdGoal =
+					goalIndex === -1 ? result.plan.goals.at(-1) : result.plan.goals[goalIndex];
 				expect(createdGoal).toMatchObject({
 					id: "G003",
 					successCriteria: [{ id: "C001" }, { id: "C002" }, { id: "C003" }],
@@ -215,7 +231,10 @@ describe("steerUlwLoop", () => {
 			}),
 		);
 		expect(result.plan.goals.map((item) => item.id).slice(0, 2)).toEqual(["G001", "G004"]);
-		expect(result.plan.goals[0]).toMatchObject({ steeringStatus: "superseded", supersededBy: ["G004"] });
+		expect(result.plan.goals[0]).toMatchObject({
+			steeringStatus: "superseded",
+			supersededBy: ["G004"],
+		});
 	});
 
 	it("reorder_pending: changes goal order", async () => {
@@ -249,7 +268,9 @@ describe("steerUlwLoop", () => {
 		const repoRoot = await repoWithPlan(seed);
 		const result = await steerUlwLoop(repoRoot, steering({ kind: "annotate_ledger" }));
 		expect(result.plan.goals).toEqual(seed.goals);
-		expect(await readFile(ulwLoopGoalsPath(repoRoot), "utf8")).toBe(`${JSON.stringify(seed, null, 2)}\n`);
+		expect(await readFile(ulwLoopGoalsPath(repoRoot), "utf8")).toBe(
+			`${JSON.stringify(seed, null, 2)}\n`,
+		);
 	});
 
 	it("mark_blocked_superseded with children: supersede + replace", async () => {
@@ -262,7 +283,10 @@ describe("steerUlwLoop", () => {
 				childGoals: [{ title: "Replacement", objective: "Replace blocked path" }],
 			}),
 		);
-		expect(result.plan.goals[0]).toMatchObject({ steeringStatus: "superseded", supersededBy: ["G004"] });
+		expect(result.plan.goals[0]).toMatchObject({
+			steeringStatus: "superseded",
+			supersededBy: ["G004"],
+		});
 		expect(result.plan.goals[1]).toMatchObject({ id: "G004", supersedes: ["G001"] });
 	});
 
@@ -270,7 +294,11 @@ describe("steerUlwLoop", () => {
 		const repoRoot = await repoWithPlan();
 		const result = await steerUlwLoop(
 			repoRoot,
-			steering({ kind: "mark_blocked_superseded", targetGoalId: "G001", blockedReason: "external blocker" }),
+			steering({
+				kind: "mark_blocked_superseded",
+				targetGoalId: "G001",
+				blockedReason: "external blocker",
+			}),
 		);
 		expect(result.plan.goals[0]).toMatchObject({
 			status: "blocked",
@@ -279,35 +307,52 @@ describe("steerUlwLoop", () => {
 		});
 	});
 
-	it.each(["pending", "pass"] as const)("revise_criterion: works on a %s criterion", async (status) => {
-		const repoRoot = await repoWithPlan();
-		const criterionId = status === "pending" ? "C001" : "C002";
-		const result = await steerUlwLoop(
-			repoRoot,
-			steering({
-				kind: "revise_criterion",
-				goalId: "G001",
-				criterionId,
+	it.each(["pending", "pass"] as const)(
+		"revise_criterion: works on a %s criterion",
+		async (status) => {
+			const repoRoot = await repoWithPlan();
+			const criterionId = status === "pending" ? "C001" : "C002";
+			const result = await steerUlwLoop(
+				repoRoot,
+				steering({
+					kind: "revise_criterion",
+					goalId: "G001",
+					criterionId,
+					scenario: "new scenario",
+					expectedEvidence: "precise evidence",
+				}),
+			);
+			const updated = result.plan.goals[0]?.successCriteria.find((item) => item.id === criterionId);
+			expect(updated).toMatchObject({
 				scenario: "new scenario",
 				expectedEvidence: "precise evidence",
-			}),
-		);
-		const updated = result.plan.goals[0]?.successCriteria.find((item) => item.id === criterionId);
-		expect(updated).toMatchObject({ scenario: "new scenario", expectedEvidence: "precise evidence", status });
-		expect((await readSteeringLedgerEntries(repoRoot)).at(-1)).toMatchObject({
-			kind: "criteria_revised",
-			criterionId,
-		});
-	});
+				status,
+			});
+			expect((await readSteeringLedgerEntries(repoRoot)).at(-1)).toMatchObject({
+				kind: "criteria_revised",
+				criterionId,
+			});
+		},
+	);
 
 	it("revise_criterion: updates the targeted criterion in plan", () => {
 		const audit = validateUlwLoopSteeringProposal(
 			plan(),
-			steering({ kind: "revise_criterion", goalId: "G001", criterionId: "C001", scenario: "new value" }),
+			steering({
+				kind: "revise_criterion",
+				goalId: "G001",
+				criterionId: "C001",
+				scenario: "new value",
+			}),
 		);
 		const next = applySteeringMutation(
 			plan(),
-			steering({ kind: "revise_criterion", goalId: "G001", criterionId: "C001", scenario: "new value" }),
+			steering({
+				kind: "revise_criterion",
+				goalId: "G001",
+				criterionId: "C001",
+				scenario: "new value",
+			}),
 			audit,
 		);
 		expect(next.goals[0]?.successCriteria[0]?.scenario).toBe("new value");
@@ -323,10 +368,16 @@ describe("steerUlwLoop", () => {
 });
 
 describe("parseUlwLoopSteeringDirective", () => {
-	it.each(["LAZY_CLAUDECODE_ULW_LOOP_STEER", "lazy-claudecode.ulw-loop.steer", "lazy-claudecode ulw-loop steer"])("parses %s pattern", (marker) => {
-		expect(parseUlwLoopSteeringDirective(`${marker}: ${JSON.stringify(steering())}`)).toMatchObject({
-			kind: "add_subgoal",
-		});
+	it.each([
+		"LAZY_CLAUDECODE_ULW_LOOP_STEER",
+		"lazy-claudecode.ulw-loop.steer",
+		"lazy-claudecode ulw-loop steer",
+	])("parses %s pattern", (marker) => {
+		expect(parseUlwLoopSteeringDirective(`${marker}: ${JSON.stringify(steering())}`)).toMatchObject(
+			{
+				kind: "add_subgoal",
+			},
+		);
 	});
 
 	it("returns null when no marker", () => {

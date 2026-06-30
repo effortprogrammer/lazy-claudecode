@@ -4,7 +4,12 @@ import {
 	isEssentialCriterion,
 	isFinalRunCompletionCandidate,
 } from "./goal-status.ts";
-import type { UlwLoopClaudeCodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.ts";
+import type {
+	UlwLoopClaudeCodeGoalMode,
+	UlwLoopItem,
+	UlwLoopPlan,
+	UlwLoopSuccessCriterion,
+} from "./types.ts";
 
 export interface ClaudeCodeCreateGoalPayload {
 	readonly objective: string;
@@ -89,11 +94,17 @@ function checkpointLines(plan: UlwLoopPlan, mode: UlwLoopClaudeCodeGoalMode): re
 }
 
 function activeGoalLines(goal: UlwLoopItem): readonly string[] {
-	return ["Active goal:", `- id: ${goal.id}`, `- title: ${goal.title}`, `- objective: ${goal.objective}`];
+	return [
+		"Active goal:",
+		`- id: ${goal.id}`,
+		`- title: ${goal.title}`,
+		`- objective: ${goal.objective}`,
+	];
 }
 
 function successCriteriaLines(criteria: readonly UlwLoopSuccessCriterion[]): readonly string[] {
-	if (criteria.length === 0) return ["Success criteria:", "- No success criteria recorded for this goal."];
+	if (criteria.length === 0)
+		return ["Success criteria:", "- No success criteria recorded for this goal."];
 	return ["Success criteria:", ...criteria.map(formatCriterionLine)];
 }
 
@@ -103,7 +114,12 @@ function formatCriterionLine(criterion: UlwLoopSuccessCriterion): string {
 	return `-${remainingWork} [${criterion.id}] [${marker}] (${criterion.userModel}) ${criterion.scenario} — expect: ${criterion.expectedEvidence} — status: ${criterion.status}`;
 }
 
-function finalSection(plan: UlwLoopPlan, goal: UlwLoopItem, isFinal: boolean, aggregate: boolean): string {
+function finalSection(
+	plan: UlwLoopPlan,
+	goal: UlwLoopItem,
+	isFinal: boolean,
+	aggregate: boolean,
+): string {
 	if (!isFinal)
 		return "- This is not the final ulw-loop story; do not run the final reviewer/manual-QA/gate-review quality gate yet.";
 	const option = sessionOption(plan);

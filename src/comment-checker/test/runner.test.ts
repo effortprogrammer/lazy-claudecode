@@ -6,7 +6,7 @@ import {
 	resolveCommentCheckerBinary,
 	runCommentChecker,
 	spawnProcess,
-} from "../src/runner.ts";
+} from "../runner.ts";
 
 describe("spawnProcess", () => {
 	it("#given noisy checker process #when output exceeds cap #then stderr is bounded", async () => {

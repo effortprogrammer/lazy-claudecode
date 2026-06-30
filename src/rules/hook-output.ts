@@ -23,7 +23,10 @@ function normalizeAdditionalContext(additionalContext: string): string {
 function limitAdditionalContext(additionalContext: string): string {
 	if (additionalContext.length <= MAX_ADDITIONAL_CONTEXT_CHARS) return additionalContext;
 	const marker = `\n\n[Truncated hook additional context to ${MAX_ADDITIONAL_CONTEXT_CHARS} chars to avoid Claude Code context overflow.]`;
-	if (marker.length >= MAX_ADDITIONAL_CONTEXT_CHARS) return marker.slice(0, MAX_ADDITIONAL_CONTEXT_CHARS);
-	const head = additionalContext.slice(0, MAX_ADDITIONAL_CONTEXT_CHARS - marker.length).replace(/[ \t\r\n]+$/, "");
+	if (marker.length >= MAX_ADDITIONAL_CONTEXT_CHARS)
+		return marker.slice(0, MAX_ADDITIONAL_CONTEXT_CHARS);
+	const head = additionalContext
+		.slice(0, MAX_ADDITIONAL_CONTEXT_CHARS - marker.length)
+		.replace(/[ \t\r\n]+$/, "");
 	return `${head}${marker}`;
 }

@@ -5,8 +5,14 @@ export const LAZY_CLAUDECODE_EXECUTOR_VERIFY_DIRECTIVE: string = readFileSync(
 	"utf8",
 );
 
-export function renderDirective(attempts: number, lastAssistantMessage: string | undefined): string {
-	return LAZY_CLAUDECODE_EXECUTOR_VERIFY_DIRECTIVE.replaceAll("{{ATTEMPT_COUNT}}", String(attempts)).replaceAll(
+export function renderDirective(
+	attempts: number,
+	lastAssistantMessage: string | undefined,
+): string {
+	return LAZY_CLAUDECODE_EXECUTOR_VERIFY_DIRECTIVE.replaceAll(
+		"{{ATTEMPT_COUNT}}",
+		String(attempts),
+	).replaceAll(
 		"{{LAST_ASSISTANT_MESSAGE}}",
 		lastAssistantMessage ?? "(last_assistant_message was omitted)",
 	);

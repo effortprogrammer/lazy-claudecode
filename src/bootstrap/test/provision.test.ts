@@ -1,24 +1,29 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
-import { mkdir, readdir, readFile, stat, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { deflateRawSync } from "node:zlib";
 
-import { SG_PINNED_VERSION, type SgFetch, type SgManifestAsset, type SgRuntimeSlug } from "../shared/ast-grep/index.ts";
 import {
-	runSgProvision,
+	SG_PINNED_VERSION,
+	type SgFetch,
+	type SgManifestAsset,
+	type SgRuntimeSlug,
+} from "../shared/ast-grep/index.ts";
+import {
 	SG_FORCE_PROVISION_ENV_KEY,
 	SG_PROVISION_COMPONENT,
+	runSgProvision,
 	sgProvisionDestination,
 } from "../src/provision.ts";
 import {
 	BOOTSTRAP_DOCTOR_HINT,
+	type BootstrapWorkerContext,
 	defaultWorkerSteps,
 	readBootstrapState,
 	runBootstrapWorker,
-	type BootstrapWorkerContext,
 } from "../src/worker.ts";
 
 const temporaryDirectories: string[] = [];
@@ -116,14 +121,19 @@ const FIXTURE_ZIP = makeZip([
 const FIXTURE_VERSION = SG_PINNED_VERSION;
 
 function fixtureReleaseAssets(
-	options: { readonly sha256?: string; readonly platforms?: Partial<Record<SgRuntimeSlug, SgManifestAsset>> } = {},
+	options: {
+		readonly sha256?: string;
+		readonly platforms?: Partial<Record<SgRuntimeSlug, SgManifestAsset>>;
+	} = {},
 ): Partial<Record<SgRuntimeSlug, SgManifestAsset>> {
-	return options.platforms ?? {
-		"linux-x64": {
-			sha256: options.sha256 ?? sha256Hex(FIXTURE_ZIP),
-			url: `https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`,
-		},
-	};
+	return (
+		options.platforms ?? {
+			"linux-x64": {
+				sha256: options.sha256 ?? sha256Hex(FIXTURE_ZIP),
+				url: `https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`,
+			},
+		}
+	);
 }
 
 function fetchReturning(bytes: Uint8Array): { fetchImpl: SgFetch; calls: string[] } {
@@ -156,7 +166,9 @@ function makeContext(options: {
 async function listFilesRecursively(root: string): Promise<string[]> {
 	try {
 		const entries = await readdir(root, { recursive: true, withFileTypes: true });
-		return entries.filter((entry) => entry.isFile()).map((entry) => join(entry.parentPath, entry.name));
+		return entries
+			.filter((entry) => entry.isFile())
+			.map((entry) => join(entry.parentPath, entry.name));
 	} catch {
 		return [];
 	}
@@ -196,12 +208,16 @@ describe("runSgProvision", () => {
 		const destination = join(claudeHome, "runtime", "ast-grep", "linux-x64", "sg");
 		expect(sgProvisionDestination(context, "x64")).toBe(destination);
 		expect(outcome.degraded).toEqual([]);
-		expect(calls).toEqual([`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`]);
+		expect(calls).toEqual([
+			`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`,
+		]);
 		expect(probed).toEqual([destination]);
 		expect(new Uint8Array(await readFile(destination))).toEqual(STANDALONE_BYTES);
 		expect((await stat(destination)).mode & 0o777).toBe(0o755);
 		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([destination]);
-		expect(await readBootstrapLog(context.pluginData)).toContain(`"sg":"provisioned:${destination}"`);
+		expect(await readBootstrapLog(context.pluginData)).toContain(
+			`"sg":"provisioned:${destination}"`,
+		);
 	});
 
 	it("#given a preexisting sg resolution #when provisioning #then it short-circuits without fetching and records a preexisting note in the log", async () => {
@@ -227,7 +243,9 @@ describe("runSgProvision", () => {
 		expect(outcome.degraded).toEqual([]);
 		expect(calls).toEqual([]);
 		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
-		expect(await readBootstrapLog(context.pluginData)).toContain('"sg":"preexisting:/opt/homebrew/bin/sg"');
+		expect(await readBootstrapLog(context.pluginData)).toContain(
+			'"sg":"preexisting:/opt/homebrew/bin/sg"',
+		);
 	});
 
 	it("#given LAZY_CLAUDECODE_BOOTSTRAP_FORCE_PROVISION=1 #when a preexisting sg would resolve #then resolution is bypassed and provisioning still runs", async () => {
@@ -276,7 +294,9 @@ describe("runSgProvision", () => {
 		const outcome = await runSgProvision(context, {
 			arch: "x64",
 			fetchImpl: fetchReturning(FIXTURE_ZIP).fetchImpl,
-			releaseAssets: fixtureReleaseAssets({ sha256: sha256Hex(new TextEncoder().encode("tampered")) }),
+			releaseAssets: fixtureReleaseAssets({
+				sha256: sha256Hex(new TextEncoder().encode("tampered")),
+			}),
 			resolvePreexistingSg: () => null,
 			runVersionProbe: async () => `ast-grep ${FIXTURE_VERSION}`,
 		});
@@ -343,7 +363,9 @@ describe("runSgProvision", () => {
 		expect(entry?.component).toBe(SG_PROVISION_COMPONENT);
 		expect(entry?.reason).toMatch(/failed to download/i);
 		expect(entry?.reason).toContain("HTTP 503");
-		expect(calls).toEqual([`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`]);
+		expect(calls).toEqual([
+			`https://example.invalid/releases/${FIXTURE_VERSION}/app-x86_64-unknown-linux-gnu.zip`,
+		]);
 		expect(await listFilesRecursively(join(claudeHome, "runtime"))).toEqual([]);
 	});
 
@@ -393,7 +415,11 @@ describe("worker sg step wiring", () => {
 		const pluginData = join(root, "data");
 		const pluginRoot = join(root, "plugin-root");
 		await mkdir(join(pluginRoot, ".claude-code-plugin"), { recursive: true });
-		await writeFile(join(pluginRoot, ".claude-code-plugin", "plugin.json"), JSON.stringify({ version: "1.2.3" }), "utf8");
+		await writeFile(
+			join(pluginRoot, ".claude-code-plugin", "plugin.json"),
+			JSON.stringify({ version: "1.2.3" }),
+			"utf8",
+		);
 		const { calls, fetchImpl } = fetchReturning(FIXTURE_ZIP);
 
 		// when
@@ -433,7 +459,11 @@ describe("worker sg step wiring", () => {
 		const pluginData = join(root, "data");
 		const pluginRoot = join(root, "plugin-root");
 		await mkdir(join(pluginRoot, ".claude-code-plugin"), { recursive: true });
-		await writeFile(join(pluginRoot, ".claude-code-plugin", "plugin.json"), JSON.stringify({ version: "1.2.3" }), "utf8");
+		await writeFile(
+			join(pluginRoot, ".claude-code-plugin", "plugin.json"),
+			JSON.stringify({ version: "1.2.3" }),
+			"utf8",
+		);
 
 		// when
 		const result = await runBootstrapWorker({
@@ -444,7 +474,9 @@ describe("worker sg step wiring", () => {
 				sg: {
 					arch: "x64",
 					fetchImpl: fetchReturning(FIXTURE_ZIP).fetchImpl,
-					releaseAssets: fixtureReleaseAssets({ sha256: sha256Hex(new TextEncoder().encode("tampered")) }),
+					releaseAssets: fixtureReleaseAssets({
+						sha256: sha256Hex(new TextEncoder().encode("tampered")),
+					}),
 					resolvePreexistingSg: () => null,
 					runVersionProbe: async () => `ast-grep ${FIXTURE_VERSION}`,
 				},

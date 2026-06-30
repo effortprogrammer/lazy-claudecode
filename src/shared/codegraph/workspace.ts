@@ -14,7 +14,9 @@ export interface CodegraphWorkspaceOptions {
 	readonly installDir: string;
 }
 
-export async function prepareCodegraphWorkspace(options: CodegraphWorkspaceOptions): Promise<CodegraphWorkspacePreparation> {
+export async function prepareCodegraphWorkspace(
+	options: CodegraphWorkspaceOptions,
+): Promise<CodegraphWorkspacePreparation> {
 	const { join } = await import("node:path");
 	const { mkdir } = await import("node:fs/promises");
 

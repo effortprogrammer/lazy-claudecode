@@ -16,7 +16,7 @@ export function buildCodegraphEnv(options: CodegraphEnvOptions): Record<string, 
 		...(options.extraEnv ?? {}),
 	};
 	if (options.nodePath) {
-		env["CODEGRAPH_NODE_PATH"] = options.nodePath;
+		env.CODEGRAPH_NODE_PATH = options.nodePath;
 	}
 	return env;
 }

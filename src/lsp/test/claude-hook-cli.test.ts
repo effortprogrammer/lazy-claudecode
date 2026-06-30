@@ -41,7 +41,10 @@ describe("codex PostToolUse hook CLI", () => {
 	});
 });
 
-function runBuiltHookCli(input: string, env: Record<string, string> = {}): ReturnType<typeof spawnSync> {
+function runBuiltHookCli(
+	input: string,
+	env: Record<string, string> = {},
+): ReturnType<typeof spawnSync> {
 	const cliPath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist/cli.js");
 	return spawnSync(process.execPath, [cliPath, "hook", "post-tool-use"], {
 		input,
