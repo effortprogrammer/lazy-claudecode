@@ -6,7 +6,7 @@ export const CACHE_DIR_NAME = "lazy-claudecode";
 export const EVENT_NAME = "lazy_claudecode_daily_active";
 export const LEGACY_PARENT_PACKAGE = "lazy-claudecode";
 export const DEFAULT_POSTHOG_HOST = "https://us.i.posthog.com";
-export const DEFAULT_POSTHOG_API_KEY = "phc_CFJhj5HyvA62QPhvyaUCtaq23aUfznnijg5VaaGkNk74";
+export const DEFAULT_POSTHOG_API_KEY = "phc_BUkWKtmgBnUoz6U3MjJp7h7QE6QddnkRzZyWrBEbBEbv";
 
 type ComponentPackageManifest = { readonly version?: string };
 
