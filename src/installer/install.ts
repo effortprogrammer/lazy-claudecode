@@ -319,6 +319,58 @@ function installSlashCommands(root: string): number {
 	return installed;
 }
 
+/**
+ * Install Codex skills to ~/.codex/skills/.
+ * Codex TUI recognizes skills as slash commands via ~/.codex/skills/<name>/SKILL.md.
+ * This enables /lazycc inside Codex to delegate tasks to Claude Code.
+ */
+function installCodexSkills(root: string): number {
+	const { hasClaude } = detectAgentCLIs();
+
+	if (!hasClaude) {
+		console.log("⏭️  Claude CLI not found — skipping Codex skill setup (no target to delegate to)");
+		return 0;
+	}
+
+	const sourceDir = join(root, "codex-skills");
+	if (!existsSync(sourceDir)) {
+		console.log("⏭️  No codex-skills/ directory in package — skipping Codex skill setup");
+		return 0;
+	}
+
+	const codexSkillsDir = join(homedir(), ".codex", "skills");
+	if (!existsSync(codexSkillsDir)) {
+		mkdirSync(codexSkillsDir, { recursive: true });
+	}
+
+	let installed = 0;
+
+	const skillDirs = readdirSync(sourceDir).filter((d) => {
+		const skillPath = join(sourceDir, d, "SKILL.md");
+		return existsSync(skillPath);
+	});
+
+	for (const skillName of skillDirs) {
+		const skillSourceDir = join(sourceDir, skillName);
+		const skillTargetDir = join(codexSkillsDir, skillName);
+
+		if (!existsSync(skillTargetDir)) {
+			mkdirSync(skillTargetDir, { recursive: true });
+		}
+
+		// Copy all files in the skill directory
+		const files = readdirSync(skillSourceDir);
+		for (const file of files) {
+			copyFileSync(join(skillSourceDir, file), join(skillTargetDir, file));
+		}
+
+		console.log(`✅ Installed Codex skill: /${skillName} → ${skillTargetDir}/`);
+		installed++;
+	}
+
+	return installed;
+}
+
 export async function install(root: string): Promise<void> {
 	console.log("🔧 Installing lazy-claudecode hooks...\n");
 
@@ -390,7 +442,7 @@ export async function install(root: string): Promise<void> {
 		console.log("   Codex and Claude Code can now delegate tasks to each other as subagents.");
 	}
 
-	// 8. Install slash commands
+	// 8. Install slash commands (Claude Code)
 	console.log("\n⚡ Setting up slash commands...");
 	const commandCount = installSlashCommands(root);
 	if (commandCount > 0) {
@@ -398,7 +450,15 @@ export async function install(root: string): Promise<void> {
 		console.log("   Use /lazycc or /lazycodex to delegate tasks between agents.");
 	}
 
-	// 9. Install companion plugins (Codex plugin for Claude Code)
+	// 9. Install Codex skills (slash commands for Codex TUI)
+	console.log("\n⚡ Setting up Codex skills...");
+	const codexSkillCount = installCodexSkills(root);
+	if (codexSkillCount > 0) {
+		console.log(`\n✅ ${codexSkillCount} Codex skill(s) installed to ~/.codex/skills/`);
+		console.log("   Use /lazycc in Codex to delegate tasks to Claude Code.");
+	}
+
+	// 10. Install companion plugins (Codex plugin for Claude Code)
 	await installCompanionPlugins();
 }
 
