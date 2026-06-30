@@ -24,7 +24,9 @@ function expectSparkshellToolStrategyContract(value: string): void {
 	expect(guidance).toMatch(/\bsparkshell is unavailable\b/);
 	expect(guidance).toMatch(/\btoo narrow\b/);
 	expect(guidance).toMatch(/--shell[^.]*\bmetacharacters\b[^.]*\bpipelines\b/);
-	expect(guidance).toMatch(/--tmux-pane[^.]*\bonly\b[^.]*\binspect(?:ing)?\b[^.]*\bexisting (?:tmux )?pane\b/);
+	expect(guidance).toMatch(
+		/--tmux-pane[^.]*\bonly\b[^.]*\binspect(?:ing)?\b[^.]*\bexisting (?:tmux )?pane\b/,
+	);
 	expect(guidance).toMatch(/--tmux-pane[^.]*\bnever\b[^.]*\blaunch(?:ing)? ordinary commands\b/);
 	expect(guidance).not.toMatch(/\bprefer\b[^.]*\bbefore raw shell commands\b/);
 }
@@ -46,16 +48,18 @@ describe("claude-code ultrawork package metadata", () => {
 		expect(packageJson.type).toBe("module");
 		expect(packageJson.packageManager).toBe("npm@11.12.1");
 		expect(packageJson.bin["omo-ultrawork"]).toBe("./dist/cli.js");
-		expect(scripts["build"]).toBe(
+		expect(scripts.build).toBe(
 			"node scripts/sync-directive.mjs && node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && bun build src/cli.ts --target node --format esm --outfile dist/cli.js",
 		);
-		expect(scripts["test"]).toBe("vitest --run");
+		expect(scripts.test).toBe("vitest --run");
 		expect(packageFiles).toContain("dist");
 		expect(packageFiles).toContain("directive.md");
 		expect(packageFiles).not.toContain("hooks/ultrawork-detector.py");
 		expect(cliSource.startsWith("#!/usr/bin/env node")).toBe(true);
 		expect(hookCommands).toContain(`node "${pluginRoot}/dist/cli.js" hook user-prompt-submit`);
-		expect(hookCommands).not.toContainEqual(expect.stringMatching(/\bpython3?\b|ultrawork-detector\.py/));
+		expect(hookCommands).not.toContainEqual(
+			expect.stringMatching(/\bpython3?\b|ultrawork-detector\.py/),
+		);
 	});
 
 	it("#given explorer guidance #when inspected #then names the packaged code-search surfaces", () => {
@@ -106,7 +110,11 @@ describe("claude-code ultrawork package metadata", () => {
 		// given
 		const skill = readTextFile("skills/ulw-plan/SKILL.md");
 		const workflow = readTextFile("skills/ulw-plan/references/full-workflow.md");
-		const skillContracts = ["CodeGraph first", "scripts/scaffold-plan.mjs", "Approval gate"] as const;
+		const skillContracts = [
+			"CodeGraph first",
+			"scripts/scaffold-plan.mjs",
+			"Approval gate",
+		] as const;
 		const workflowContracts = [
 			"dynamic adversarial workflow phases",
 			"stale_state",

@@ -13,7 +13,11 @@ export type ProcessResult = {
 
 export const MAX_PROCESS_OUTPUT_BYTES = 64 * 1024;
 
-export type ProcessExecutor = (command: string, args: string[], stdin: string) => Promise<ProcessResult>;
+export type ProcessExecutor = (
+	command: string,
+	args: string[],
+	stdin: string,
+) => Promise<ProcessResult>;
 
 export type RunCommentCheckerOptions = {
 	binaryPath?: string;
@@ -31,18 +35,22 @@ export type CommentCheckerRunResult = {
 	stderr?: string;
 };
 
-export type CommentCheckerRunner = (input: CommentCheckerHookInput) => Promise<CommentCheckerRunResult>;
+export type CommentCheckerRunner = (
+	input: CommentCheckerHookInput,
+) => Promise<CommentCheckerRunResult>;
 
 export async function runCommentChecker(
 	input: CommentCheckerHookInput,
 	options: RunCommentCheckerOptions = {},
 ): Promise<CommentCheckerRunResult> {
 	const binaryPath =
-		options.binaryPath ?? (options.resolveBinary ? options.resolveBinary() : resolveCommentCheckerBinary());
+		options.binaryPath ??
+		(options.resolveBinary ? options.resolveBinary() : resolveCommentCheckerBinary());
 	if (!binaryPath) {
 		return {
 			status: "missing",
-			message: "comment-checker binary not found. Run npm install for the claude-code-comment-checker plugin.",
+			message:
+				"comment-checker binary not found. Run npm install for the claude-code-comment-checker plugin.",
 		};
 	}
 
@@ -121,7 +129,7 @@ function commentCheckerPackageName(): string {
 }
 
 function isCommentCheckerPackage(value: unknown): value is { getBinaryPath: () => string } {
-	return isRecord(value) && typeof value["getBinaryPath"] === "function";
+	return isRecord(value) && typeof value.getBinaryPath === "function";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -152,7 +160,11 @@ function appendOutput(output: OutputAccumulator, chunk: string, maxOutputBytes: 
 	output.truncated = true;
 }
 
-function formatOutput(output: OutputAccumulator, streamName: "stdout" | "stderr", maxOutputBytes: number): string {
+function formatOutput(
+	output: OutputAccumulator,
+	streamName: "stdout" | "stderr",
+	maxOutputBytes: number,
+): string {
 	if (!output.truncated) return output.text;
 	return `${output.text}\n[${streamName} truncated after ${maxOutputBytes} bytes]`;
 }
@@ -164,7 +176,8 @@ export function spawnProcess(
 	maxOutputBytes: number = MAX_PROCESS_OUTPUT_BYTES,
 ): Promise<ProcessResult> {
 	return new Promise((resolve) => {
-		const outputByteLimit = Number.isFinite(maxOutputBytes) && maxOutputBytes > 0 ? Math.floor(maxOutputBytes) : 0;
+		const outputByteLimit =
+			Number.isFinite(maxOutputBytes) && maxOutputBytes > 0 ? Math.floor(maxOutputBytes) : 0;
 		const proc = spawn(command, args, {
 			stdio: ["pipe", "pipe", "pipe"],
 		});

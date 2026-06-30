@@ -117,7 +117,7 @@ function parseBoulderState(value: unknown): BoulderState | null {
 	if (!isRecord(value)) return null;
 
 	const works: BoulderWork[] = [];
-	const worksValue = value["works"];
+	const worksValue = value.works;
 	const hasWorksMap = isRecord(worksValue);
 	if (hasWorksMap) {
 		for (const workValue of Object.values(worksValue)) {
@@ -134,15 +134,15 @@ function parseBoulderState(value: unknown): BoulderState | null {
 function parseBoulderWork(value: unknown): BoulderWork | null {
 	if (!isRecord(value)) return null;
 
-	const activePlan = value["active_plan"];
-	const planName = value["plan_name"];
+	const activePlan = value.active_plan;
+	const planName = value.plan_name;
 	if (typeof activePlan !== "string") return null;
 
-	const status = parseBoulderWorkStatus(value["status"]);
-	const sessionIds = parseSessionIds(value["session_ids"]);
-	const worktreePath = value["worktree_path"];
-	const startedAt = value["started_at"];
-	const updatedAt = value["updated_at"];
+	const status = parseBoulderWorkStatus(value.status);
+	const sessionIds = parseSessionIds(value.session_ids);
+	const worktreePath = value.worktree_path;
+	const startedAt = value.started_at;
+	const updatedAt = value.updated_at;
 
 	return {
 		activePlan,
@@ -181,7 +181,11 @@ function resolveBoulderPlanPathForWork(cwd: string, work: BoulderWork): string {
 	if (worktreePath === undefined || worktreePath.length === 0) return absolutePlanPath;
 
 	const relativePlanPath = relative(resolve(cwd), absolutePlanPath);
-	if (relativePlanPath.length === 0 || relativePlanPath.startsWith("..") || isAbsolute(relativePlanPath)) {
+	if (
+		relativePlanPath.length === 0 ||
+		relativePlanPath.startsWith("..") ||
+		isAbsolute(relativePlanPath)
+	) {
 		return absolutePlanPath;
 	}
 
@@ -193,8 +197,11 @@ function resolveTrackedPath(baseDirectory: string, trackedPath: string): string 
 	return isAbsolute(trackedPath) ? resolve(trackedPath) : resolve(baseDirectory, trackedPath);
 }
 
-function parseTopLevelCheckbox(line: string): { readonly checked: boolean; readonly label: string } | null {
-	if (line.startsWith("- [ ] ")) return { checked: false, label: line.slice(CHECKBOX_PREFIX_LENGTH) };
+function parseTopLevelCheckbox(
+	line: string,
+): { readonly checked: boolean; readonly label: string } | null {
+	if (line.startsWith("- [ ] "))
+		return { checked: false, label: line.slice(CHECKBOX_PREFIX_LENGTH) };
 	if (line.startsWith("- [x] ") || line.startsWith("- [X] ")) {
 		return { checked: true, label: line.slice(CHECKBOX_PREFIX_LENGTH) };
 	}
@@ -211,7 +218,8 @@ function isCountedHeading(heading: string | null): boolean {
 }
 
 function parseBoulderWorkStatus(value: unknown): BoulderWorkStatus | undefined {
-	if (value === "active" || value === "paused" || value === "completed" || value === "abandoned") return value;
+	if (value === "active" || value === "paused" || value === "completed" || value === "abandoned")
+		return value;
 	return undefined;
 }
 
@@ -224,7 +232,10 @@ function parseSessionIds(value: unknown): readonly string[] {
 	return sessionIds;
 }
 
-function normalizeSessionId(sessionId: string, platform: "claude-code" | "opencode" = "opencode"): string {
+function normalizeSessionId(
+	sessionId: string,
+	platform: "claude-code" | "opencode" = "opencode",
+): string {
 	if (SESSION_ID_PREFIX_PATTERN.test(sessionId)) return sessionId;
 	return `${platform}:${sessionId}`;
 }

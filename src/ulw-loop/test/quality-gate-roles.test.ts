@@ -92,7 +92,10 @@ describe("validateQualityGate reviewer roles", () => {
 				field: "codeReview.by",
 				input: gateWith({ codeReview: { ...BASE_GATE.codeReview, by: "senior-reviewer" } }),
 			},
-			{ field: "manualQa.by", input: gateWith({ manualQa: { ...BASE_GATE.manualQa, by: "qa-person" } }) },
+			{
+				field: "manualQa.by",
+				input: gateWith({ manualQa: { ...BASE_GATE.manualQa, by: "qa-person" } }),
+			},
 			{
 				field: "gateReview.by",
 				input: gateWith({ gateReview: { ...BASE_GATE.gateReview, by: "release-manager" } }),
@@ -110,15 +113,21 @@ describe("validateQualityGate reviewer roles", () => {
 		const cases = [
 			{
 				field: "codeReview.by",
-				input: gateWith({ codeReview: { ...BASE_GATE.codeReview, by: "lazy-claudecode-qa-executor" } }),
+				input: gateWith({
+					codeReview: { ...BASE_GATE.codeReview, by: "lazy-claudecode-qa-executor" },
+				}),
 			},
 			{
 				field: "manualQa.by",
-				input: gateWith({ manualQa: { ...BASE_GATE.manualQa, by: "lazy-claudecode-gate-reviewer" } }),
+				input: gateWith({
+					manualQa: { ...BASE_GATE.manualQa, by: "lazy-claudecode-gate-reviewer" },
+				}),
 			},
 			{
 				field: "gateReview.by",
-				input: gateWith({ gateReview: { ...BASE_GATE.gateReview, by: "lazy-claudecode-code-reviewer" } }),
+				input: gateWith({
+					gateReview: { ...BASE_GATE.gateReview, by: "lazy-claudecode-code-reviewer" },
+				}),
 			},
 		] as const;
 

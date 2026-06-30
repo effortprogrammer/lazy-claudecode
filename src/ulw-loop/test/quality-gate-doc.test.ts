@@ -7,7 +7,10 @@ import { describe, expect, it } from "vitest";
 
 import { validateQualityGate } from "../src/quality-gate.ts";
 
-const FULL_WORKFLOW_URL = new URL("../skills/ulw-loop/references/full-workflow.md", import.meta.url);
+const FULL_WORKFLOW_URL = new URL(
+	"../skills/ulw-loop/references/full-workflow.md",
+	import.meta.url,
+);
 const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../../../..");
 const FS_OPTS = { repoRoot: REPO_ROOT, fs: { existsSync, statSync } } as const;
 
@@ -18,7 +21,8 @@ function extractQualityGateSample(workflow: string): unknown {
 	if (sampleStart === -1) throw new Error("Expected JSON fence for documented quality gate sample");
 	const jsonStart = sampleStart + "```json".length;
 	const sampleEnd = workflow.indexOf("```", jsonStart);
-	if (sampleEnd === -1) throw new Error("Expected closing fence for documented quality gate sample");
+	if (sampleEnd === -1)
+		throw new Error("Expected closing fence for documented quality gate sample");
 	return JSON.parse(workflow.slice(jsonStart, sampleEnd));
 }
 

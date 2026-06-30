@@ -8,7 +8,12 @@ export type AttemptState = {
 	readonly attempts: number;
 };
 
-export function readAttemptState(cwd: string, sessionId: string, agentId: string, fs: HookFileSystem): AttemptState {
+export function readAttemptState(
+	cwd: string,
+	sessionId: string,
+	agentId: string,
+	fs: HookFileSystem,
+): AttemptState {
 	const statePath = getStatePath(cwd, sessionId, agentId);
 	if (!fs.existsSync(statePath)) return { attempts: 0 };
 	try {
@@ -36,7 +41,12 @@ export function writeAttemptState(
 	fs.renameSync(tempPath, statePath);
 }
 
-export function clearAttemptState(cwd: string, sessionId: string, agentId: string, fs: HookFileSystem): void {
+export function clearAttemptState(
+	cwd: string,
+	sessionId: string,
+	agentId: string,
+	fs: HookFileSystem,
+): void {
 	fs.rmSync(getStatePath(cwd, sessionId, agentId), { force: true });
 }
 
@@ -54,7 +64,7 @@ function sanitizeKey(value: string): string {
 }
 
 function isAttemptState(value: unknown): value is AttemptState {
-	return isRecord(value) && typeof value["attempts"] === "number" && Number.isInteger(value["attempts"]);
+	return isRecord(value) && typeof value.attempts === "number" && Number.isInteger(value.attempts);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

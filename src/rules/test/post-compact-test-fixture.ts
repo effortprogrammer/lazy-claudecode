@@ -2,7 +2,11 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 
-import type { ClaudePostCompactInput, ClaudeSessionStartInput, ClaudeUserPromptSubmitInput } from "../src/claude-code-hook.ts";
+import type {
+	ClaudePostCompactInput,
+	ClaudeSessionStartInput,
+	ClaudeUserPromptSubmitInput,
+} from "../src/claude-code-hook.ts";
 
 export const PROJECT_RULES_ENV = {
 	LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "CONTEXT.md,.claude/rules",
@@ -26,12 +30,19 @@ export function cleanupPostCompactFixtures(): void {
 }
 
 export function makeOversizedProject(prefix = "budget"): { root: string; pluginData: string } {
-	const root = mkdtempSync(path.join(tmpdir(), `claude-code-rules-post-compact-${prefix}-project-`));
-	const pluginData = mkdtempSync(path.join(tmpdir(), `claude-code-rules-post-compact-${prefix}-data-`));
+	const root = mkdtempSync(
+		path.join(tmpdir(), `claude-code-rules-post-compact-${prefix}-project-`),
+	);
+	const pluginData = mkdtempSync(
+		path.join(tmpdir(), `claude-code-rules-post-compact-${prefix}-data-`),
+	);
 	tempDirectories.push(root, pluginData);
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 	writeFileSync(path.join(root, "AGENTS.md"), "Project AGENTS.md should stay Claude Code-native.");
-	writeFileSync(path.join(root, "CLAUDE.md"), "Project CLAUDE.md should stay outside rules hook context.");
+	writeFileSync(
+		path.join(root, "CLAUDE.md"),
+		"Project CLAUDE.md should stay outside rules hook context.",
+	);
 	writeFileSync(path.join(root, "CONTEXT.md"), `Project rule\n${"A".repeat(30_000)}`);
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
@@ -41,7 +52,10 @@ export function makeOversizedProject(prefix = "budget"): { root: string; pluginD
 	return { root, pluginData };
 }
 
-export function sessionStartInput(root: string, sessionId = DEFAULT_SESSION_ID): ClaudeSessionStartInput {
+export function sessionStartInput(
+	root: string,
+	sessionId = DEFAULT_SESSION_ID,
+): ClaudeSessionStartInput {
 	return {
 		session_id: sessionId,
 		transcript_path: null,
@@ -69,7 +83,10 @@ export function compactSessionStartInput(
 	};
 }
 
-export function postCompactInput(root: string, sessionId = DEFAULT_SESSION_ID): ClaudePostCompactInput {
+export function postCompactInput(
+	root: string,
+	sessionId = DEFAULT_SESSION_ID,
+): ClaudePostCompactInput {
 	return {
 		session_id: sessionId,
 		turn_id: "turn-compact",
@@ -121,7 +138,8 @@ export function writeCompactedWarningTranscript(root: string, retainedText: stri
 			JSON.stringify({
 				type: "message",
 				payload: {
-					content: "Skill descriptions were shortened to fit the 2% skills context budget. Context compacted.",
+					content:
+						"Skill descriptions were shortened to fit the 2% skills context budget. Context compacted.",
 				},
 			}),
 			JSON.stringify({
@@ -134,7 +152,8 @@ export function writeCompactedWarningTranscript(root: string, retainedText: stri
 			JSON.stringify({
 				type: "message",
 				payload: {
-					content: "Your input exceeds the context window of this model. Please adjust your input and try again.",
+					content:
+						"Your input exceeds the context window of this model. Please adjust your input and try again.",
 				},
 			}),
 			"",
@@ -153,7 +172,8 @@ export function writeMalformedContextTooLargeTranscript(root: string, retainedTe
 			JSON.stringify({
 				type: "message",
 				payload: {
-					content: "Skill descriptions were shortened to fit the 2% skills context budget. Context compacted.",
+					content:
+						"Skill descriptions were shortened to fit the 2% skills context budget. Context compacted.",
 				},
 			}),
 			JSON.stringify({
@@ -187,9 +207,9 @@ export function readAdditionalContext(output: string): string {
 	}
 	const parsed: unknown = JSON.parse(output);
 	if (!isRecord(parsed)) return "";
-	const hookSpecificOutput = parsed["hookSpecificOutput"];
+	const hookSpecificOutput = parsed.hookSpecificOutput;
 	if (!isRecord(hookSpecificOutput)) return "";
-	const additionalContext = hookSpecificOutput["additionalContext"];
+	const additionalContext = hookSpecificOutput.additionalContext;
 	return typeof additionalContext === "string" ? additionalContext : "";
 }
 

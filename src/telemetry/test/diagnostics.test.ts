@@ -10,7 +10,7 @@ import {
 } from "../diagnostics.ts";
 import { CACHE_DIR_NAME } from "../product-identity.ts";
 
-const originalXdgDataHome = process.env["XDG_DATA_HOME"];
+const originalXdgDataHome = process.env.XDG_DATA_HOME;
 const tempDirectories: string[] = [];
 
 function createDataHomePath(): string {
@@ -39,9 +39,9 @@ function readDiagnosticEntries(filePath: string): ReadonlyArray<Record<string, u
 
 afterEach(() => {
 	if (originalXdgDataHome === undefined) {
-		delete process.env["XDG_DATA_HOME"];
+		process.env.XDG_DATA_HOME = undefined;
 	} else {
-		process.env["XDG_DATA_HOME"] = originalXdgDataHome;
+		process.env.XDG_DATA_HOME = originalXdgDataHome;
 	}
 
 	for (const directory of tempDirectories.splice(0)) {
@@ -52,7 +52,7 @@ afterEach(() => {
 describe("telemetry diagnostics", () => {
 	it("#given a telemetry failure #when diagnostics are written #then JSONL is stored under the lazy-claudecode data directory", () => {
 		const dataHomePath = createDataHomePath();
-		process.env["XDG_DATA_HOME"] = dataHomePath;
+		process.env.XDG_DATA_HOME = dataHomePath;
 
 		writeTelemetryDiagnostic(
 			{
@@ -64,7 +64,9 @@ describe("telemetry diagnostics", () => {
 		);
 
 		const diagnosticsFilePath = getTelemetryDiagnosticsFilePath();
-		expect(diagnosticsFilePath).toBe(path.join(dataHomePath, CACHE_DIR_NAME, "telemetry-diagnostics.jsonl"));
+		expect(diagnosticsFilePath).toBe(
+			path.join(dataHomePath, CACHE_DIR_NAME, "telemetry-diagnostics.jsonl"),
+		);
 
 		const entries = readDiagnosticEntries(diagnosticsFilePath);
 		expect(entries).toHaveLength(1);
@@ -79,7 +81,7 @@ describe("telemetry diagnostics", () => {
 
 	it("#given stale diagnostics #when cleanup runs #then stale rows are pruned and future writes still append", () => {
 		const dataHomePath = createDataHomePath();
-		process.env["XDG_DATA_HOME"] = dataHomePath;
+		process.env.XDG_DATA_HOME = dataHomePath;
 		const diagnosticsDir = path.join(dataHomePath, CACHE_DIR_NAME);
 		const diagnosticsFilePath = path.join(diagnosticsDir, "telemetry-diagnostics.jsonl");
 		mkdirSync(diagnosticsDir, { recursive: true });
@@ -111,7 +113,7 @@ describe("telemetry diagnostics", () => {
 
 		expect(existsSync(diagnosticsFilePath)).toBe(true);
 		const entries = readDiagnosticEntries(diagnosticsFilePath);
-		expect(entries.map((entry) => entry["timestamp"])).toEqual([
+		expect(entries.map((entry) => entry.timestamp)).toEqual([
 			"2026-06-03T00:00:00.000Z",
 			"2026-06-04T00:01:00.000Z",
 		]);

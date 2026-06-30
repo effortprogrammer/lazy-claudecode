@@ -1,18 +1,18 @@
 import { afterEach, describe, expect, it } from "bun:test";
 import { createHash } from "node:crypto";
 import { mkdtempSync, rmSync } from "node:fs";
-import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join } from "node:path";
 
 import {
 	ChecksumMismatchError,
 	DownloadError,
+	type FetchLike,
+	UnsupportedPlatformError,
 	downloadChecksummedAsset,
 	downloadFromManifest,
 	loadAssetManifest,
-	UnsupportedPlatformError,
-	type FetchLike,
 } from "../src/download.ts";
 
 const temporaryDirectories: string[] = [];
@@ -33,7 +33,10 @@ function sha256Hex(bytes: Uint8Array): string {
 	return createHash("sha256").update(bytes).digest("hex");
 }
 
-function fetchReturning(bytes: Uint8Array, status = 200): { fetchImpl: FetchLike; calls: string[] } {
+function fetchReturning(
+	bytes: Uint8Array,
+	status = 200,
+): { fetchImpl: FetchLike; calls: string[] } {
 	const calls: string[] = [];
 	const fetchImpl: FetchLike = async (url) => {
 		calls.push(url);
@@ -232,7 +235,10 @@ describe("downloadFromManifest", () => {
 		const directory = createTemporaryDirectory("lazy-claudecode-bootstrap-manifest-");
 		const manifestsDir = join(directory, "manifests");
 		await writeManifestFixture(manifestsDir, {
-			"darwin-arm64": { sha256: sha256Hex(new Uint8Array()), url: "https://example.invalid/tool.zip" },
+			"darwin-arm64": {
+				sha256: sha256Hex(new Uint8Array()),
+				url: "https://example.invalid/tool.zip",
+			},
 		});
 		const { calls, fetchImpl } = fetchReturning(new Uint8Array());
 

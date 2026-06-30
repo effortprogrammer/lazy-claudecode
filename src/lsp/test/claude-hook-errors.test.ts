@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { runLspPostToolUseHook } from "../src/claude-hook.ts";
+import { runLspPostToolUseHook } from "../claude-hook.ts";
 
 describe("codex PostToolUse diagnostics errors", () => {
 	it("#given diagnostics runner throws for a mutated file #when the hook evaluates diagnostics #then it returns blocked output with the thrown message", async () => {
@@ -40,13 +40,13 @@ interface PostToolUseHookOutput {
 
 function isPostToolUseHookOutput(value: unknown): value is PostToolUseHookOutput {
 	if (!isRecord(value)) return false;
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	return (
-		value["decision"] === "block" &&
-		typeof value["reason"] === "string" &&
+		value.decision === "block" &&
+		typeof value.reason === "string" &&
 		isRecord(hookSpecificOutput) &&
-		hookSpecificOutput["hookEventName"] === "PostToolUse" &&
-		typeof hookSpecificOutput["additionalContext"] === "string"
+		hookSpecificOutput.hookEventName === "PostToolUse" &&
+		typeof hookSpecificOutput.additionalContext === "string"
 	);
 }
 

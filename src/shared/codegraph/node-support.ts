@@ -15,7 +15,11 @@ export function evaluateCodegraphNodeSupport(nodeVersion?: string): CodegraphNod
 	const version = nodeVersion ?? process.versions.node;
 	const major = Number.parseInt(version.split(".")[0] ?? "0", 10);
 	if (major < 18) {
-		return { supported: false, nodeVersion: version, reason: `Node.js ${version} is below the minimum (18.x)` };
+		return {
+			supported: false,
+			nodeVersion: version,
+			reason: `Node.js ${version} is below the minimum (18.x)`,
+		};
 	}
 	return { supported: true, nodeVersion: version };
 }

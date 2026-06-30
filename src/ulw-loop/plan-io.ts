@@ -2,15 +2,15 @@ import { appendFile, mkdir, readFile, rename, writeFile } from "node:fs/promises
 
 import { aggregateClaudeCodeObjectiveForScope } from "./goal-status.ts";
 import {
-	repoRelative,
 	type UlwLoopScope,
+	repoRelative,
 	ulwLoopDir,
 	ulwLoopGoalsPath,
 	ulwLoopLedgerPath,
 	ulwLoopRelativeDir,
 } from "./paths.ts";
 import type { UlwLoopLedgerEntry, UlwLoopPlan } from "./types.ts";
-import { iso, ULW_LOOP_DIR, ULW_LOOP_GOALS, ULW_LOOP_LEDGER, UlwLoopError } from "./types.ts";
+import { ULW_LOOP_DIR, ULW_LOOP_GOALS, ULW_LOOP_LEDGER, UlwLoopError, iso } from "./types.ts";
 
 const LEGACY_OBJECTIVE_PREFIX = `Complete all ulw-loop stories in ${ULW_LOOP_DIR}/${ULW_LOOP_GOALS}: `;
 const LEGACY_OBJECTIVE = `Complete all ulw-loop stories listed in ${ULW_LOOP_DIR}/${ULW_LOOP_GOALS}. Use ${ULW_LOOP_DIR}/${ULW_LOOP_LEDGER} as the durable audit trail.`;
@@ -25,10 +25,15 @@ function isLegacyEnumeratedAggregateObjective(objective: string | undefined): ob
 }
 
 function isSteeringKind(value: unknown): value is UlwLoopLedgerEntry["kind"] {
-	return value === "steering_accepted" || value === "steering_rejected" || value === "criteria_revised";
+	return (
+		value === "steering_accepted" || value === "steering_rejected" || value === "criteria_revised"
+	);
 }
 
-export async function withUlwLoopMutationLock<T>(repoRoot: string, fn: () => Promise<T>): Promise<T>;
+export async function withUlwLoopMutationLock<T>(
+	repoRoot: string,
+	fn: () => Promise<T>,
+): Promise<T>;
 export async function withUlwLoopMutationLock<T>(
 	repoRoot: string,
 	scope: UlwLoopScope | undefined,
@@ -41,7 +46,8 @@ export async function withUlwLoopMutationLock<T>(
 ): Promise<T> {
 	const scope = typeof scopeOrFn === "function" ? undefined : scopeOrFn;
 	const fn = typeof scopeOrFn === "function" ? scopeOrFn : maybeFn;
-	if (fn === undefined) throw new UlwLoopError("Missing ulw-loop mutation body.", "ULW_LOOP_LOCK_BODY_MISSING");
+	if (fn === undefined)
+		throw new UlwLoopError("Missing ulw-loop mutation body.", "ULW_LOOP_LOCK_BODY_MISSING");
 	const lockKey = `${repoRoot}\0${ulwLoopRelativeDir(scope)}`;
 	const prior = locks.get(lockKey) ?? Promise.resolve();
 	const run = prior.then(fn, fn);
@@ -52,7 +58,10 @@ export async function withUlwLoopMutationLock<T>(
 	return run;
 }
 
-export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): Promise<UlwLoopPlan> {
+export async function readUlwLoopPlan(
+	repoRoot: string,
+	scope?: UlwLoopScope,
+): Promise<UlwLoopPlan> {
 	const path = ulwLoopGoalsPath(repoRoot, scope);
 	let raw: string;
 	try {
@@ -67,7 +76,10 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 	}
 	const parsed: UlwLoopPlan = JSON.parse(raw);
 	if (parsed.version !== 1 || !Array.isArray(parsed.goals)) {
-		throw new UlwLoopError(`Invalid ulw-loop plan at ${repoRelative(path, repoRoot)}.`, "ULW_LOOP_PLAN_INVALID");
+		throw new UlwLoopError(
+			`Invalid ulw-loop plan at ${repoRelative(path, repoRoot)}.`,
+			"ULW_LOOP_PLAN_INVALID",
+		);
 	}
 	const previousObjective = parsed.claudeCodeObjective;
 	if (
@@ -76,7 +88,9 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 	) {
 		const now = iso();
 		parsed.claudeCodeObjective = aggregateClaudeCodeObjectiveForScope(scope);
-		parsed.claudeCodeObjectiveAliases = [...new Set([...(parsed.claudeCodeObjectiveAliases ?? []), previousObjective])];
+		parsed.claudeCodeObjectiveAliases = [
+			...new Set([...(parsed.claudeCodeObjectiveAliases ?? []), previousObjective]),
+		];
 		parsed.updatedAt = now;
 		await writePlan(repoRoot, parsed, scope);
 		await appendLedger(
@@ -84,7 +98,8 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 			{
 				at: now,
 				kind: "aggregate_objective_migrated",
-				message: "Migrated legacy enumerated aggregate Claude Code objective to the stable pointer objective.",
+				message:
+					"Migrated legacy enumerated aggregate Claude Code objective to the stable pointer objective.",
 				before: { claudeCodeObjective: previousObjective },
 				after: { claudeCodeObjective: parsed.claudeCodeObjective },
 			},
@@ -94,7 +109,11 @@ export async function readUlwLoopPlan(repoRoot: string, scope?: UlwLoopScope): P
 	return parsed;
 }
 
-export async function writePlan(repoRoot: string, plan: UlwLoopPlan, scope?: UlwLoopScope): Promise<void> {
+export async function writePlan(
+	repoRoot: string,
+	plan: UlwLoopPlan,
+	scope?: UlwLoopScope,
+): Promise<void> {
 	await mkdir(ulwLoopDir(repoRoot, scope), { recursive: true });
 	const path = ulwLoopGoalsPath(repoRoot, scope);
 	const tmpPath = `${path}.${process.pid}.${Date.now()}.tmp`;
@@ -102,12 +121,19 @@ export async function writePlan(repoRoot: string, plan: UlwLoopPlan, scope?: Ulw
 	await rename(tmpPath, path);
 }
 
-export async function appendLedger(repoRoot: string, entry: UlwLoopLedgerEntry, scope?: UlwLoopScope): Promise<void> {
+export async function appendLedger(
+	repoRoot: string,
+	entry: UlwLoopLedgerEntry,
+	scope?: UlwLoopScope,
+): Promise<void> {
 	await mkdir(ulwLoopDir(repoRoot, scope), { recursive: true });
 	await appendFile(ulwLoopLedgerPath(repoRoot, scope), `${JSON.stringify(entry)}\n`, "utf8");
 }
 
-export async function readSteeringLedgerEntries(repoRoot: string, scope?: UlwLoopScope): Promise<UlwLoopLedgerEntry[]> {
+export async function readSteeringLedgerEntries(
+	repoRoot: string,
+	scope?: UlwLoopScope,
+): Promise<UlwLoopLedgerEntry[]> {
 	let raw: string;
 	try {
 		raw = await readFile(ulwLoopLedgerPath(repoRoot, scope), "utf8");

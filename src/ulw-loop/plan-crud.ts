@@ -14,8 +14,13 @@ import {
 } from "./paths.ts";
 import { appendGoalToPlan, deriveGoalCandidates, makeGoal } from "./plan-goal-factory.ts";
 import { appendLedger, readUlwLoopPlan, withUlwLoopMutationLock, writePlan } from "./plan-io.ts";
-import type { UlwLoopClaudeCodeGoalMode, UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "./types.ts";
-import { iso, UlwLoopError } from "./types.ts";
+import type {
+	UlwLoopClaudeCodeGoalMode,
+	UlwLoopItem,
+	UlwLoopPlan,
+	UlwLoopSuccessCriterion,
+} from "./types.ts";
+import { UlwLoopError, iso } from "./types.ts";
 
 export { deriveGoalCandidates, seedDefaultSuccessCriteria } from "./plan-goal-factory.ts";
 
@@ -83,7 +88,8 @@ export async function createUlwLoopPlan(
 			claudeCodeGoalMode: args.claudeCodeGoalMode ?? "aggregate",
 			goals,
 		};
-		if (plan.claudeCodeGoalMode === "aggregate") plan.claudeCodeObjective = aggregateClaudeCodeObjectiveForScope(scope);
+		if (plan.claudeCodeGoalMode === "aggregate")
+			plan.claudeCodeObjective = aggregateClaudeCodeObjectiveForScope(scope);
 		await mkdir(ulwLoopDir(repoRoot, scope), { recursive: true });
 		await writeFile(
 			ulwLoopBriefPath(repoRoot, scope),
@@ -135,16 +141,22 @@ export async function startNextUlwLoop(
 	repoRoot: string,
 	args: { retryFailed?: boolean } = {},
 	scope?: UlwLoopScope,
-): Promise<{ plan: UlwLoopPlan; goal: UlwLoopItem; resumed: boolean } | { done: true; plan: UlwLoopPlan }> {
+): Promise<
+	{ plan: UlwLoopPlan; goal: UlwLoopItem; resumed: boolean } | { done: true; plan: UlwLoopPlan }
+> {
 	return withUlwLoopMutationLock(repoRoot, scope, async () => {
 		const plan = await readUlwLoopPlan(repoRoot, scope);
 		const now = iso();
 		if (plan.aggregateCompletion?.status === "complete") return { done: true, plan };
-		const existing = plan.goals.find((goal) => goal.status === "in_progress" && isScheduleEligible(goal));
+		const existing = plan.goals.find(
+			(goal) => goal.status === "in_progress" && isScheduleEligible(goal),
+		);
 		if (existing) return { plan, goal: existing, resumed: true };
 		let next = plan.goals.find((goal) => goal.status === "pending" && isScheduleEligible(goal));
 		if (!next && args.retryFailed) {
-			next = plan.goals.find((goal) => goal.status === "failed" && !goal.nonRetriable && isScheduleEligible(goal));
+			next = plan.goals.find(
+				(goal) => goal.status === "failed" && !goal.nonRetriable && isScheduleEligible(goal),
+			);
 			if (next)
 				await appendLedger(
 					repoRoot,
@@ -169,7 +181,13 @@ export async function startNextUlwLoop(
 		await writePlan(repoRoot, plan, scope);
 		await appendLedger(
 			repoRoot,
-			{ at: now, kind: "goal_started", goalId: next.id, status: next.status, message: `Attempt ${next.attempt}` },
+			{
+				at: now,
+				kind: "goal_started",
+				goalId: next.id,
+				status: next.status,
+				message: `Attempt ${next.attempt}`,
+			},
 			scope,
 		);
 		return { plan, goal: next, resumed: false };
@@ -181,7 +199,8 @@ export function summarizeUlwLoopPlan(plan: UlwLoopPlan): UlwLoopPlanSummary {
 		plan.goals.filter((goal) => goal.status === status).length;
 	const countCriteria = (status: UlwLoopSuccessCriterion["status"]): number =>
 		plan.goals.reduce(
-			(sum, goal) => sum + goal.successCriteria.filter((criterion) => criterion.status === status).length,
+			(sum, goal) =>
+				sum + goal.successCriteria.filter((criterion) => criterion.status === status).length,
 			0,
 		);
 	return {

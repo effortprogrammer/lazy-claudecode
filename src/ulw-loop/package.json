@@ -25,15 +25,7 @@
 	"bin": {
 		"lazy-claudecode-ulw-loop": "./dist/cli.js"
 	},
-	"files": [
-		"dist",
-		"hooks",
-		"skills",
-		"LICENSE",
-		"NOTICE",
-		"README.md",
-		"CHANGELOG.md"
-	],
+	"files": ["dist", "hooks", "skills", "LICENSE", "NOTICE", "README.md", "CHANGELOG.md"],
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"test": "vitest --run",

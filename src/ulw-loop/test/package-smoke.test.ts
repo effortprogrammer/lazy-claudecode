@@ -53,21 +53,21 @@ async function runShell(script: string, env: NodeJS.ProcessEnv): Promise<ShellRe
 
 describe("package.json", () => {
 	it("declares ESM + npm + Node >=20", async () => {
-		const pkg = await readJson("package.json") as Record<string, unknown>;
-		expect(pkg["type"]).toBe("module");
-		expect(pkg["packageManager"]).toBe("npm@11.12.1");
-		expect((pkg["engines"] as Record<string, unknown>)["node"]).toBe(">=20.0.0");
+		const pkg = (await readJson("package.json")) as Record<string, unknown>;
+		expect(pkg.type).toBe("module");
+		expect(pkg.packageManager).toBe("npm@11.12.1");
+		expect((pkg.engines as Record<string, unknown>).node).toBe(">=20.0.0");
 	});
 
 	it("#given package metadata #when bin is inspected #then exposes the lazy-claudecode-ulw-loop binary pointing at dist/cli.js", async () => {
-		const pkg = await readJson("package.json") as Record<string, unknown>;
-		const bin = pkg["bin"] as Record<string, string>;
+		const pkg = (await readJson("package.json")) as Record<string, unknown>;
+		const bin = pkg.bin as Record<string, string>;
 		expect(bin["lazy-claudecode-ulw-loop"]).toBe("./dist/cli.js");
 	});
 
 	it("ships the expected files for npm publish", async () => {
-		const pkg = await readJson("package.json") as Record<string, unknown>;
-		const files = pkg["files"] as readonly string[];
+		const pkg = (await readJson("package.json")) as Record<string, unknown>;
+		const files = pkg.files as readonly string[];
 		expect(files).toContain("dist");
 		expect(files).toContain("hooks");
 		expect(files).toContain("skills");
@@ -77,16 +77,21 @@ describe("package.json", () => {
 
 describe("component plugin identity", () => {
 	it("is owned by the aggregate LAZY_CLAUDECODE plugin root", async () => {
-		await expect(readText(".claude-code-plugin/plugin.json")).rejects.toMatchObject({ code: "ENOENT" });
+		await expect(readText(".claude-code-plugin/plugin.json")).rejects.toMatchObject({
+			code: "ENOENT",
+		});
 	});
 });
 
 describe("hooks/hooks.json", () => {
 	it("registers UserPromptSubmit with PLUGIN_ROOT interpolation", async () => {
-		const hooks = await readJson("hooks/hooks.json") as Record<string, unknown>;
-		const events = (hooks["hooks"] as Record<string, unknown>)["UserPromptSubmit"] as readonly Record<string, unknown>[];
+		const hooks = (await readJson("hooks/hooks.json")) as Record<string, unknown>;
+		const events = (hooks.hooks as Record<string, unknown>).UserPromptSubmit as readonly Record<
+			string,
+			unknown
+		>[];
 		expect(events.length).toBeGreaterThan(0);
-		const command = ((events[0]?.["hooks"] as readonly Record<string, unknown>[])[0]?.["command"]) as string;
+		const command = (events[0]?.hooks as readonly Record<string, unknown>[])[0]?.command as string;
 		expect(command).toContain(`$${"{PLUGIN_ROOT}"}`);
 		expect(command).toContain("dist/cli.js");
 		expect(command).toContain("hook user-prompt-submit");
@@ -125,7 +130,9 @@ describe("skills/ulw-loop/SKILL.md", () => {
 
 		expect(text).toContain('display_name: "(LazyClaude) ulw-loop"');
 		expect(text).not.toContain("ulw-loop / ulw-loop");
-		expect(text).toContain('short_description: "Goal-like ultrawork loop for systematic decomposition"');
+		expect(text).toContain(
+			'short_description: "Goal-like ultrawork loop for systematic decomposition"',
+		);
 		expect(text).toContain("Use $ulw-loop");
 	});
 
@@ -144,10 +151,24 @@ describe("skills/ulw-loop/SKILL.md", () => {
 			const badBin = join(root, "bad-bin");
 			const home = join(root, "home");
 			const claudeHome = join(home, ".claude-code");
-			const cachedCli = join(claudeHome, "plugins", "cache", "effortprogrammer", "lazy-claudecode", "0.1.0", "components", "ulw-loop", "dist", "cli.js");
+			const cachedCli = join(
+				claudeHome,
+				"plugins",
+				"cache",
+				"effortprogrammer",
+				"lazy-claudecode",
+				"0.1.0",
+				"components",
+				"ulw-loop",
+				"dist",
+				"cli.js",
+			);
 			await mkdir(badBin, { recursive: true });
 			await mkdir(dirname(cachedCli), { recursive: true });
-			await writeFile(join(badBin, "lazy-claudecode"), "#!/bin/sh\nprintf '%s\\n' \"error: unknown command 'ulw-loop'\" >&2\nexit 1\n");
+			await writeFile(
+				join(badBin, "lazy-claudecode"),
+				"#!/bin/sh\nprintf '%s\\n' \"error: unknown command 'ulw-loop'\" >&2\nexit 1\n",
+			);
 			await chmod(join(badBin, "lazy-claudecode"), 0o755);
 			await writeFile(
 				cachedCli,
@@ -169,7 +190,7 @@ describe("skills/ulw-loop/SKILL.md", () => {
 				...process.env,
 				LAZY_CLAUDECODE_HOME: claudeHome,
 				HOME: home,
-				PATH: `${badBin}:${process.env["PATH"] ?? ""}`,
+				PATH: `${badBin}:${process.env.PATH ?? ""}`,
 			});
 
 			expect(result.code).toBe(0);
@@ -179,16 +200,29 @@ describe("skills/ulw-loop/SKILL.md", () => {
 			await rm(root, { recursive: true, force: true });
 		}
 	});
-
 });
 
 describe("source LOC budget", () => {
 	it("every source file stays at or under 250 pure LOC", async () => {
 		const files = [
-			"src/types.ts", "src/paths.ts", "src/plan-io.ts", "src/plan-crud.ts", "src/goal-status.ts",
-			"src/evidence.ts", "src/quality-gate.ts", "src/checkpoint.ts", "src/review-blockers.ts",
-			"src/steering.ts", "src/claude-code-goal-instruction.ts", "src/claude-code-goal-snapshot.ts", "src/claude-code-hook.ts",
-			"src/cli.ts", "src/cli-arg-parser.ts", "src/cli-output.ts", "src/cli-steering.ts", "src/cli-commands.ts",
+			"types.ts",
+			"paths.ts",
+			"plan-io.ts",
+			"plan-crud.ts",
+			"goal-status.ts",
+			"evidence.ts",
+			"quality-gate.ts",
+			"checkpoint.ts",
+			"review-blockers.ts",
+			"steering.ts",
+			"claude-goal-instruction.ts",
+			"claude-goal-snapshot.ts",
+			"claude-hook.ts",
+			"cli.ts",
+			"cli-arg-parser.ts",
+			"cli-output.ts",
+			"cli-steering.ts",
+			"cli-commands.ts",
 		];
 		for (const file of files) {
 			const text = await readText(file);

@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { PassThrough } from "node:stream";
 
-import { runCodegraphServe } from "../src/serve.ts";
+import { runCodegraphServe } from "../serve.ts";
 
 describe("runCodegraphServe unavailable CodeGraph paths", () => {
 	it("#given CodeGraph is unresolved #when serving MCP #then exposes an empty facade with a skip hint", async () => {
@@ -90,14 +90,22 @@ describe("runCodegraphServe unavailable CodeGraph paths", () => {
 	it("#given Claude Code SOT disables CodeGraph #when serving MCP #then exposes an empty facade with a disabled hint", async () => {
 		// given
 		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-serve-disabled-home-"));
-		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-serve-disabled-workspace-"));
+		const workspace = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-serve-disabled-workspace-"),
+		);
 		const stderr: string[] = [];
 		const spawned: string[] = [];
 		try {
 			mkdirSync(join(homeDir, ".claude"), { recursive: true });
 			mkdirSync(join(workspace, ".claude"), { recursive: true });
-			writeFileSync(join(homeDir, ".claude", "config.jsonc"), '{ "codegraph": { "enabled": true } }\n');
-			writeFileSync(join(workspace, ".claude", "config.jsonc"), '{ "[claude-code]": { "codegraph": { "enabled": false } } }\n');
+			writeFileSync(
+				join(homeDir, ".claude", "config.jsonc"),
+				'{ "codegraph": { "enabled": true } }\n',
+			);
+			writeFileSync(
+				join(workspace, ".claude", "config.jsonc"),
+				'{ "[claude-code]": { "codegraph": { "enabled": false } } }\n',
+			);
 
 			// when
 			const exitCode = await runCodegraphServe({

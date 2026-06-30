@@ -31,18 +31,26 @@ function truncateRules(rules: ReadonlyArray<LoadedRule>, options: FormatOptions)
 		body: normalizeRuleBody(rule.body),
 		source: rule.source,
 	}));
-	const perRuleResultChars = Math.floor(options.maxResultChars / Math.max(1, perRuleNormalized.length));
-	const perRuleBudgeted = perRuleNormalized.map((rule) => ({
-		path: rule.path,
-		relativePath: rule.relativePath,
-		body:
-			rule.source === "plugin-bundled"
-				? truncateRule(rule.body, { maxChars: perRuleResultChars, relativePath: rule.relativePath }).body
-				: truncateRule(rule.body, {
-						maxChars: Math.min(options.maxRuleChars, perRuleResultChars),
-						relativePath: rule.relativePath,
-					}).body,
-	}));
+	const perRuleResultChars = Math.floor(
+		options.maxResultChars / Math.max(1, perRuleNormalized.length),
+	);
+	const perRuleBudgeted = perRuleNormalized.map((rule) => {
+		if (isHephaestusRule(rule)) {
+			return { path: rule.path, relativePath: rule.relativePath, body: rule.body };
+		}
+		return {
+			path: rule.path,
+			relativePath: rule.relativePath,
+			body:
+				rule.source === "plugin-bundled"
+					? truncateRule(rule.body, { maxChars: perRuleResultChars, relativePath: rule.relativePath })
+							.body
+					: truncateRule(rule.body, {
+							maxChars: Math.min(options.maxRuleChars, perRuleResultChars),
+							relativePath: rule.relativePath,
+						}).body,
+		};
+	});
 	const budgetedRules = truncateBudget({
 		rules: perRuleBudgeted.map((rule) => ({ body: rule.body, relativePath: rule.relativePath })),
 		maxResultChars: options.maxResultChars,
@@ -52,21 +60,26 @@ function truncateRules(rules: ReadonlyArray<LoadedRule>, options: FormatOptions)
 	for (let index = 0; index < budgetedRules.length; index += 1) {
 		const sourceRule = perRuleBudgeted[index];
 		const budgetedRule = budgetedRules[index];
-		if (sourceRule === undefined || budgetedRule === undefined) {
+		const originalRule = perRuleNormalized[index];
+		if (sourceRule === undefined || budgetedRule === undefined || originalRule === undefined) {
 			continue;
 		}
 
+		const preserveBody = isHephaestusRule(originalRule);
 		truncatedRules.push({
 			path: sourceRule.path,
 			relativePath: budgetedRule.relativePath,
-			body: budgetedRule.body,
+			body: preserveBody ? originalRule.body : budgetedRule.body,
 		});
 	}
 
 	return truncatedRules;
 }
 
-export function formatStaticBlock(rules: ReadonlyArray<LoadedRule>, options: FormatOptions): string {
+export function formatStaticBlock(
+	rules: ReadonlyArray<LoadedRule>,
+	options: FormatOptions,
+): string {
 	if (rules.length === 0) {
 		return "";
 	}
@@ -74,12 +87,20 @@ export function formatStaticBlock(rules: ReadonlyArray<LoadedRule>, options: For
 		return "";
 	}
 
-	return [
-		"## Project Instructions",
-		"",
-		"must read project rules:",
-		orderStaticRules(uniqueRulesByBody(rules)).map(formatStaticRuleReference).join("\n"),
-	].join("\n");
+	const ordered = orderStaticRules(uniqueRulesByBody(rules));
+	const hasHephaestus = ordered.some(isHephaestusRule);
+
+	const parts: string[] = ["## Project Instructions", ""];
+
+	if (hasHephaestus) {
+		const truncated = truncateRules(ordered, options);
+		parts.push(truncated.map(formatRule).join("\n\n"));
+	} else {
+		parts.push("must read project rules:");
+		parts.push(ordered.map(formatStaticRuleReference).join("\n"));
+	}
+
+	return parts.join("\n");
 }
 
 function orderStaticRules(rules: ReadonlyArray<LoadedRule>): LoadedRule[] {
@@ -95,8 +116,8 @@ function orderStaticRules(rules: ReadonlyArray<LoadedRule>): LoadedRule[] {
 	return [...hephaestusRules, ...otherRules];
 }
 
-function isHephaestusRule(rule: LoadedRule): boolean {
-	return displayFilename(rule).toLowerCase() === "hephaestus.md";
+function isHephaestusRule(rule: { relativePath: string; path: string }): boolean {
+	return displayFilename(rule as LoadedRule).toLowerCase() === "hephaestus.md";
 }
 
 function formatStaticRuleReference(rule: LoadedRule): string {
@@ -118,7 +139,11 @@ function uniqueRulesByBody(rules: ReadonlyArray<LoadedRule>): LoadedRule[] {
 	const userDescriptions = new Set<string>();
 	for (const rule of rules) {
 		const descriptionKey = rule.frontmatter.description?.trim();
-		if (rule.source === "plugin-bundled" && descriptionKey !== undefined && userDescriptions.has(descriptionKey)) {
+		if (
+			rule.source === "plugin-bundled" &&
+			descriptionKey !== undefined &&
+			userDescriptions.has(descriptionKey)
+		) {
 			continue;
 		}
 

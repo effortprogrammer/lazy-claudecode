@@ -8,7 +8,7 @@ import {
 	type ClaudeSessionStartInput,
 	runPostToolUseHook,
 	runSessionStartHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const REMOVED_AGENT_DOC_SOURCE_LISTS = ["AGENTS.md", "CLAUDE.md", "AGENTS.md,CLAUDE.md"] as const;
 
@@ -33,8 +33,14 @@ function makeAgentDocProject(): AgentDocProject {
 
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 	writeFileSync(path.join(root, "AGENTS.md"), "Root AGENTS.md must remain Claude Code-native.");
-	writeFileSync(path.join(root, "CLAUDE.md"), "Root CLAUDE.md must stay outside rules hook context.");
-	writeFileSync(path.join(root, "CONTEXT.md"), "Context source must not leak through removed-only allowlists.");
+	writeFileSync(
+		path.join(root, "CLAUDE.md"),
+		"Root CLAUDE.md must stay outside rules hook context.",
+	);
+	writeFileSync(
+		path.join(root, "CONTEXT.md"),
+		"Context source must not leak through removed-only allowlists.",
+	);
 
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
@@ -51,7 +57,10 @@ function makeAgentDocProject(): AgentDocProject {
 
 	const nestedDirectory = path.join(root, "child", "src");
 	mkdirSync(nestedDirectory, { recursive: true });
-	writeFileSync(path.join(root, "child", "AGENTS.md"), "Child AGENTS.md must remain Claude Code-native.");
+	writeFileSync(
+		path.join(root, "child", "AGENTS.md"),
+		"Child AGENTS.md must remain Claude Code-native.",
+	);
 	const nestedSourceFile = path.join(nestedDirectory, "app.ts");
 	writeFileSync(nestedSourceFile, "export const app = true;\n");
 

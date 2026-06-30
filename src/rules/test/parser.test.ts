@@ -19,7 +19,8 @@ describe("parseRule", () => {
 
 	it("#given bom and crlf frontmatter #when parsing #then delimiters are removed", () => {
 		// given
-		const content = "\uFEFF---\r\ndescription: Windows rule\r\nalwaysApply: true\r\n---\r\nUse Git Bash.\r\n";
+		const content =
+			"\uFEFF---\r\ndescription: Windows rule\r\nalwaysApply: true\r\n---\r\nUse Git Bash.\r\n";
 
 		// when
 		const parsed = parseRule(content);
@@ -85,7 +86,13 @@ describe("parseRule", () => {
 
 	it("#given quoted scalar glob with comma #when parsing #then the comma remains part of one glob", () => {
 		// given
-		const content = ["---", 'globs: "src/foo,bar.ts"', "---", "", "Prefer precise glob parsing."].join("\n");
+		const content = [
+			"---",
+			'globs: "src/foo,bar.ts"',
+			"---",
+			"",
+			"Prefer precise glob parsing.",
+		].join("\n");
 
 		// when
 		const parsed = parseRule(content);
@@ -96,7 +103,13 @@ describe("parseRule", () => {
 
 	it("#given unquoted scalar glob list with comma #when parsing #then it remains split into multiple globs", () => {
 		// given
-		const content = ["---", "globs: src/foo.ts, src/bar.ts", "---", "", "Prefer precise glob parsing."].join("\n");
+		const content = [
+			"---",
+			"globs: src/foo.ts, src/bar.ts",
+			"---",
+			"",
+			"Prefer precise glob parsing.",
+		].join("\n");
 
 		// when
 		const parsed = parseRule(content);
@@ -148,6 +161,11 @@ describe("parseRule", () => {
 		const parsed = parseRule(content);
 
 		// then
-		expect(parsed.frontmatter.globs).toEqual(["src/**/*.ts", "test/**/*.ts", "packages/**/*.ts", "docs/**/*.md"]);
+		expect(parsed.frontmatter.globs).toEqual([
+			"src/**/*.ts",
+			"test/**/*.ts",
+			"packages/**/*.ts",
+			"docs/**/*.md",
+		]);
 	});
 });

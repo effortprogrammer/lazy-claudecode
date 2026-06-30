@@ -2,11 +2,11 @@ import { execFileSync, spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { runPostCompactHook } from "../src/claude-code-hook.ts";
+import { runPostCompactHook } from "../claude-hook.ts";
 import {
+	EXPANDED_POST_COMPACT_ENV,
 	cleanupPostCompactFixtures,
 	compactSessionStartInput,
-	EXPANDED_POST_COMPACT_ENV,
 	makeOversizedProject,
 	postCompactInput,
 	readOptionalAdditionalContext,

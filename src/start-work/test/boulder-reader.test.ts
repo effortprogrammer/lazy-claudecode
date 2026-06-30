@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { getPlanChecklist, readContinuationState } from "../src/boulder-reader.ts";
+import { getPlanChecklist, readContinuationState } from "../boulder-reader.ts";
 
 const cleanupRoots: string[] = [];
 
@@ -14,7 +14,15 @@ describe("start-work plan checklist consumption", () => {
 	it("#given top-level completed and incomplete checkboxes #when parsed #then counts remaining and total", () => {
 		// given
 		const planPath = createPlan(
-			["# Plan", "", "## TODOs", "- [ ] First", "- [x] Done", "- [X] Also done", "- [ ] Second"].join("\n"),
+			[
+				"# Plan",
+				"",
+				"## TODOs",
+				"- [ ] First",
+				"- [x] Done",
+				"- [X] Also done",
+				"- [ ] Second",
+			].join("\n"),
 		);
 
 		// when
@@ -27,7 +35,13 @@ describe("start-work plan checklist consumption", () => {
 	it("#given nested checkboxes #when parsed #then ignores non-column-zero items", () => {
 		// given
 		const planPath = createPlan(
-			["## TODOs", "- [ ] Top-level", "  - [ ] Nested", "\t- [ ] Tab nested", "- [x] Complete"].join("\n"),
+			[
+				"## TODOs",
+				"- [ ] Top-level",
+				"  - [ ] Nested",
+				"\t- [ ] Tab nested",
+				"- [x] Complete",
+			].join("\n"),
 		);
 
 		// when
@@ -57,7 +71,12 @@ describe("start-work plan checklist consumption", () => {
 		const checklist = getPlanChecklist(planPath);
 
 		// then
-		expect(checklist).toEqual({ completed: 1, remaining: 2, total: 3, nextTaskLabel: "Build hook" });
+		expect(checklist).toEqual({
+			completed: 1,
+			remaining: 2,
+			total: 3,
+			nextTaskLabel: "Build hook",
+		});
 	});
 
 	it("#given all top-level tasks complete #when parsed #then next task is null", () => {
@@ -120,7 +139,12 @@ describe("start-work boulder state reader", () => {
 
 		// then
 		expect(state?.planName).toBe("launch-plan");
-		expect(state?.checklist).toEqual({ completed: 0, remaining: 1, total: 1, nextTaskLabel: "First" });
+		expect(state?.checklist).toEqual({
+			completed: 0,
+			remaining: 1,
+			total: 1,
+			nextTaskLabel: "First",
+		});
 	});
 
 	it("#given no remaining top-level checklist items #when state is read #then continuation is absent", () => {

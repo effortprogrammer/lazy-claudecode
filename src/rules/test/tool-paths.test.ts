@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { type ClaudePostToolUseLike, extractClaudeToolPaths } from "../src/tool-paths.ts";
+import { type ClaudePostToolUseLike, extractClaudeToolPaths } from "../tool-paths.ts";
 
 const tempDirectories: string[] = [];
 
@@ -21,7 +21,11 @@ function makeProject(): string {
 	return root;
 }
 
-function postToolUse(input: { toolName: string; toolInput?: unknown; toolResponse?: unknown }): ClaudePostToolUseLike {
+function postToolUse(input: {
+	toolName: string;
+	toolInput?: unknown;
+	toolResponse?: unknown;
+}): ClaudePostToolUseLike {
 	return {
 		tool_name: input.toolName,
 		tool_input: input.toolInput ?? {},

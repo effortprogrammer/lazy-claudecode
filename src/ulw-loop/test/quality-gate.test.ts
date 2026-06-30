@@ -12,7 +12,8 @@ const VALID_GATE = {
 		by: "lazy-claudecode-code-reviewer",
 		recommendation: "APPROVE",
 		codeQualityStatus: "CLEAR",
-		reportPath: "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/code-review.md",
+		reportPath:
+			"packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/code-review.md",
 		evidence: "Reviewed diff and focused tests; no blocking code-quality issues remain.",
 		blockers: [],
 	},
@@ -58,14 +59,17 @@ const VALID_GATE = {
 	gateReview: {
 		by: "lazy-claudecode-gate-reviewer",
 		recommendation: "APPROVE",
-		reportPath: "packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/gate-review.md",
+		reportPath:
+			"packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/fixtures/artifacts/gate-review.md",
 		evidence: "Rechecked reviewer reports and manual QA artifacts; gate is approved.",
 		blockers: [],
 	},
 	iteration: {
 		fullRerun: true,
 		status: "passed",
-		rerunCommands: ["bunx vitest run packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/quality-gate.test.ts"],
+		rerunCommands: [
+			"bunx vitest run packages/lazy-claudecode-claude-code/plugin/components/ulw-loop/test/quality-gate.test.ts",
+		],
 		evidence: "Full focused rerun passed after validator update.",
 	},
 	criteriaCoverage: {
@@ -97,7 +101,10 @@ function getQualityGateError(input: unknown): UlwLoopError {
 describe("validateQualityGate", () => {
 	it("#given the new five-section gate fixture #when validated without fs opts #then it passes shape validation", async () => {
 		// given
-		const raw = await readFile(new URL("./fixtures/sample-quality-gate.json", import.meta.url), "utf8");
+		const raw = await readFile(
+			new URL("./fixtures/sample-quality-gate.json", import.meta.url),
+			"utf8",
+		);
 		const parsed: unknown = JSON.parse(raw);
 
 		// when
@@ -113,13 +120,20 @@ describe("validateQualityGate", () => {
 		]);
 		expect(gate.codeReview.codeQualityStatus).toBe("CLEAR");
 		expect(gate).toMatchObject({
-			criteriaCoverage: { totalCriteria: 9, passCount: 9, userOutcomeReview: expect.stringContaining("user") },
+			criteriaCoverage: {
+				totalCriteria: 9,
+				passCount: 9,
+				userOutcomeReview: expect.stringContaining("user"),
+			},
 		});
 	});
 
 	it("#given the new five-section gate fixture #when validated with fs opts #then report and artifact paths must exist", async () => {
 		// given
-		const raw = await readFile(new URL("./fixtures/sample-quality-gate.json", import.meta.url), "utf8");
+		const raw = await readFile(
+			new URL("./fixtures/sample-quality-gate.json", import.meta.url),
+			"utf8",
+		);
 		const parsed: unknown = JSON.parse(raw);
 
 		// when
@@ -150,7 +164,9 @@ describe("validateQualityGate", () => {
 			makeGate({
 				manualQa: {
 					...VALID_GATE.manualQa,
-					surfaceEvidence: [{ ...VALID_GATE.manualQa.surfaceEvidence[0], artifactRefs: ["missing-artifact"] }],
+					surfaceEvidence: [
+						{ ...VALID_GATE.manualQa.surfaceEvidence[0], artifactRefs: ["missing-artifact"] },
+					],
 				},
 			}),
 		);
@@ -196,7 +212,9 @@ describe("validateQualityGate", () => {
 	it("#given gate review blockers #when validated #then approval is rejected", () => {
 		// when
 		const error = getQualityGateError(
-			makeGate({ gateReview: { ...VALID_GATE.gateReview, blockers: ["manual QA artifact missing"] } }),
+			makeGate({
+				gateReview: { ...VALID_GATE.gateReview, blockers: ["manual QA artifact missing"] },
+			}),
 		);
 
 		// then
@@ -206,7 +224,9 @@ describe("validateQualityGate", () => {
 
 	it("#given iteration did not perform a full rerun #when validated #then it is rejected", () => {
 		// when
-		const error = getQualityGateError(makeGate({ iteration: { ...VALID_GATE.iteration, fullRerun: false } }));
+		const error = getQualityGateError(
+			makeGate({ iteration: { ...VALID_GATE.iteration, fullRerun: false } }),
+		);
 
 		// then
 		expect(error.message).toContain("iteration.fullRerun");
@@ -218,7 +238,9 @@ describe("validateQualityGate", () => {
 			makeGate({
 				manualQa: {
 					...VALID_GATE.manualQa,
-					adversarialCases: [{ ...VALID_GATE.manualQa.adversarialCases[0], verdict: "not_applicable" }],
+					adversarialCases: [
+						{ ...VALID_GATE.manualQa.adversarialCases[0], verdict: "not_applicable" },
+					],
 				},
 			}),
 		);
@@ -230,7 +252,9 @@ describe("validateQualityGate", () => {
 	it("#given criteria coverage misses required criteria #when validated #then it is rejected", () => {
 		// when
 		const error = getQualityGateError(
-			makeGate({ criteriaCoverage: { totalCriteria: 3, passCount: 2, adversarialClassesCovered: [] } }),
+			makeGate({
+				criteriaCoverage: { totalCriteria: 3, passCount: 2, adversarialClassesCovered: [] },
+			}),
 		);
 
 		// then

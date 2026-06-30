@@ -1,5 +1,13 @@
 #!/usr/bin/env node
-import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
+import {
+	existsSync,
+	mkdirSync,
+	readFileSync,
+	renameSync,
+	rmSync,
+	statSync,
+	writeFileSync,
+} from "node:fs";
 import { stdin as processStdin, stdout as processStdout } from "node:process";
 
 import { runSubagentStopHook } from "./claude-hook.ts";

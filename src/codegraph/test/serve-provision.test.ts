@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { join } from "node:path";
 
-import { runCodegraphServe } from "../src/serve.ts";
+import { runCodegraphServe } from "../serve.ts";
 
 describe("runCodegraphServe provisioning", () => {
 	it("#given CodeGraph is unresolved #when serving MCP #then provisions CodeGraph before spawning", async () => {

@@ -109,16 +109,18 @@ export function parseWorkerFlags(argv: readonly string[]): BootstrapWorkerFlags 
 }
 
 export function resolvePluginDataRoot(env: Record<string, string | undefined>): string {
-	const fromEnv = env["PLUGIN_DATA"]?.trim();
+	const fromEnv = env.PLUGIN_DATA?.trim();
 	if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
 	return join(homedir(), ".local", "share", "lazyclaude-code");
 }
 
 export async function readPluginVersion(pluginRoot: string): Promise<string | undefined> {
 	try {
-		const parsed: unknown = JSON.parse(await readFile(join(pluginRoot, ".claude-code-plugin", "plugin.json"), "utf8"));
+		const parsed: unknown = JSON.parse(
+			await readFile(join(pluginRoot, ".claude-code-plugin", "plugin.json"), "utf8"),
+		);
 		if (typeof parsed !== "object" || parsed === null) return undefined;
-		const version = (parsed as Record<string, unknown>)["version"];
+		const version = (parsed as Record<string, unknown>).version;
 		if (typeof version !== "string") return undefined;
 		const trimmed = version.trim();
 		return trimmed.length > 0 ? trimmed : undefined;
@@ -128,14 +130,16 @@ export async function readPluginVersion(pluginRoot: string): Promise<string | un
 }
 
 export async function readBootstrapState(statePath: string): Promise<BootstrapState> {
-	return parseBootstrapState((await readState(statePath) as Record<string, unknown>) ?? {});
+	return parseBootstrapState(((await readState(statePath)) as Record<string, unknown>) ?? {});
 }
 
 export function parseBootstrapState(raw: Record<string, unknown>): BootstrapState {
-	const completedForVersion = typeof raw["completedForVersion"] === "string" ? raw["completedForVersion"] : undefined;
-	const lastAttemptAt = typeof raw["lastAttemptAt"] === "number" ? raw["lastAttemptAt"] : undefined;
-	const lastStatus = raw["lastStatus"] === "success" || raw["lastStatus"] === "degraded" ? raw["lastStatus"] : undefined;
-	const degraded = parseDegradedEntries(raw["degraded"]);
+	const completedForVersion =
+		typeof raw.completedForVersion === "string" ? raw.completedForVersion : undefined;
+	const lastAttemptAt = typeof raw.lastAttemptAt === "number" ? raw.lastAttemptAt : undefined;
+	const lastStatus =
+		raw.lastStatus === "success" || raw.lastStatus === "degraded" ? raw.lastStatus : undefined;
+	const degraded = parseDegradedEntries(raw.degraded);
 	return {
 		...(completedForVersion === undefined ? {} : { completedForVersion }),
 		...(lastAttemptAt === undefined ? {} : { lastAttemptAt }),
@@ -148,7 +152,9 @@ export interface DefaultWorkerStepsSeams {
 	readonly sg?: SgProvisionSeams;
 }
 
-export function defaultWorkerSteps(seams: DefaultWorkerStepsSeams = {}): readonly BootstrapWorkerStep[] {
+export function defaultWorkerSteps(
+	seams: DefaultWorkerStepsSeams = {},
+): readonly BootstrapWorkerStep[] {
 	return [
 		{
 			name: "setup",
@@ -161,7 +167,9 @@ export function defaultWorkerSteps(seams: DefaultWorkerStepsSeams = {}): readonl
 	];
 }
 
-export async function runBootstrapWorker(options: RunBootstrapWorkerOptions = {}): Promise<BootstrapWorkerResult> {
+export async function runBootstrapWorker(
+	options: RunBootstrapWorkerOptions = {},
+): Promise<BootstrapWorkerResult> {
 	const env = options.env ?? process.env;
 	const now = options.now ?? Date.now();
 	const platform = options.platform ?? process.platform;
@@ -181,14 +189,33 @@ export async function runBootstrapWorker(options: RunBootstrapWorkerOptions = {}
 		const marker = await readBootstrapState(statePath);
 		// TOCTOU re-check under lock: another worker may have completed between
 		// the hook's unlocked read and this acquisition.
-		if (!flags.once && pluginVersion !== undefined && marker.completedForVersion === pluginVersion) {
-			await appendBootstrapLog(pluginData, now, "worker-skipped", { reason: "already-completed", version: pluginVersion });
+		if (
+			!flags.once &&
+			pluginVersion !== undefined &&
+			marker.completedForVersion === pluginVersion
+		) {
+			await appendBootstrapLog(pluginData, now, "worker-skipped", {
+				reason: "already-completed",
+				version: pluginVersion,
+			});
 			return { ran: false, reason: "already-completed" };
 		}
 
-		const claudeCodeHome = flags.claudeCodeHome ?? (await resolveClaudeCodeHome({ env, pluginRoot })).path;
-		const context: BootstrapWorkerContext = { claudeCodeHome, env, flags, now, platform, pluginData, pluginRoot, pluginVersion };
-		await appendBootstrapLog(pluginData, now, "worker-started", { version: pluginVersion ?? "unknown" });
+		const claudeCodeHome =
+			flags.claudeCodeHome ?? (await resolveClaudeCodeHome({ env, pluginRoot })).path;
+		const context: BootstrapWorkerContext = {
+			claudeCodeHome,
+			env,
+			flags,
+			now,
+			platform,
+			pluginData,
+			pluginRoot,
+			pluginVersion,
+		};
+		await appendBootstrapLog(pluginData, now, "worker-started", {
+			version: pluginVersion ?? "unknown",
+		});
 
 		const degraded: BootstrapDegradedEntry[] = [];
 		if (pluginVersion === undefined) {
@@ -211,14 +238,20 @@ export async function runBootstrapWorker(options: RunBootstrapWorkerOptions = {}
 			lastStatus: status,
 		};
 		await writeState(statePath, state);
-		await appendBootstrapLog(pluginData, now, "worker-finished", { degradedCount: degraded.length, status });
+		await appendBootstrapLog(pluginData, now, "worker-finished", {
+			degradedCount: degraded.length,
+			status,
+		});
 		return { degraded, ran: true, statePath, status };
 	} finally {
 		await locks.release();
 	}
 }
 
-async function runStep(step: BootstrapWorkerStep, context: BootstrapWorkerContext): Promise<readonly BootstrapDegradedEntry[]> {
+async function runStep(
+	step: BootstrapWorkerStep,
+	context: BootstrapWorkerContext,
+): Promise<readonly BootstrapDegradedEntry[]> {
 	try {
 		return (await step.run(context)).degraded;
 	} catch (error) {
@@ -233,7 +266,7 @@ async function runStep(step: BootstrapWorkerStep, context: BootstrapWorkerContex
 }
 
 function resolvePluginRoot(env: Record<string, string | undefined>): string {
-	const fromEnv = env["PLUGIN_ROOT"]?.trim();
+	const fromEnv = env.PLUGIN_ROOT?.trim();
 	if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
 	// dist/cli.js lives at <pluginRoot>/components/bootstrap/dist/cli.js.
 	return resolve(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -248,7 +281,10 @@ export async function appendBootstrapLog(
 	try {
 		const logPath = join(pluginData, "bootstrap", "bootstrap.log");
 		await mkdir(dirname(logPath), { recursive: true });
-		await appendFile(logPath, `${JSON.stringify({ timestamp: new Date(now).toISOString(), event, ...details })}\n`);
+		await appendFile(
+			logPath,
+			`${JSON.stringify({ timestamp: new Date(now).toISOString(), event, ...details })}\n`,
+		);
 	} catch {
 		// Logging must never fail the worker.
 	}
@@ -260,11 +296,11 @@ function parseDegradedEntries(raw: unknown): readonly BootstrapDegradedEntry[] |
 	for (const candidate of raw) {
 		if (typeof candidate !== "object" || candidate === null) continue;
 		const record = candidate as Record<string, unknown>;
-		if (typeof record["component"] !== "string" || typeof record["reason"] !== "string") continue;
+		if (typeof record.component !== "string" || typeof record.reason !== "string") continue;
 		entries.push({
-			component: record["component"],
-			reason: record["reason"],
-			...(typeof record["hint"] === "string" ? { hint: record["hint"] } : {}),
+			component: record.component,
+			reason: record.reason,
+			...(typeof record.hint === "string" ? { hint: record.hint } : {}),
 		});
 	}
 	return entries;

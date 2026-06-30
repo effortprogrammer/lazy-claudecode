@@ -6,7 +6,12 @@ import { expect } from "vitest";
 import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../../src/goal-status.ts";
 import { ulwLoopDir, ulwLoopLedgerPath } from "../../src/paths.ts";
 import { writePlan } from "../../src/plan-io.ts";
-import type { UlwLoopItem, UlwLoopLedgerEntry, UlwLoopPlan, UlwLoopSuccessCriterion } from "../../src/types.ts";
+import type {
+	UlwLoopItem,
+	UlwLoopLedgerEntry,
+	UlwLoopPlan,
+	UlwLoopSuccessCriterion,
+} from "../../src/types.ts";
 import { UlwLoopError } from "../../src/types.ts";
 
 export const NOW = "2026-05-23T00:00:00.000Z";
@@ -33,7 +38,11 @@ export function goal(overrides: Partial<UlwLoopItem> = {}): UlwLoopItem {
 		title: "Build auth",
 		objective: "Implement JWT auth endpoint",
 		status: "in_progress",
-		successCriteria: [criterion("C001", "pass"), criterion("C002", "pass"), criterion("C003", "pass")],
+		successCriteria: [
+			criterion("C001", "pass"),
+			criterion("C002", "pass"),
+			criterion("C003", "pass"),
+		],
 		attempt: 1,
 		createdAt: NOW,
 		updatedAt: NOW,
@@ -55,7 +64,8 @@ export function plan(goals: UlwLoopItem[], overrides: Partial<UlwLoopPlan> = {})
 	};
 	Object.assign(result, overrides);
 	const activeGoalId = goals.find((candidate) => candidate.status === "in_progress")?.id;
-	if (result.activeGoalId === undefined && activeGoalId !== undefined) result.activeGoalId = activeGoalId;
+	if (result.activeGoalId === undefined && activeGoalId !== undefined)
+		result.activeGoalId = activeGoalId;
 	return result;
 }
 
@@ -66,7 +76,10 @@ export async function repoWith(seed: UlwLoopPlan): Promise<string> {
 	return repo;
 }
 
-export function snapshot(status: "active" | "complete", objective = ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE): string {
+export function snapshot(
+	status: "active" | "complete",
+	objective = ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE,
+): string {
 	return JSON.stringify({ goal: { objective, status } });
 }
 
@@ -92,7 +105,11 @@ export async function expectCode(action: () => Promise<unknown>, code: string): 
 export function passGoal(id: string, overrides: Partial<UlwLoopItem> = {}): UlwLoopItem {
 	return goal({
 		id,
-		successCriteria: [criterion("C001", "pass"), criterion("C002", "pass"), criterion("C003", "pass")],
+		successCriteria: [
+			criterion("C001", "pass"),
+			criterion("C002", "pass"),
+			criterion("C003", "pass"),
+		],
 		...overrides,
 	});
 }

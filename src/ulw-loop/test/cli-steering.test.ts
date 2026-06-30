@@ -63,10 +63,12 @@ function steerResult(overrides: Partial<SteerUlwLoopResult> = {}): SteerUlwLoopR
 
 function captureStdout(action: () => void): string {
 	let output = "";
-	const write = vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
-		output += chunk.toString();
-		return true;
-	});
+	const write = vi
+		.spyOn(process.stdout, "write")
+		.mockImplementation((chunk: string | Uint8Array): boolean => {
+			output += chunk.toString();
+			return true;
+		});
 	action();
 	write.mockRestore();
 	return output;
@@ -74,8 +76,16 @@ function captureStdout(action: () => void): string {
 
 describe("parseSteeringKind", () => {
 	for (const testCase of [
-		{ name: "returns valid kind from --kind", args: ["--kind", "add_subgoal"], expected: "add_subgoal" },
-		{ name: "accepts revise_criterion", args: ["--kind", "revise_criterion"], expected: "revise_criterion" },
+		{
+			name: "returns valid kind from --kind",
+			args: ["--kind", "add_subgoal"],
+			expected: "add_subgoal",
+		},
+		{
+			name: "accepts revise_criterion",
+			args: ["--kind", "revise_criterion"],
+			expected: "revise_criterion",
+		},
 	] as const) {
 		it(testCase.name, () => {
 			expect(parseSteeringKind(testCase.args)).toBe(testCase.expected);
@@ -144,7 +154,16 @@ describe("parseSteeringProposal add_subgoal", () => {
 
 	it("throws when --evidence missing", async () => {
 		await expect(
-			parseSteeringProposal(["--kind", "add_subgoal", "--title", "New", "--objective", "Build", "--rationale", "y"]),
+			parseSteeringProposal([
+				"--kind",
+				"add_subgoal",
+				"--title",
+				"New",
+				"--objective",
+				"Build",
+				"--rationale",
+				"y",
+			]),
 		).rejects.toThrow(UlwLoopError);
 	});
 });
@@ -195,11 +214,27 @@ describe("parseSteeringProposal revise_criterion", () => {
 		},
 		{
 			name: "throws when goal-id missing",
-			args: ["--kind", "revise_criterion", "--criterion-id", "C002", "--scenario", "s", ...REQUIRED_AUDIT_ARGS],
+			args: [
+				"--kind",
+				"revise_criterion",
+				"--criterion-id",
+				"C002",
+				"--scenario",
+				"s",
+				...REQUIRED_AUDIT_ARGS,
+			],
 		},
 		{
 			name: "throws when criterion-id missing",
-			args: ["--kind", "revise_criterion", "--goal-id", "G001", "--scenario", "s", ...REQUIRED_AUDIT_ARGS],
+			args: [
+				"--kind",
+				"revise_criterion",
+				"--goal-id",
+				"G001",
+				"--scenario",
+				"s",
+				...REQUIRED_AUDIT_ARGS,
+			],
 		},
 	] as const) {
 		it(testCase.name, async () => {
@@ -284,7 +319,11 @@ describe("parseSteeringProposal remaining kinds", () => {
 			"y",
 		]);
 
-		expect(p).toMatchObject({ kind: "revise_pending_wording", targetGoalId: "G001", revisedTitle: "New" });
+		expect(p).toMatchObject({
+			kind: "revise_pending_wording",
+			targetGoalId: "G001",
+			revisedTitle: "New",
+		});
 	});
 
 	it("builds mark_blocked_superseded proposal with replacements", async () => {
@@ -311,9 +350,21 @@ describe("parseSteeringProposal remaining kinds", () => {
 
 describe("parseSteeringProposal annotate_ledger", () => {
 	it("builds minimal proposal", async () => {
-		const p = await parseSteeringProposal(["--kind", "annotate_ledger", "--evidence", "x", "--rationale", "y"]);
+		const p = await parseSteeringProposal([
+			"--kind",
+			"annotate_ledger",
+			"--evidence",
+			"x",
+			"--rationale",
+			"y",
+		]);
 
-		expect(p).toMatchObject({ kind: "annotate_ledger", source: "cli", evidence: "x", rationale: "y" });
+		expect(p).toMatchObject({
+			kind: "annotate_ledger",
+			source: "cli",
+			evidence: "x",
+			rationale: "y",
+		});
 	});
 });
 
@@ -342,7 +393,12 @@ describe("normalizeSteeringProposal", () => {
 
 	it("rejects empty evidence after trim", () => {
 		expect(() =>
-			normalizeSteeringProposal({ kind: "annotate_ledger", source: "cli", evidence: " ", rationale: "y" }),
+			normalizeSteeringProposal({
+				kind: "annotate_ledger",
+				source: "cli",
+				evidence: " ",
+				rationale: "y",
+			}),
 		).toThrow(UlwLoopError);
 	});
 });
@@ -351,7 +407,11 @@ describe("printSteerResult", () => {
 	it("prints JSON when json=true", () => {
 		const output = captureStdout(() => printSteerResult(steerResult(), true));
 
-		expect(JSON.parse(output)).toMatchObject({ accepted: true, deduped: false, audit: { kind: "add_subgoal" } });
+		expect(JSON.parse(output)).toMatchObject({
+			accepted: true,
+			deduped: false,
+			audit: { kind: "add_subgoal" },
+		});
 	});
 
 	it("prints human-readable when json=false", () => {

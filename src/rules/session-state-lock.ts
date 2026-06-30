@@ -9,7 +9,10 @@ const LOCK_RETRY_COUNT = 20;
 const LOCK_RETRY_DELAY_MS = 5;
 const LOCK_SLEEP_VIEW = new Int32Array(new SharedArrayBuffer(4));
 
-export function withSessionStateLock<T>(cachePath: string, callback: () => T): SessionStateLockResult<T> {
+export function withSessionStateLock<T>(
+	cachePath: string,
+	callback: () => T,
+): SessionStateLockResult<T> {
 	const lockPath = `${cachePath}.lock`;
 	mkdirSync(dirname(cachePath), { recursive: true });
 	for (let attempt = 0; attempt < LOCK_RETRY_COUNT; attempt += 1) {

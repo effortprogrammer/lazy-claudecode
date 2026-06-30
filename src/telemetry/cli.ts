@@ -36,13 +36,13 @@ function parseHookInput(raw: string): unknown | undefined {
 function isClaudeCodeSessionStartInput(value: unknown): value is ClaudeCodeSessionStartInput {
 	return (
 		isRecord(value) &&
-		value["hook_event_name"] === "SessionStart" &&
-		typeof value["session_id"] === "string" &&
-		isStringOrNull(value["transcript_path"]) &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["source"] === "string"
+		value.hook_event_name === "SessionStart" &&
+		typeof value.session_id === "string" &&
+		isStringOrNull(value.transcript_path) &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.source === "string"
 	);
 }
 

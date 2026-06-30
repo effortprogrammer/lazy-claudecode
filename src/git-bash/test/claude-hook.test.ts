@@ -5,12 +5,12 @@ import { join } from "node:path";
 import { Readable, Writable } from "node:stream";
 
 import {
+	type PostCompactPayload,
+	type PreToolUsePayload,
 	applyGitBashPostCompactReset,
 	applyGitBashPreToolUseReminder,
 	runGitBashHookCli,
-	type PostCompactPayload,
-	type PreToolUsePayload,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const temporaryDirectories: string[] = [];
 
@@ -57,7 +57,11 @@ function windowsEnv(): NodeJS.ProcessEnv {
 function captureStdout(): { readonly stdout: Writable; readonly read: () => string } {
 	let captured = "";
 	const stdout = new Writable({
-		write(chunk: unknown, _encoding: BufferEncoding, callback: (error?: Error | null) => void): void {
+		write(
+			chunk: unknown,
+			_encoding: BufferEncoding,
+			callback: (error?: Error | null) => void,
+		): void {
 			captured += chunk instanceof Buffer ? chunk.toString() : String(chunk);
 			callback();
 		},
@@ -92,8 +96,16 @@ describe("applyGitBashPreToolUseReminder", () => {
 		const payload = preToolPayload("Bash");
 
 		// when
-		const first = applyGitBashPreToolUseReminder(payload, { env: windowsEnv(), platform: "linux", pluginDataRoot });
-		const second = applyGitBashPreToolUseReminder(payload, { env: windowsEnv(), platform: "linux", pluginDataRoot });
+		const first = applyGitBashPreToolUseReminder(payload, {
+			env: windowsEnv(),
+			platform: "linux",
+			pluginDataRoot,
+		});
+		const second = applyGitBashPreToolUseReminder(payload, {
+			env: windowsEnv(),
+			platform: "linux",
+			pluginDataRoot,
+		});
 
 		// then
 		expect(first).toContain("git_bash");
@@ -136,8 +148,16 @@ describe("applyGitBashPostCompactReset", () => {
 		// given
 		const pluginDataRoot = createTemporaryDirectory("lazy-claudecode-git-bash-hook-");
 		const payload = preToolPayload("Bash");
-		const first = applyGitBashPreToolUseReminder(payload, { env: windowsEnv(), platform: "linux", pluginDataRoot });
-		const second = applyGitBashPreToolUseReminder(payload, { env: windowsEnv(), platform: "linux", pluginDataRoot });
+		const first = applyGitBashPreToolUseReminder(payload, {
+			env: windowsEnv(),
+			platform: "linux",
+			pluginDataRoot,
+		});
+		const second = applyGitBashPreToolUseReminder(payload, {
+			env: windowsEnv(),
+			platform: "linux",
+			pluginDataRoot,
+		});
 
 		// when
 		applyGitBashPostCompactReset(postCompactPayload(), { pluginDataRoot });
@@ -176,7 +196,11 @@ describe("runGitBashHookCli", () => {
 		// given
 		const pluginDataRoot = createTemporaryDirectory("lazy-claudecode-git-bash-hook-");
 		const payload = preToolPayload("Bash");
-		applyGitBashPreToolUseReminder(payload, { env: windowsEnv(), platform: "linux", pluginDataRoot });
+		applyGitBashPreToolUseReminder(payload, {
+			env: windowsEnv(),
+			platform: "linux",
+			pluginDataRoot,
+		});
 		const resetStdin = Readable.from([JSON.stringify(postCompactPayload())]);
 		const capture = captureStdout();
 

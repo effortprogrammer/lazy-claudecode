@@ -14,7 +14,10 @@ function matchFrontmatter(
 	const scopeRelative = pathBases.scopeRelative;
 	const pathBase = {
 		projectRelative: pathBases.projectRelative,
-		basename: pathBases.basename ?? pathBases.projectRelative.split("/").at(-1) ?? pathBases.projectRelative,
+		basename:
+			pathBases.basename ??
+			pathBases.projectRelative.split("/").at(-1) ??
+			pathBases.projectRelative,
 		...(scopeRelative === undefined ? {} : { scopeRelative }),
 	};
 	return matchRule({
@@ -110,7 +113,10 @@ describe("matchRule", () => {
 		});
 
 		// then
-		expect(result).toEqual({ matched: true, reason: { kind: "glob", pattern: "components/**/*.tsx" } });
+		expect(result).toEqual({
+			matched: true,
+			reason: { kind: "glob", pattern: "components/**/*.tsx" },
+		});
 	});
 
 	it("#given backslash glob and target #when matching #then paths are normalized", () => {

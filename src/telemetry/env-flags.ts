@@ -1,43 +1,40 @@
-import {
-  DEFAULT_POSTHOG_API_KEY,
-  DEFAULT_POSTHOG_HOST,
-} from "./product-identity.ts"
+import { DEFAULT_POSTHOG_API_KEY, DEFAULT_POSTHOG_HOST } from "./product-identity.ts";
 
 function normalizeEnvValue(value: string | undefined): string | undefined {
-  return value?.trim().toLowerCase()
+	return value?.trim().toLowerCase();
 }
 
 function isDisableFlag(value: string | undefined): boolean {
-  const normalized = normalizeEnvValue(value)
-  return normalized === "1" || normalized === "true"
+	const normalized = normalizeEnvValue(value);
+	return normalized === "1" || normalized === "true";
 }
 
 function isTelemetryOptOutFlag(value: string | undefined): boolean {
-  const normalized = normalizeEnvValue(value)
-  return normalized === "0" || normalized === "false" || normalized === "no"
+	const normalized = normalizeEnvValue(value);
+	return normalized === "0" || normalized === "false" || normalized === "no";
 }
 
 export function shouldDisablePostHog(): boolean {
-  return (
-    isDisableFlag(process.env["LAZY_CLAUDECODE_DISABLE_POSTHOG"]) ||
-    isTelemetryOptOutFlag(process.env["LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY"]) ||
-    isDisableFlag(process.env["LAZY_CLAUDECODE_DISABLE_POSTHOG"]) ||
-    isTelemetryOptOutFlag(process.env["LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY"])
-  )
+	return (
+		isDisableFlag(process.env.LAZY_CLAUDECODE_DISABLE_POSTHOG) ||
+		isTelemetryOptOutFlag(process.env.LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY) ||
+		isDisableFlag(process.env.LAZY_CLAUDECODE_DISABLE_POSTHOG) ||
+		isTelemetryOptOutFlag(process.env.LAZY_CLAUDECODE_SEND_ANONYMOUS_TELEMETRY)
+	);
 }
 
 export function getPostHogApiKey(): string {
-  const explicit = process.env["POSTHOG_API_KEY"]
-  if (explicit === undefined) {
-    return DEFAULT_POSTHOG_API_KEY
-  }
-  return explicit.trim()
+	const explicit = process.env.POSTHOG_API_KEY;
+	if (explicit === undefined) {
+		return DEFAULT_POSTHOG_API_KEY;
+	}
+	return explicit.trim();
 }
 
 export function hasPostHogApiKey(): boolean {
-  return getPostHogApiKey().length > 0
+	return getPostHogApiKey().length > 0;
 }
 
 export function getPostHogHost(): string {
-  return process.env["POSTHOG_HOST"]?.trim() || DEFAULT_POSTHOG_HOST
+	return process.env.POSTHOG_HOST?.trim() || DEFAULT_POSTHOG_HOST;
 }

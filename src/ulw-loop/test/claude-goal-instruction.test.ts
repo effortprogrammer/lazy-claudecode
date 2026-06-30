@@ -5,8 +5,18 @@ import { ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE } from "../src/goal-status.ts"
 import type { UlwLoopItem, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.ts";
 
 const NOW = "2026-05-23T00:00:00.000Z";
-const FINAL_REVIEW_ROLES = ["lazy-claudecode-code-reviewer", "lazy-claudecode-qa-executor", "lazy-claudecode-gate-reviewer"] as const;
-const QUALITY_GATE_SECTIONS = ["codeReview", "manualQa", "gateReview", "iteration", "criteriaCoverage"] as const;
+const FINAL_REVIEW_ROLES = [
+	"lazy-claudecode-code-reviewer",
+	"lazy-claudecode-qa-executor",
+	"lazy-claudecode-gate-reviewer",
+] as const;
+const QUALITY_GATE_SECTIONS = [
+	"codeReview",
+	"manualQa",
+	"gateReview",
+	"iteration",
+	"criteriaCoverage",
+] as const;
 
 function makeCriterion(overrides: Partial<UlwLoopSuccessCriterion> = {}): UlwLoopSuccessCriterion {
 	return {
@@ -53,7 +63,10 @@ function expectTextToContainAll(text: string, terms: readonly string[]): void {
 
 describe("buildCodexGoalInstruction aggregate mode", () => {
 	it("references the aggregate handoff and the .claude/ulw-loop/goals.json artifact", () => {
-		const { text } = buildCodexGoalInstruction({ plan: makePlan({ claudeCodeGoalMode: "aggregate" }), goal: makeGoal() });
+		const { text } = buildCodexGoalInstruction({
+			plan: makePlan({ claudeCodeGoalMode: "aggregate" }),
+			goal: makeGoal(),
+		});
 		expect(text).toContain("aggregate");
 		expect(text).toContain(".claude/ulw-loop/goals.json");
 	});
@@ -80,7 +93,9 @@ describe("buildCodexGoalInstruction aggregate mode", () => {
 		});
 		expect(text).toContain("do not call update_goal mid-aggregate");
 		expect(text).toContain("checkpoint this LAZY_CLAUDECODE ledger story");
-		expect(text).toContain("update_goal is reserved for the final story after the mandatory quality gate passes");
+		expect(text).toContain(
+			"update_goal is reserved for the final story after the mandatory quality gate passes",
+		);
 	});
 
 	it("#given a non-final aggregate story #when rendering instructions #then defers the current final quality gate", () => {
@@ -115,7 +130,11 @@ describe("buildCodexGoalInstruction aggregate mode", () => {
 		expectTextToContainAll(text, QUALITY_GATE_SECTIONS);
 		expect(text).toMatch(/targeted verification/i);
 		expect(text).toMatch(/artifact path.*non-zero size/i);
-		expectTextToContainAll(text, ["original brief", "desired user-visible outcome", "userOutcomeReview"]);
+		expectTextToContainAll(text, [
+			"original brief",
+			"desired user-visible outcome",
+			"userOutcomeReview",
+		]);
 		expect(text).toMatch(/not clean.*do not call update_goal/i);
 		expect(text).toContain("record-review-blockers");
 		expect(text).toContain("checkpoint");
@@ -141,7 +160,10 @@ describe("buildCodexGoalInstruction aggregate mode", () => {
 describe("buildCodexGoalInstruction per_story mode", () => {
 	it("uses the goal's own objective for create_goal", () => {
 		const goal = makeGoal({ objective: "Build the auth service" });
-		const { text } = buildCodexGoalInstruction({ plan: makePlan({ claudeCodeGoalMode: "per_story" }), goal });
+		const { text } = buildCodexGoalInstruction({
+			plan: makePlan({ claudeCodeGoalMode: "per_story" }),
+			goal,
+		});
 		expect(text).toContain("Build the auth service");
 	});
 });
@@ -194,7 +216,10 @@ describe("buildCodexGoalInstruction criteria section", () => {
 
 describe("buildCodexGoalInstruction artifact guidance", () => {
 	it("references .claude/ulw-loop in artifact paths", () => {
-		const { text } = buildCodexGoalInstruction({ plan: makePlan({ claudeCodeGoalMode: "aggregate" }), goal: makeGoal() });
+		const { text } = buildCodexGoalInstruction({
+			plan: makePlan({ claudeCodeGoalMode: "aggregate" }),
+			goal: makeGoal(),
+		});
 		expect(text).toContain(".claude/ulw-loop");
 	});
 });

@@ -25,7 +25,10 @@ const TRACKED_TOOL_NAMES = new Set([
 	"exec_command",
 ]);
 
-export function extractClaudeCodeToolPaths(input: ClaudeCodePostToolUseLike, cwd: string): string[] {
+export function extractClaudeCodeToolPaths(
+	input: ClaudeCodePostToolUseLike,
+	cwd: string,
+): string[] {
 	const toolName = input.tool_name.toLowerCase();
 	if (!TRACKED_TOOL_NAMES.has(toolName) || isFailedToolResponse(input.tool_response)) {
 		return [];
@@ -35,8 +38,8 @@ export function extractClaudeCodeToolPaths(input: ClaudeCodePostToolUseLike, cwd
 	const toolInput = isRecord(input.tool_input) ? input.tool_input : {};
 	addCommonPathFields(paths, toolInput, cwd);
 	addPatchPayloadPaths(paths, toolInput, cwd);
-	addPatchRecordPaths(paths, toolInput["files"], cwd);
-	addPatchRecordPaths(paths, toolInput["changes"], cwd);
+	addPatchRecordPaths(paths, toolInput.files, cwd);
+	addPatchRecordPaths(paths, toolInput.changes, cwd);
 
 	if (COMMAND_TOOL_NAMES.has(toolName)) {
 		const command = stringProperty(toolInput, "command") ?? stringProperty(toolInput, "cmd");
@@ -47,7 +50,11 @@ export function extractClaudeCodeToolPaths(input: ClaudeCodePostToolUseLike, cwd
 	return [...paths];
 }
 
-function addCommonPathFields(paths: Set<string>, input: Record<string, unknown>, cwd: string): void {
+function addCommonPathFields(
+	paths: Set<string>,
+	input: Record<string, unknown>,
+	cwd: string,
+): void {
 	for (const key of ["path", "filePath", "file_path", "target", "targetPath", "target_path"]) {
 		addPath(paths, input[key], cwd, false);
 	}
@@ -56,7 +63,11 @@ function addCommonPathFields(paths: Set<string>, input: Record<string, unknown>,
 	}
 }
 
-function addPatchPayloadPaths(paths: Set<string>, input: Record<string, unknown>, cwd: string): void {
+function addPatchPayloadPaths(
+	paths: Set<string>,
+	input: Record<string, unknown>,
+	cwd: string,
+): void {
 	for (const key of ["input", "patch", "command", "cmd"]) {
 		const value = input[key];
 		if (typeof value === "string") {
@@ -187,6 +198,9 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function isFailedToolResponse(value: unknown): boolean {
 	if (!isRecord(value)) return false;
 	return (
-		value["isError"] === true || value["is_error"] === true || value["error"] === true || value["status"] === "error"
+		value.isError === true ||
+		value.is_error === true ||
+		value.error === true ||
+		value.status === "error"
 	);
 }

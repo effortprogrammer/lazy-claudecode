@@ -46,7 +46,10 @@ function getOpeningDelimiterLength(content: string): number {
 	return 0;
 }
 
-function findClosingDelimiter(content: string, openingLength: number): { start: number; bodyStart: number } | null {
+function findClosingDelimiter(
+	content: string,
+	openingLength: number,
+): { start: number; bodyStart: number } | null {
 	let lineStart = openingLength;
 
 	while (lineStart <= content.length) {
@@ -136,7 +139,11 @@ function parseBooleanValue(value: string, lineNumber: number): boolean {
 	throw new RuleFrontmatterParseError(`Expected boolean on line ${lineNumber}`);
 }
 
-function parseGlobValue(rawValue: string, lines: string[], lineIndex: number): { values: string[]; consumed: number } {
+function parseGlobValue(
+	rawValue: string,
+	lines: string[],
+	lineIndex: number,
+): { values: string[]; consumed: number } {
 	if (rawValue.startsWith("[")) {
 		return { values: parseInlineArray(rawValue), consumed: 1 };
 	}
@@ -145,8 +152,9 @@ function parseGlobValue(rawValue: string, lines: string[], lineIndex: number): {
 		return parseMultilineArray(lines, lineIndex);
 	}
 
+	const wasQuoted = rawValue.startsWith('"') || rawValue.startsWith("'");
 	const value = parseStringValue(rawValue);
-	if (value.includes(",")) {
+	if (!wasQuoted && value.includes(",")) {
 		return {
 			values: value
 				.split(",")
@@ -159,7 +167,10 @@ function parseGlobValue(rawValue: string, lines: string[], lineIndex: number): {
 	return { values: [value], consumed: 1 };
 }
 
-function parseMultilineArray(lines: string[], lineIndex: number): { values: string[]; consumed: number } {
+function parseMultilineArray(
+	lines: string[],
+	lineIndex: number,
+): { values: string[]; consumed: number } {
 	const values: string[] = [];
 	let consumed = 1;
 

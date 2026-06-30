@@ -71,7 +71,13 @@ export interface UlwLoopPlan {
 }
 
 export type UlwLoopManualQaSurface = "cli" | "http" | "tmux" | "browser" | "gui" | "data";
-export type UlwLoopManualQaArtifactKind = "cli-transcript" | "log" | "screenshot" | "image" | "http-dump" | "data-diff";
+export type UlwLoopManualQaArtifactKind =
+	| "cli-transcript"
+	| "log"
+	| "screenshot"
+	| "image"
+	| "http-dump"
+	| "data-diff";
 
 export interface UlwLoopManualQaArtifactRef {
 	readonly id: string;

@@ -11,7 +11,11 @@ import {
 	readClaudeCodeGoalSnapshotInput,
 	reconcileClaudeCodeGoalSnapshot,
 } from "./claude-goal-snapshot.ts";
-import { requireAllCriteriaPass, requireAllPlanCriteriaPass, requireEssentialCriteriaPass } from "./evidence.ts";
+import {
+	requireAllCriteriaPass,
+	requireAllPlanCriteriaPass,
+	requireEssentialCriteriaPass,
+} from "./evidence.ts";
 import {
 	claudeCodeGoalMode,
 	compatibleClaudeCodeObjectives,
@@ -33,7 +37,7 @@ import type {
 	UlwLoopPlan,
 	UlwLoopQualityGate,
 } from "./types.ts";
-import { iso, UlwLoopError } from "./types.ts";
+import { UlwLoopError, iso } from "./types.ts";
 
 export interface CheckpointUlwLoopArgs {
 	readonly goalId: string;
@@ -59,7 +63,9 @@ function normalizeObjective(value: string): string {
 }
 function nonEmptyEvidence(value: string): string {
 	const trimmed = value.trim();
-	return trimmed || ulwLoopFail("Evidence must be a non-empty string.", "ulw_loop_evidence_required");
+	return (
+		trimmed || ulwLoopFail("Evidence must be a non-empty string.", "ulw_loop_evidence_required")
+	);
 }
 function findGoal(plan: UlwLoopPlan, goalId: string): UlwLoopItem {
 	const goal = plan.goals.find((candidate) => candidate.id === goalId);
@@ -76,7 +82,10 @@ async function readJsonInput(raw: string | undefined, repoRoot: string): Promise
 	}
 	const path = resolve(repoRoot, trimmed);
 	if (!existsSync(path))
-		return ulwLoopFail("Quality gate JSON is neither valid JSON nor a readable path.", "ulw_loop_json_input_invalid");
+		return ulwLoopFail(
+			"Quality gate JSON is neither valid JSON nor a readable path.",
+			"ulw_loop_json_input_invalid",
+		);
 	try {
 		return JSON.parse(await readFile(path, "utf8"));
 	} catch (error) {
@@ -87,7 +96,11 @@ async function readJsonInput(raw: string | undefined, repoRoot: string): Promise
 	}
 }
 
-function makeAggregateCompletion(now: string, evidence: string, claudeCodeGoal: unknown): UlwLoopAggregateCompletion {
+function makeAggregateCompletion(
+	now: string,
+	evidence: string,
+	claudeCodeGoal: unknown,
+): UlwLoopAggregateCompletion {
 	return { status: "complete", completedAt: now, evidence, claudeCodeGoal };
 }
 
@@ -114,7 +127,7 @@ function applyBlockedOrFailed(
 		goal.requiredExternalDecision = `Resolve external authorization: ${signature}`;
 	}
 	if (needsDecision) goal.nonRetriable = true;
-	if (plan.activeGoalId === goal.id) delete plan.activeGoalId;
+	if (plan.activeGoalId === goal.id) plan.activeGoalId = undefined;
 }
 
 function ledgerKind(
@@ -146,8 +159,10 @@ function buildLedger(
 	if (claudeCodeGoal !== undefined) entry.claudeCodeGoal = claudeCodeGoal;
 	if (qualityGate !== undefined) entry.qualityGate = qualityGate;
 	if (goal.blockerSignature !== undefined) entry.blockerSignature = goal.blockerSignature;
-	if (goal.blockerOccurrenceCount !== undefined) entry.blockerOccurrenceCount = goal.blockerOccurrenceCount;
-	if (goal.requiredExternalDecision !== undefined) entry.requiredExternalDecision = goal.requiredExternalDecision;
+	if (goal.blockerOccurrenceCount !== undefined)
+		entry.blockerOccurrenceCount = goal.blockerOccurrenceCount;
+	if (goal.requiredExternalDecision !== undefined)
+		entry.requiredExternalDecision = goal.requiredExternalDecision;
 	return entry;
 }
 
@@ -186,7 +201,8 @@ export async function checkpointUlwLoop(
 				const mismatchedTaskObjective =
 					snapshot?.available === true &&
 					objective !== undefined &&
-					normalizeObjective(objective) !== normalizeObjective(expectedClaudeCodeObjective(plan, goal));
+					normalizeObjective(objective) !==
+						normalizeObjective(expectedClaudeCodeObjective(plan, goal));
 				const completedTaskScoped =
 					mismatchedTaskObjective &&
 					snapshot.status === "complete" &&
@@ -225,16 +241,23 @@ export async function checkpointUlwLoop(
 			goal.status = "complete";
 			goal.completedAt = now;
 			goal.evidence = evidence;
-			delete goal.failedAt;
-			delete goal.failureReason;
+			goal.failedAt = undefined;
+			goal.failureReason = undefined;
 			clearGoalBlockerFields(goal);
-			if (plan.activeGoalId === goal.id) delete plan.activeGoalId;
+			if (plan.activeGoalId === goal.id) plan.activeGoalId = undefined;
 		} else applyBlockedOrFailed(goal, plan, args.status, evidence, now);
 		goal.updatedAt = now;
 		if (aggregateCompletion !== undefined) plan.aggregateCompletion = aggregateCompletion;
 		plan.updatedAt = now;
 		await writePlan(repoRoot, plan, scope);
-		const ledgerEntry = buildLedger(now, args, goal, qualityGate, claudeCodeGoal, aggregateCompletion);
+		const ledgerEntry = buildLedger(
+			now,
+			args,
+			goal,
+			qualityGate,
+			claudeCodeGoal,
+			aggregateCompletion,
+		);
 		await appendLedger(repoRoot, ledgerEntry, scope);
 		return aggregateCompletion === undefined
 			? { plan, goal, ledgerEntry }

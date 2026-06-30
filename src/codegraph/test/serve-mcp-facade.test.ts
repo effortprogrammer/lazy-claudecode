@@ -1,7 +1,7 @@
 import { describe, expect, it } from "bun:test";
 import { PassThrough } from "node:stream";
 
-import { runCodegraphServe } from "../src/serve.ts";
+import { runCodegraphServe } from "../serve.ts";
 
 describe("runCodegraphServe MCP unavailable facade", () => {
 	it("#given CodeGraph is unavailable #when an MCP client initializes #then it answers with an empty-tool facade", async () => {
@@ -25,15 +25,17 @@ describe("runCodegraphServe MCP unavailable facade", () => {
 		});
 
 		// when
-		input.end(frameMcpRequest({
-			id: 1,
-			method: "initialize",
-			params: {
-				capabilities: {},
-				clientInfo: { name: "ulw-red", version: "0.0.0" },
-				protocolVersion: "2025-06-18",
-			},
-		}));
+		input.end(
+			frameMcpRequest({
+				id: 1,
+				method: "initialize",
+				params: {
+					capabilities: {},
+					clientInfo: { name: "ulw-red", version: "0.0.0" },
+					protocolVersion: "2025-06-18",
+				},
+			}),
+		);
 		const exitCode = await run;
 
 		// then

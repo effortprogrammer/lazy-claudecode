@@ -8,7 +8,9 @@ export interface UpdateClaudeCodeConfigOptions {
 	readonly mcpServers?: Record<string, unknown>;
 }
 
-export async function updateClaudeCodeConfig(options: UpdateClaudeCodeConfigOptions): Promise<void> {
+export async function updateClaudeCodeConfig(
+	options: UpdateClaudeCodeConfigOptions,
+): Promise<void> {
 	const { join } = await import("node:path");
 	const { readFile, writeFile, mkdir } = await import("node:fs/promises");
 	const settingsPath = join(options.claudeCodeHome, "settings.json");
@@ -17,13 +19,21 @@ export async function updateClaudeCodeConfig(options: UpdateClaudeCodeConfigOpti
 	try {
 		const raw = await readFile(settingsPath, "utf-8");
 		settings = JSON.parse(raw);
-	} catch { /* fresh settings */ }
+	} catch {
+		/* fresh settings */
+	}
 
 	if (options.hooks) {
-		settings["hooks"] = { ...(settings["hooks"] as Record<string, unknown> ?? {}), ...options.hooks };
+		settings.hooks = {
+			...((settings.hooks as Record<string, unknown>) ?? {}),
+			...options.hooks,
+		};
 	}
 	if (options.mcpServers) {
-		settings["mcpServers"] = { ...(settings["mcpServers"] as Record<string, unknown> ?? {}), ...options.mcpServers };
+		settings.mcpServers = {
+			...((settings.mcpServers as Record<string, unknown>) ?? {}),
+			...options.mcpServers,
+		};
 	}
 
 	await mkdir(options.claudeCodeHome, { recursive: true });

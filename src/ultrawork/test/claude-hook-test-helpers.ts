@@ -19,7 +19,8 @@ export function cleanupTempDirectories(): void {
 
 export function parseHookOutput(output: string): UserPromptSubmitHookOutput {
 	const parsed: unknown = JSON.parse(output);
-	if (!isUserPromptSubmitHookOutput(parsed)) throw new TypeError("Expected UserPromptSubmit hook output");
+	if (!isUserPromptSubmitHookOutput(parsed))
+		throw new TypeError("Expected UserPromptSubmit hook output");
 	return parsed;
 }
 
@@ -88,11 +89,11 @@ export function writeCodexContextWindowTranscript(): string {
 
 function isUserPromptSubmitHookOutput(value: unknown): value is UserPromptSubmitHookOutput {
 	if (!isRecord(value)) return false;
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	return (
 		isRecord(hookSpecificOutput) &&
-		hookSpecificOutput["hookEventName"] === "UserPromptSubmit" &&
-		typeof hookSpecificOutput["additionalContext"] === "string"
+		hookSpecificOutput.hookEventName === "UserPromptSubmit" &&
+		typeof hookSpecificOutput.additionalContext === "string"
 	);
 }
 

@@ -12,7 +12,10 @@ const DIRECTIVE_HEADER = [
 const DIRECTIVE_FOOTER =
 	"\nOperating without these rules is a protocol violation. Reconstructing them from memory is NOT reading. READ THEM ALL. NO EXCUSES.";
 
-export function buildPostCompactReadDirective(rulePaths: ReadonlyArray<string>, maxChars: number): string {
+export function buildPostCompactReadDirective(
+	rulePaths: ReadonlyArray<string>,
+	maxChars: number,
+): string {
 	const paths = uniqueStrings([...rulePaths]);
 	if (paths.length === 0) {
 		return "";

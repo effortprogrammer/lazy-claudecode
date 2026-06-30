@@ -60,7 +60,9 @@ export function parsePreToolUsePayload(raw: string): PreToolUsePayload | null {
 	}
 }
 
-export async function applyUserPromptUlwLoopSteering(payload: UserPromptSubmitPayload): Promise<string> {
+export async function applyUserPromptUlwLoopSteering(
+	payload: UserPromptSubmitPayload,
+): Promise<string> {
 	try {
 		if (payload.hook_event_name !== "UserPromptSubmit") return "";
 		const proposal = parseUlwLoopSteeringDirective(payload.prompt);
@@ -98,7 +100,10 @@ export function applyPreToolUseGoalBudgetGuard(payload: PreToolUsePayload): stri
 	return `${JSON.stringify(output)}\n`;
 }
 
-export async function runUlwLoopHookCli(stdin: NodeJS.ReadableStream, stdout: NodeJS.WritableStream): Promise<void> {
+export async function runUlwLoopHookCli(
+	stdin: NodeJS.ReadableStream,
+	stdout: NodeJS.WritableStream,
+): Promise<void> {
 	try {
 		const payload = parseUserPromptSubmitPayload(await readAll(stdin));
 		if (payload === null) return;
@@ -128,26 +133,28 @@ export async function runPreToolUseGoalBudgetGuardCli(
 function isUserPromptSubmitPayload(value: unknown): value is UserPromptSubmitPayload {
 	if (!isRecord(value)) return false;
 	return (
-		value["hook_event_name"] === "UserPromptSubmit" &&
-		typeof value["cwd"] === "string" &&
-		typeof value["prompt"] === "string" &&
-		typeof value["session_id"] === "string" &&
-		["model", "permission_mode", "transcript_path", "turn_id"].every((key) => optionalString(value[key]))
+		value.hook_event_name === "UserPromptSubmit" &&
+		typeof value.cwd === "string" &&
+		typeof value.prompt === "string" &&
+		typeof value.session_id === "string" &&
+		["model", "permission_mode", "transcript_path", "turn_id"].every((key) =>
+			optionalString(value[key]),
+		)
 	);
 }
 
 function isPreToolUsePayload(value: unknown): value is PreToolUsePayload {
 	if (!isRecord(value)) return false;
 	return (
-		value["hook_event_name"] === "PreToolUse" &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["tool_name"] === "string" &&
-		typeof value["tool_use_id"] === "string" &&
-		(value["transcript_path"] === null || typeof value["transcript_path"] === "string") &&
-		typeof value["turn_id"] === "string" &&
+		value.hook_event_name === "PreToolUse" &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.session_id === "string" &&
+		typeof value.tool_name === "string" &&
+		typeof value.tool_use_id === "string" &&
+		(value.transcript_path === null || typeof value.transcript_path === "string") &&
+		typeof value.turn_id === "string" &&
 		Object.hasOwn(value, "tool_input")
 	);
 }

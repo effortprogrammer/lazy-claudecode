@@ -1,18 +1,28 @@
 import { existsSync } from "node:fs";
 
+import type { Engine } from "../shared/rules-engine/index.ts";
+import { isNeverTruncatedRule } from "../shared/rules-engine/index.ts";
+import type { LoadedRule, PiRulesConfig } from "../shared/rules-engine/index.ts";
 import type { ClaudeCodeRulesHookOptions } from "./claude-hook-options.ts";
 import { configFromEnvironment } from "./config.ts";
 import { withPromptBudget } from "./event-budget.ts";
 import { formatAdditionalContextOutput } from "./hook-output.ts";
-import { completePostCompactRecovery, hydrateEngineState, persistEngineState } from "./persistent-cache.ts";
+import {
+	completePostCompactRecovery,
+	hydrateEngineState,
+	persistEngineState,
+} from "./persistent-cache.ts";
 import { withPostCompactBudget } from "./post-compact-budget.ts";
 import { buildPostCompactReadDirective } from "./post-compact-directive.ts";
-import type { Engine } from "../shared/rules-engine/index.ts";
-import { isNeverTruncatedRule } from "../shared/rules-engine/index.ts";
-import type { LoadedRule, PiRulesConfig } from "../shared/rules-engine/index.ts";
 import { createRulesEngine } from "./rules-engine-factory.ts";
-import { getSparkShellRuntimeAwareness, SPARKSHELL_AWARENESS_DEDUP_KEY } from "./sparkshell-awareness.ts";
-import { filterRulesAlreadyInTranscript, filterRulesNotInTranscriptText } from "./transcript-rule-filter.ts";
+import {
+	SPARKSHELL_AWARENESS_DEDUP_KEY,
+	getSparkShellRuntimeAwareness,
+} from "./sparkshell-awareness.ts";
+import {
+	filterRulesAlreadyInTranscript,
+	filterRulesNotInTranscriptText,
+} from "./transcript-rule-filter.ts";
 import type { TranscriptSearchOptions } from "./transcript-search.ts";
 import { readTranscriptSearchText } from "./transcript-search.ts";
 
@@ -114,7 +124,11 @@ function runPostCompactRecovery(input: PostCompactRecoveryInput): string {
 		? ""
 		: getSparkShellRuntimeAwareness(input.options.env);
 
-	if (missingRules.length === 0 && dynamicRulePaths.length === 0 && sparkshellAwareness.length === 0) {
+	if (
+		missingRules.length === 0 &&
+		dynamicRulePaths.length === 0 &&
+		sparkshellAwareness.length === 0
+	) {
 		persistEngineState(engine, input.cachePath, input.channel);
 		return "";
 	}
@@ -166,7 +180,7 @@ function recoverDynamicRulePaths(
 			if (staticRulePaths.has(rulePath)) {
 				continue;
 			}
-			if (transcriptText !== null && transcriptText.includes(rulePath)) {
+			if (transcriptText?.includes(rulePath)) {
 				continue;
 			}
 			if (!existsSync(rulePath)) {

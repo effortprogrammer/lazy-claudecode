@@ -1,17 +1,21 @@
 import type { Readable } from "node:stream";
 
-import type { LazyClaudeCodeConfig as SharedLazyClaudeCodeConfig } from "../shared/config-loader.ts";
 import type { CodegraphProvisionResult as SharedCodegraphProvisionResult } from "../shared/codegraph/provision.ts";
-import type {
-	CodegraphResolution,
-	CodegraphResolveOptions,
-} from "../shared/codegraph/resolve.ts";
+import type { CodegraphResolution, CodegraphResolveOptions } from "../shared/codegraph/resolve.ts";
 import type { CodegraphWorkspacePreparation as SharedCodegraphWorkspacePreparation } from "../shared/codegraph/workspace.ts";
+import type { LazyClaudeCodeConfig as SharedLazyClaudeCodeConfig } from "../shared/config-loader.ts";
 import type { CodegraphConfig as SharedCodegraphConfig } from "../shared/config.ts";
 
 export type SessionStartAction = "skipped-disabled" | "spawned";
 export type PostToolUseAction = "emitted-guidance" | "skipped";
-export type WorkerAction = "failed" | "initialized" | "skipped-disabled" | "skipped-status" | "skipped-unavailable" | "skipped-unsupported-node" | "synced";
+export type WorkerAction =
+	| "failed"
+	| "initialized"
+	| "skipped-disabled"
+	| "skipped-status"
+	| "skipped-unavailable"
+	| "skipped-unsupported-node"
+	| "synced";
 
 export interface WorkerSpawnInvocation {
 	readonly args: readonly string[];
@@ -57,8 +61,15 @@ export interface CodegraphSessionStartOutcome {
 
 export interface CodegraphSessionStartDeps {
 	readonly ensureGitignored: (projectRoot: string) => boolean;
-	readonly ensureProvisioned: (options: { readonly installDir?: string; readonly lockDir: string; readonly version: "1.0.1" }) => Promise<CodegraphProvisionResult>;
-	readonly prepareWorkspace: (projectRoot: string, options: { readonly homeDir: string }) => CodegraphWorkspacePreparation;
+	readonly ensureProvisioned: (options: {
+		readonly installDir?: string;
+		readonly lockDir: string;
+		readonly version: "1.0.1";
+	}) => Promise<CodegraphProvisionResult>;
+	readonly prepareWorkspace: (
+		projectRoot: string,
+		options: { readonly homeDir: string },
+	) => CodegraphWorkspacePreparation;
 	readonly resolveCommand: (options?: CodegraphResolveOptions) => CodegraphResolution;
 	readonly runCommand: (
 		projectRoot: string,

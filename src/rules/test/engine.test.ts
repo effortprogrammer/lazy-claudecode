@@ -1,10 +1,10 @@
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 
-import { configFromEnvironment } from "../src/config.ts";
-import { createEngine, defaultConfig, type EngineDeps } from "../../shared/rules-engine/index.ts";
+import { type EngineDeps, createEngine, defaultConfig } from "../../shared/rules-engine/index.ts";
 import { matchRule as defaultMatchRule } from "../../shared/rules-engine/index.ts";
 import type { RuleCandidate } from "../../shared/rules-engine/index.ts";
+import { configFromEnvironment } from "../config.ts";
 
 const projectRoot = "/tmp/claude-code-rules-engine";
 
@@ -174,7 +174,9 @@ describe("rule engine dynamic matching", () => {
 			findProjectRoot: () => projectRoot,
 			findCandidates: () => [candidate],
 			readFile: () =>
-				["---", 'globs: ["**/*.ts", "!**/*.test.ts"]', "---", "", "Prefer strict TypeScript."].join("\n"),
+				["---", 'globs: ["**/*.ts", "!**/*.test.ts"]', "---", "", "Prefer strict TypeScript."].join(
+					"\n",
+				),
 			matchRule: (input) => {
 				matchCalls += 1;
 				return defaultMatchRule(input);
@@ -229,7 +231,9 @@ describe("rule engine default source selection", () => {
 			readFile: () => null,
 		} satisfies EngineDeps;
 		const engine = createEngine(
-			configFromEnvironment({ LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,~/.claude/CLAUDE.md,plugin-bundled" }),
+			configFromEnvironment({
+				LAZY_CLAUDECODE_RULES_ENABLED_SOURCES: "AGENTS.md,~/.claude/CLAUDE.md,plugin-bundled",
+			}),
 			deps,
 		);
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { isUlwLoopSubcommand, ulwLoopCommand } from "./cli-commands.ts";
 import { runPreToolUseGoalBudgetGuardCli, runUlwLoopHookCli } from "./claude-hook.ts";
+import { isUlwLoopSubcommand, ulwLoopCommand } from "./cli-commands.ts";
 
 const TOP_LEVEL_HELP =
 	"Usage:\n  lazy-claudecode ulw-loop <subcommand> [args]\n  lazy-claudecode hook user-prompt-submit         (Claude Code UserPromptSubmit hook)\n  lazy-claudecode help | --help | -h              (this message)\n\nRun `lazy-claudecode ulw-loop help` for ulw-loop subcommands.\n";
@@ -36,6 +36,8 @@ main()
 		process.exit(code);
 	})
 	.catch((error: unknown) => {
-		process.stderr.write(`[lazy-claudecode] ${error instanceof Error ? error.message : String(error)}\n`);
+		process.stderr.write(
+			`[lazy-claudecode] ${error instanceof Error ? error.message : String(error)}\n`,
+		);
 		process.exit(1);
 	});

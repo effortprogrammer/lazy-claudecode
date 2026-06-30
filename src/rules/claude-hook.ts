@@ -1,6 +1,9 @@
 import type { ClaudeCodeRulesHookOptions } from "./claude-hook-options.ts";
 import { configFromEnvironment } from "./config.ts";
-import { hasContextPressureMarker, transcriptHasContextPressureMarker } from "./context-pressure.ts";
+import {
+	hasContextPressureMarker,
+	transcriptHasContextPressureMarker,
+} from "./context-pressure.ts";
 import { createHookDebugTimer } from "./debug-log.ts";
 import { fingerprintDynamicTargets } from "./dynamic-target-fingerprints.ts";
 import { withDynamicBudget } from "./event-budget.ts";
@@ -77,10 +80,15 @@ export async function runSessionStartHook(
 	const cachePath = sessionCachePath(input.session_id, options.pluginDataRoot);
 	if (input.source === "clear") {
 		clearSessionState(cachePath);
-	} else if (input.source !== "resume" && input.source !== "compact" && !hasPostCompactPending(cachePath)) {
+	} else if (
+		input.source !== "resume" &&
+		input.source !== "compact" &&
+		!hasPostCompactPending(cachePath)
+	) {
 		clearSessionState(cachePath);
 	}
-	const postCompactClaim = input.source === "clear" ? "not-pending" : claimPostCompactPending(cachePath, "static");
+	const postCompactClaim =
+		input.source === "clear" ? "not-pending" : claimPostCompactPending(cachePath, "static");
 	const completedPostCompactKind =
 		claimedPostCompactKind(postCompactClaim, "static") ??
 		(input.source === "compact" && postCompactClaim === "not-pending" ? "static" : undefined);
@@ -122,11 +130,19 @@ export async function runUserPromptSubmitHook(
 	}
 	const cachePath = sessionCachePath(input.session_id, options.pluginDataRoot);
 	const postCompactClaim = claimPostCompactPending(cachePath, "static");
-	if (postCompactClaim === "not-pending" && transcriptHasContextPressureMarker(input.transcript_path)) {
+	if (
+		postCompactClaim === "not-pending" &&
+		transcriptHasContextPressureMarker(input.transcript_path)
+	) {
 		return "";
 	}
 	const completedPostCompactKind = claimedPostCompactKind(postCompactClaim, "static");
-	if (shouldSkipPostCompactClaim(postCompactClaim, isPostCompactRecoveryInProgress(cachePath, "static"))) {
+	if (
+		shouldSkipPostCompactClaim(
+			postCompactClaim,
+			isPostCompactRecoveryInProgress(cachePath, "static"),
+		)
+	) {
 		return "";
 	}
 	return runStaticInjection(
@@ -167,12 +183,20 @@ export async function runPostToolUseHook(
 
 	const cachePath = sessionCachePath(input.session_id, options.pluginDataRoot);
 	const postCompactClaim = claimPostCompactPending(cachePath, "dynamic");
-	if (postCompactClaim === "not-pending" && transcriptHasContextPressureMarker(input.transcript_path)) {
+	if (
+		postCompactClaim === "not-pending" &&
+		transcriptHasContextPressureMarker(input.transcript_path)
+	) {
 		debugTimer.done({ outputBytes: 0, reason: "context-pressure-transcript" });
 		return "";
 	}
 	const completedPostCompactKind = claimedPostCompactKind(postCompactClaim, "dynamic");
-	if (shouldSkipPostCompactClaim(postCompactClaim, isPostCompactRecoveryInProgress(cachePath, "dynamic"))) {
+	if (
+		shouldSkipPostCompactClaim(
+			postCompactClaim,
+			isPostCompactRecoveryInProgress(cachePath, "dynamic"),
+		)
+	) {
 		debugTimer.done({ outputBytes: 0, reason: "post-compact-recovery-in-progress" });
 		return "";
 	}
@@ -180,7 +204,10 @@ export async function runPostToolUseHook(
 	const engine = createRulesEngine(
 		options,
 		completedPostCompactKind !== undefined
-			? withPostCompactBudget(dynamicConfig, { model: input.model, transcriptPath: input.transcript_path })
+			? withPostCompactBudget(dynamicConfig, {
+					model: input.model,
+					transcriptPath: input.transcript_path,
+				})
 			: dynamicConfig,
 	);
 	hydrateEngineState(engine, cachePath);
@@ -206,9 +233,14 @@ export async function runPostToolUseHook(
 		input.cwd,
 		pendingTargetFingerprints.map((target) => target.targetPath),
 	);
-	debugTimer.lap("load", { diagnostics: loaded.diagnostics.length, loadedRules: loaded.rules.length });
+	debugTimer.lap("load", {
+		diagnostics: loaded.diagnostics.length,
+		loadedRules: loaded.rules.length,
+	});
 	const rules = filterRulesAlreadyInTranscript(
-		loaded.rules.filter((rule) => !engine.isStaticInjected(rule) && !engine.isDynamicInjected(rule)),
+		loaded.rules.filter(
+			(rule) => !engine.isStaticInjected(rule) && !engine.isDynamicInjected(rule),
+		),
 		input.transcript_path,
 		(rule) => {
 			engine.markDynamicInjected(rule);

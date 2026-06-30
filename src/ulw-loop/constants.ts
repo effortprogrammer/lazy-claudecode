@@ -35,9 +35,15 @@ export const ULW_LOOP_SUCCESS_CRITERION_USER_MODELS = [
 	"regression",
 	"adversarial",
 ] as const satisfies readonly string[];
-export type UlwLoopSuccessCriterionUserModel = (typeof ULW_LOOP_SUCCESS_CRITERION_USER_MODELS)[number];
+export type UlwLoopSuccessCriterionUserModel =
+	(typeof ULW_LOOP_SUCCESS_CRITERION_USER_MODELS)[number];
 
-export const ULW_LOOP_CRITERION_STATUSES = ["pending", "pass", "fail", "blocked"] as const satisfies readonly string[];
+export const ULW_LOOP_CRITERION_STATUSES = [
+	"pending",
+	"pass",
+	"fail",
+	"blocked",
+] as const satisfies readonly string[];
 export type UlwLoopCriterionStatus = (typeof ULW_LOOP_CRITERION_STATUSES)[number];
 
 export const ULW_LOOP_LEDGER_EVENT_KINDS = [

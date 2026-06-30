@@ -29,8 +29,9 @@ function textHasCompletionValidationEvidence(value: string | undefined): boolean
 		/\b(?:planned work|implementation|deliverables?|scope|task|work)\b/.test(normalized) &&
 		/\b(?:done|complete|completed|finished|shipped)\b/.test(normalized);
 	const verified =
-		/\b(?:validation|verification|tests?|build|lint|review|quality gate|code-review)\b/.test(normalized) &&
-		/\b(?:passed|complete|completed|clean|green|approve|approved|clear)\b/.test(normalized);
+		/\b(?:validation|verification|tests?|build|lint|review|quality gate|code-review)\b/.test(
+			normalized,
+		) && /\b(?:passed|complete|completed|clean|green|approve|approved|clear)\b/.test(normalized);
 	return done && verified;
 }
 
@@ -43,7 +44,9 @@ async function snapshotObjectiveMapsToUlwLoopPlan(
 	if (textMentionsUlwLoopPlanArtifact(actual)) return true;
 	if (actual.length < 24 || !existsSync(ulwLoopBriefPath(repoRoot, scope))) return false;
 	try {
-		const brief = normalizeObjective(await readFile(ulwLoopBriefPath(repoRoot, scope), "utf8")).toLowerCase();
+		const brief = normalizeObjective(
+			await readFile(ulwLoopBriefPath(repoRoot, scope), "utf8"),
+		).toLowerCase();
 		return brief.length >= 24 && (brief.includes(actual) || actual.includes(brief));
 	} catch (error) {
 		if (error instanceof Error) return false;
@@ -64,7 +67,8 @@ export async function canReconcileCompletedTaskScopedAggregateSnapshot(
 	if (isFinalRunCompletionCandidate(plan, goal)) {
 		return snapshotObjectiveMapsToUlwLoopPlan(repoRoot, snapshotObjective, scope);
 	}
-	if (!textMentionsUlwLoopPlanArtifact(evidence) || !textMentionsGoalId(evidence, goal.id)) return false;
+	if (!textMentionsUlwLoopPlanArtifact(evidence) || !textMentionsGoalId(evidence, goal.id))
+		return false;
 	if (!textHasCompletionValidationEvidence(evidence)) return false;
 	return snapshotObjectiveMapsToUlwLoopPlan(repoRoot, snapshotObjective, scope);
 }
@@ -92,7 +96,10 @@ function buildCompletedLegacyGoalRemediation(goal: UlwLoopItem): string {
 	].join(" ");
 }
 
-export function buildTaskScopedAggregateReconciliationHint(goal: UlwLoopItem, final: boolean): string {
+export function buildTaskScopedAggregateReconciliationHint(
+	goal: UlwLoopItem,
+	final: boolean,
+): string {
 	if (final) {
 		return ` Final task-scoped aggregate reconciliation requires the checkpoint goal to be the active in-progress final OMO goal and the completed get_goal objective to map to the ulw-loop brief or artifact. ${buildCompletedLegacyGoalRemediation(goal)}`;
 	}

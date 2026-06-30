@@ -18,12 +18,12 @@ beforeEach(async () => {
 	testDir = await mkdtemp(join(tmpdir(), "ug-cli-create-goals-"));
 	out = [];
 	err = [];
-	originalClaudeSessionId = process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	originalClaudeThreadId = process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	originalOmoSessionId = process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	originalClaudeSessionId = process.env.LAZY_CLAUDECODE_SESSION_ID;
+	originalClaudeThreadId = process.env.LAZY_CLAUDECODE_THREAD_ID;
+	originalOmoSessionId = process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID;
+	process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
 	vi.spyOn(process, "cwd").mockReturnValue(testDir);
 	vi.spyOn(process.stdout, "write").mockImplementation((chunk: string | Uint8Array): boolean => {
 		out.push(chunk.toString());
@@ -37,12 +37,13 @@ beforeEach(async () => {
 
 afterEach(async () => {
 	vi.restoreAllMocks();
-	if (originalClaudeSessionId === undefined) delete process.env["LAZY_CLAUDECODE_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_SESSION_ID"] = originalClaudeSessionId;
-	if (originalClaudeThreadId === undefined) delete process.env["LAZY_CLAUDECODE_THREAD_ID"];
-	else process.env["LAZY_CLAUDECODE_THREAD_ID"] = originalClaudeThreadId;
-	if (originalOmoSessionId === undefined) delete process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
-	else process.env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"] = originalOmoSessionId;
+	if (originalClaudeSessionId === undefined) process.env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_SESSION_ID = originalClaudeSessionId;
+	if (originalClaudeThreadId === undefined) process.env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_THREAD_ID = originalClaudeThreadId;
+	if (originalOmoSessionId === undefined)
+		process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
+	else process.env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = originalOmoSessionId;
 	await rm(testDir, { recursive: true, force: true });
 });
 
@@ -97,13 +98,18 @@ describe("ulwLoopCommand create-goals", () => {
 		expect(parsed).toMatchObject({ ok: true });
 		expect(parsed).toHaveProperty("plan.goals.0.successCriteria.0.id", "C001");
 		expect(await readFile(join(testDir, ".claude/ulw-loop/brief.md"), "utf8")).toContain("Goal A");
-		expect(await readFile(join(testDir, ".claude/ulw-loop/goals.json"), "utf8")).toContain("successCriteria");
-		expect(await readFile(join(testDir, ".claude/ulw-loop/ledger.jsonl"), "utf8")).toContain("plan_created");
+		expect(await readFile(join(testDir, ".claude/ulw-loop/goals.json"), "utf8")).toContain(
+			"successCriteria",
+		);
+		expect(await readFile(join(testDir, ".claude/ulw-loop/ledger.jsonl"), "utf8")).toContain(
+			"plan_created",
+		);
 	});
 
 	it("#given completed default aggregate #when creating another default plan #then guides to a fresh session", async () => {
 		await createPlan("- Finished");
-		for (const criterionId of ["C001", "C002", "C003"]) await passCriterion("G001-finished", criterionId);
+		for (const criterionId of ["C001", "C002", "C003"])
+			await passCriterion("G001-finished", criterionId);
 		expect(
 			await ulwLoopCommand([
 				"checkpoint",
@@ -129,18 +135,36 @@ describe("ulwLoopCommand create-goals", () => {
 	});
 
 	it("#given two session ids #when creating goals #then writes isolated session-scoped plans", async () => {
-		expect(await ulwLoopCommand(["create-goals", "--session-id", "session-A", "--brief", "- Alpha", "--json"])).toBe(
-			0,
-		);
+		expect(
+			await ulwLoopCommand([
+				"create-goals",
+				"--session-id",
+				"session-A",
+				"--brief",
+				"- Alpha",
+				"--json",
+			]),
+		).toBe(0);
 		resetOutput();
 
-		expect(await ulwLoopCommand(["create-goals", "--session-id", "session-B", "--brief", "- Beta", "--json"])).toBe(
-			0,
-		);
+		expect(
+			await ulwLoopCommand([
+				"create-goals",
+				"--session-id",
+				"session-B",
+				"--brief",
+				"- Beta",
+				"--json",
+			]),
+		).toBe(0);
 		resetOutput();
 
-		expect(await readFile(join(testDir, ".claude/ulw-loop/session-A/goals.json"), "utf8")).toContain("Alpha");
-		expect(await readFile(join(testDir, ".claude/ulw-loop/session-B/goals.json"), "utf8")).toContain("Beta");
+		expect(
+			await readFile(join(testDir, ".claude/ulw-loop/session-A/goals.json"), "utf8"),
+		).toContain("Alpha");
+		expect(
+			await readFile(join(testDir, ".claude/ulw-loop/session-B/goals.json"), "utf8"),
+		).toContain("Beta");
 
 		expect(await ulwLoopCommand(["status", "--session-id", "session-A", "--json"])).toBe(0);
 		expect(stdoutJson()).toMatchObject({
@@ -150,23 +174,34 @@ describe("ulwLoopCommand create-goals", () => {
 	});
 
 	it("#given Claude Code thread env #when creating goals #then uses the thread as the session scope", async () => {
-		process.env["LAZY_CLAUDECODE_THREAD_ID"] = "thread-123";
+		process.env.LAZY_CLAUDECODE_THREAD_ID = "thread-123";
 
 		expect(await ulwLoopCommand(["create-goals", "--brief", "- Thread scoped", "--json"])).toBe(0);
 		resetOutput();
 
-		expect(await readFile(join(testDir, ".claude/ulw-loop/thread-123/goals.json"), "utf8")).toContain("Thread scoped");
+		expect(
+			await readFile(join(testDir, ".claude/ulw-loop/thread-123/goals.json"), "utf8"),
+		).toContain("Thread scoped");
 		expect(await ulwLoopCommand(["status", "--json"])).toBe(0);
 		expect(stdoutJson()).toHaveProperty("plan.goalsPath", ".claude/ulw-loop/thread-123/goals.json");
 	});
 
 	it("#given Claude Code thread env and explicit session id #when creating goals #then the explicit session wins", async () => {
-		process.env["LAZY_CLAUDECODE_THREAD_ID"] = "thread-123";
+		process.env.LAZY_CLAUDECODE_THREAD_ID = "thread-123";
 
 		expect(
-			await ulwLoopCommand(["create-goals", "--session-id", "manual-456", "--brief", "- Manual scoped", "--json"]),
+			await ulwLoopCommand([
+				"create-goals",
+				"--session-id",
+				"manual-456",
+				"--brief",
+				"- Manual scoped",
+				"--json",
+			]),
 		).toBe(0);
 
-		expect(await readFile(join(testDir, ".claude/ulw-loop/manual-456/goals.json"), "utf8")).toContain("Manual scoped");
+		expect(
+			await readFile(join(testDir, ".claude/ulw-loop/manual-456/goals.json"), "utf8"),
+		).toContain("Manual scoped");
 	});
 });

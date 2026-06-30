@@ -4,11 +4,11 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+	SOURCE_PRIORITY,
 	findPluginBundledCandidates,
 	matchRule,
 	parseRule,
 	scanRuleFiles,
-	SOURCE_PRIORITY,
 } from "../../shared/rules-engine/index.ts";
 
 const tempDirectories: string[] = [];
@@ -25,7 +25,10 @@ describe("rules-engine package consumption", () => {
 		const pluginRoot = mkdtempSync(join(tmpdir(), "claude-code-rules-engine-consumption-"));
 		tempDirectories.push(pluginRoot);
 		mkdirSync(join(pluginRoot, "bundled-rules"), { recursive: true });
-		writeFileSync(join(pluginRoot, "bundled-rules", "hephaestus.md"), "---\nalwaysApply: true\n---\nBundled\n");
+		writeFileSync(
+			join(pluginRoot, "bundled-rules", "hephaestus.md"),
+			"---\nalwaysApply: true\n---\nBundled\n",
+		);
 		writeFileSync(
 			join(pluginRoot, "bundled-rules", "windows-git-bash.md"),
 			"---\nalwaysApply: true\n---\nWindows only\n",
@@ -67,7 +70,10 @@ describe("rules-engine package consumption", () => {
 		expect(parsed.diagnostic).toMatch(/^Malformed frontmatter:/);
 		expect(parsed.body).toBe(malformedRule);
 		expect(dotMatch).toEqual({ matched: true, reason: { kind: "glob", pattern: "**/.env" } });
-		expect(braceMatch).toEqual({ matched: true, reason: { kind: "glob", pattern: "src/*.{ts,tsx}" } });
+		expect(braceMatch).toEqual({
+			matched: true,
+			reason: { kind: "glob", pattern: "src/*.{ts,tsx}" },
+		});
 	});
 
 	it("#given Claude Code scanner options #when imported from rules-engine #then scan depth and max files remain bounded", () => {

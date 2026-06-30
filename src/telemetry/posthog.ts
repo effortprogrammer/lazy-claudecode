@@ -9,15 +9,20 @@ import {
 	type TelemetryDiagnosticSource,
 	writeTelemetryDiagnostic,
 } from "./diagnostics.ts";
-import { getPostHogApiKey, getPostHogHost, hasPostHogApiKey, shouldDisablePostHog } from "./env-flags.ts";
+import {
+	getPostHogApiKey,
+	getPostHogHost,
+	hasPostHogApiKey,
+	shouldDisablePostHog,
+} from "./env-flags.ts";
 import { getPostHogActivityCaptureState } from "./posthog-activity-state.ts";
 import {
 	DEFAULT_POSTHOG_API_KEY,
 	DEFAULT_POSTHOG_HOST,
 	EVENT_NAME,
-	getComponentVersion,
 	PACKAGE_NAME,
 	PRODUCT_NAME,
+	getComponentVersion,
 } from "./product-identity.ts";
 
 export { DEFAULT_POSTHOG_API_KEY, DEFAULT_POSTHOG_HOST };
@@ -29,7 +34,10 @@ export type PostHogClient = {
 	shutdown: () => Promise<void>;
 };
 
-type OsProvider = Pick<typeof os, "arch" | "cpus" | "hostname" | "platform" | "release" | "totalmem" | "type">;
+type OsProvider = Pick<
+	typeof os,
+	"arch" | "cpus" | "hostname" | "platform" | "release" | "totalmem" | "type"
+>;
 type ActivityStateProvider = typeof getPostHogActivityCaptureState;
 
 let osProviderOverride: OsProvider | null = null;
@@ -101,9 +109,9 @@ function getSharedProperties(): NonNullable<PostHogCaptureEvent["properties"]> {
 		total_memory_gb: Math.round(osProvider.totalmem() / 1024 / 1024 / 1024),
 		locale: Intl.DateTimeFormat().resolvedOptions().locale,
 		timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-		shell: process.env["SHELL"],
-		ci: Boolean(process.env["CI"]),
-		terminal: process.env["TERM_PROGRAM"],
+		shell: process.env.SHELL,
+		ci: Boolean(process.env.CI),
+		terminal: process.env.TERM_PROGRAM,
 	};
 }
 
@@ -173,7 +181,9 @@ export async function createPluginPostHog(): Promise<PostHogClient> {
 }
 
 export function getPostHogDistinctId(): string {
-	return createHash("sha256").update(`lazy-claudecode:${resolveOsProvider().hostname()}`).digest("hex");
+	return createHash("sha256")
+		.update(`lazy-claudecode:${resolveOsProvider().hostname()}`)
+		.digest("hex");
 }
 
 /** @internal test-only */

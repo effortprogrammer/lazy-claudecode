@@ -9,7 +9,7 @@ import {
 	isPostCompactRecoveryInProgress,
 	markSessionCompacted,
 	sessionCachePath,
-} from "../src/persistent-cache.ts";
+} from "../persistent-cache.ts";
 
 const tempDirectories: string[] = [];
 

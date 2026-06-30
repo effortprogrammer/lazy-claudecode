@@ -7,7 +7,8 @@ import type {
 	UlwLoopSuccessCriterion,
 } from "./types.ts";
 
-export const ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE: string = aggregateClaudeCodeObjectiveForScope();
+export const ULW_LOOP_AGGREGATE_CLAUDE_CODE_OBJECTIVE: string =
+	aggregateClaudeCodeObjectiveForScope();
 
 export function aggregateClaudeCodeObjectiveForScope(scope?: UlwLoopScope): string {
 	return `Complete the durable ulw-loop plan in ${ulwLoopGoalsRelativePath(scope)}, including later accepted/appended stories, under the original brief constraints; use ${ulwLoopLedgerRelativePath(scope)} as the audit trail.`;
@@ -72,7 +73,9 @@ export function aggregateClaudeCodeObjective(plan: UlwLoopPlan): string {
 }
 
 export function expectedClaudeCodeObjective(plan: UlwLoopPlan, goal: UlwLoopItem): string {
-	return claudeCodeGoalMode(plan) === "aggregate" ? aggregateClaudeCodeObjective(plan) : goal.objective;
+	return claudeCodeGoalMode(plan) === "aggregate"
+		? aggregateClaudeCodeObjective(plan)
+		: goal.objective;
 }
 
 export function compatibleClaudeCodeObjectives(plan: UlwLoopPlan): readonly string[] {
@@ -80,7 +83,10 @@ export function compatibleClaudeCodeObjectives(plan: UlwLoopPlan): readonly stri
 }
 
 export function hasAllCriteriaPass(goal: UlwLoopItem): boolean {
-	return goal.successCriteria.length > 0 && goal.successCriteria.every((criterion) => criterion.status === "pass");
+	return (
+		goal.successCriteria.length > 0 &&
+		goal.successCriteria.every((criterion) => criterion.status === "pass")
+	);
 }
 
 export function isEssentialCriterion(criterion: UlwLoopSuccessCriterion): boolean {

@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runStopHook } from "../src/claude-code-hook.ts";
-import type { ReadonlyFileSystem, StopInput } from "../src/types.ts";
+import { runStopHook } from "../claude-hook.ts";
+import type { ReadonlyFileSystem, StopInput } from "../types.ts";
 
 const DEFAULT_WORKSPACE = "/repo";
 const cleanupRoots: string[] = [];
@@ -49,7 +49,9 @@ describe("start-work Stop hook", () => {
 				status: "active",
 				worktreePath: "/tmp/worktree",
 			}),
-			planMarkdown: ["# Plan", "", "## TODOs", "- [ ] First", "- [x] Done", "- [ ] Second"].join("\n"),
+			planMarkdown: ["# Plan", "", "## TODOs", "- [ ] First", "- [x] Done", "- [ ] Second"].join(
+				"\n",
+			),
 		});
 		const fs = createMemoryFs();
 
@@ -60,12 +62,18 @@ describe("start-work Stop hook", () => {
 		const parsed = parseBlockOutput(output);
 		expect(parsed.decision).toBe("block");
 		expect(parsed.reason).toContain("- Plan: `launch-plan`");
-		expect(parsed.reason).toContain(`- Plan file: \`${join(workspace, ".claude", "plans", "plan.md")}\``);
-		expect(parsed.reason).toContain(`- Boulder state: \`${join(workspace, ".claude", "boulder.json")}\``);
+		expect(parsed.reason).toContain(
+			`- Plan file: \`${join(workspace, ".claude", "plans", "plan.md")}\``,
+		);
+		expect(parsed.reason).toContain(
+			`- Boulder state: \`${join(workspace, ".claude", "boulder.json")}\``,
+		);
 		expect(parsed.reason).toContain("- Remaining top-level checkboxes: `2` of `3`");
 		expect(parsed.reason).toContain("- Next incomplete task: `First`");
 		expect(parsed.reason).toContain("- Worktree: `/tmp/worktree`");
-		expect(parsed.reason).toContain(`- Ledger: \`${join(workspace, ".claude", "start-work", "ledger.jsonl")}\``);
+		expect(parsed.reason).toContain(
+			`- Ledger: \`${join(workspace, ".claude", "start-work", "ledger.jsonl")}\``,
+		);
 		expect(parsed.reason).toContain("- Your session id in boulder.json: `claude-code:sess_abc`");
 	});
 
@@ -140,7 +148,7 @@ describe("start-work Stop hook", () => {
 
 	it("#given stop hook source #when inspected #then it remains Boulder-only without planning bootstrap logic", () => {
 		// given
-		const hook = readFileSync(new URL("../src/claude-code-hook.ts", import.meta.url), "utf8");
+		const hook = readFileSync(new URL("../src/claude-hook.ts", import.meta.url), "utf8");
 
 		// then
 		expect(hook).toMatch(/readContinuationState/);
@@ -293,8 +301,8 @@ function createMemoryFs(files: Record<string, string> = {}): ReadonlyFileSystem 
 function parseBlockOutput(output: string): { readonly decision: "block"; readonly reason: string } {
 	const parsed: unknown = JSON.parse(output);
 	if (!isRecord(parsed)) throw new Error("Expected object output");
-	if (parsed["decision"] !== "block") throw new Error("Expected block decision");
-	const reason = parsed["reason"];
+	if (parsed.decision !== "block") throw new Error("Expected block decision");
+	const reason = parsed.reason;
 	if (typeof reason !== "string") throw new Error("Expected string reason");
 	return { decision: "block", reason };
 }

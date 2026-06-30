@@ -41,12 +41,19 @@ export async function runSessionStartHook(options: SessionStartHookOptions): Pro
 	return (await executeSessionStartHook(options)).exitCode;
 }
 
-export async function executeSessionStartHook(options: SessionStartHookOptions): Promise<SessionStartHookResult> {
+export async function executeSessionStartHook(
+	options: SessionStartHookOptions,
+): Promise<SessionStartHookResult> {
 	if (options.stdin !== undefined) await drainStdin(options.stdin);
 	const now = options.now ?? Date.now();
-	const pluginRoot = options.env["PLUGIN_ROOT"]?.trim();
-	const pluginData = options.env["PLUGIN_DATA"]?.trim();
-	if (pluginRoot === undefined || pluginRoot.length === 0 || pluginData === undefined || pluginData.length === 0) {
+	const pluginRoot = options.env.PLUGIN_ROOT?.trim();
+	const pluginData = options.env.PLUGIN_DATA?.trim();
+	if (
+		pluginRoot === undefined ||
+		pluginRoot.length === 0 ||
+		pluginData === undefined ||
+		pluginData.length === 0
+	) {
 		return { action: "skip-missing-env", exitCode: 0 };
 	}
 
@@ -56,7 +63,8 @@ export async function executeSessionStartHook(options: SessionStartHookOptions):
 	const state = await readBootstrapState(resolveBootstrapStatePath(pluginData));
 	if (state.completedForVersion === pluginVersion) return { action: "skip-completed", exitCode: 0 };
 
-	if (await isLockFresh(resolveBootstrapLockPath(pluginData), now)) return { action: "skip-locked", exitCode: 0 };
+	if (await isLockFresh(resolveBootstrapLockPath(pluginData), now))
+		return { action: "skip-locked", exitCode: 0 };
 
 	const spawnWorker = options.spawnWorker ?? spawnDetachedWorker;
 	spawnWorker({

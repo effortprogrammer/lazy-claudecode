@@ -18,15 +18,24 @@ function readCodegraphPackageJson(): CodegraphPackageJson {
 }
 
 function isCodegraphPackageJson(value: unknown): value is CodegraphPackageJson {
-	return isRecord(value) && maybeStringArray(value["files"]) && maybeStringRecord(value["optionalDependencies"]);
+	return (
+		isRecord(value) &&
+		maybeStringArray(value.files) &&
+		maybeStringRecord(value.optionalDependencies)
+	);
 }
 
 function maybeStringArray(value: unknown): value is readonly string[] | undefined {
-	return value === undefined || (Array.isArray(value) && value.every((item) => typeof item === "string"));
+	return (
+		value === undefined || (Array.isArray(value) && value.every((item) => typeof item === "string"))
+	);
 }
 
 function maybeStringRecord(value: unknown): value is Readonly<Record<string, string>> | undefined {
-	return value === undefined || (isRecord(value) && Object.values(value).every((item) => typeof item === "string"));
+	return (
+		value === undefined ||
+		(isRecord(value) && Object.values(value).every((item) => typeof item === "string"))
+	);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -77,7 +86,10 @@ describe("CodeGraph component runtime package metadata", () => {
 
 	it("#given third-party notices #when validating CodeGraph component notices #then aggregate Claude Code notices list CodeGraph as shipped", () => {
 		// given
-		const claudeNotice = readFileSync(resolve(repoRoot, "packages/lazy-claudecode-claude-code/THIRD-PARTY-NOTICES.md"), "utf8");
+		const claudeNotice = readFileSync(
+			resolve(repoRoot, "packages/lazy-claudecode-claude-code/THIRD-PARTY-NOTICES.md"),
+			"utf8",
+		);
 
 		// when
 		const listsCodegraphComponent = claudeNotice.includes("@effortprogrammer/claudeCodegraph");
@@ -86,6 +98,8 @@ describe("CodeGraph component runtime package metadata", () => {
 		// then
 		expect(listsCodegraphComponent).toBe(true);
 		expect(listsUpstreamRuntime).toBe(true);
-		expect(claudeNotice).not.toContain("not currently an lazy-claudecode-claude-code plugin component");
+		expect(claudeNotice).not.toContain(
+			"not currently an lazy-claudecode-claude-code plugin component",
+		);
 	});
 });

@@ -7,10 +7,7 @@
 	"bin": {
 		"lazy-claudecode-git-bash-hook": "./dist/cli.js"
 	},
-	"files": [
-		"dist",
-		"hooks"
-	],
+	"files": ["dist", "hooks"],
 	"scripts": {
 		"build": "tsc -p tsconfig.build.json",
 		"test": "bun test test/*.test.ts",

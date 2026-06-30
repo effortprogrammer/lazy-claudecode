@@ -3,7 +3,7 @@ import { existsSync, mkdtempSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { runCodegraphSessionStartWorker } from "../src/hook.ts";
+import { runCodegraphSessionStartWorker } from "../hook.ts";
 
 describe("CodeGraph SessionStart worker Node support", () => {
 	it("#given an unsupported local Node and a PATH CodeGraph command with auto provisioning disabled #when worker runs #then it skips without touching the workspace", async () => {
@@ -22,7 +22,12 @@ describe("CodeGraph SessionStart worker Node support", () => {
 				logOutcome: (outcome) => outcomes.push(outcome),
 				deps: {
 					resolveCommand: () => {
-						return { argsPrefix: [], command: "/usr/local/bin/codegraph", exists: true, source: "path" };
+						return {
+							argsPrefix: [],
+							command: "/usr/local/bin/codegraph",
+							exists: true,
+							source: "path",
+						};
 					},
 					ensureProvisioned: () => {
 						throw new Error("ensureProvisioned should not run on unsupported Node");
@@ -48,11 +53,19 @@ describe("CodeGraph SessionStart worker Node support", () => {
 
 	it("#given an unsupported local Node and a PATH CodeGraph command #when auto provisioning succeeds #then it bootstraps with the provisioned binary", async () => {
 		// given
-		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-node-provision-"));
-		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-node-provision-home-"));
+		const workspace = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-node-provision-"),
+		);
+		const homeDir = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-node-provision-home-"),
+		);
 		const binPath = join(homeDir, ".claude", "codegraph", "bin", "codegraph");
 		const calls: Array<{ readonly args: readonly string[]; readonly command: string }> = [];
-		const provisionCalls: Array<{ readonly installDir?: string; readonly lockDir: string; readonly version: "1.0.1" }> = [];
+		const provisionCalls: Array<{
+			readonly installDir?: string;
+			readonly lockDir: string;
+			readonly version: "1.0.1";
+		}> = [];
 		const outcomes: unknown[] = [];
 
 		try {
@@ -75,10 +88,19 @@ describe("CodeGraph SessionStart worker Node support", () => {
 						mode: "global-linked",
 						projectLink: join(workspace, ".codegraph"),
 					}),
-					resolveCommand: () => ({ argsPrefix: [], command: "/usr/local/bin/codegraph", exists: true, source: "path" }),
+					resolveCommand: () => ({
+						argsPrefix: [],
+						command: "/usr/local/bin/codegraph",
+						exists: true,
+						source: "path",
+					}),
 					runCommand: (_projectRoot, command, args) => {
 						calls.push({ args, command });
-						return Promise.resolve({ exitCode: 0, stdout: calls.length === 1 ? '{"initialized":false}' : "", timedOut: false });
+						return Promise.resolve({
+							exitCode: 0,
+							stdout: calls.length === 1 ? '{"initialized":false}' : "",
+							timedOut: false,
+						});
 					},
 				},
 			});
@@ -90,9 +112,21 @@ describe("CodeGraph SessionStart worker Node support", () => {
 				{ args: ["init"], command: binPath },
 			]);
 			expect(provisionCalls).toEqual([
-				{ installDir: join(homeDir, ".claude", "codegraph"), lockDir: join(homeDir, ".claude", "codegraph", ".locks"), version: "1.0.1" },
+				{
+					installDir: join(homeDir, ".claude", "codegraph"),
+					lockDir: join(homeDir, ".claude", "codegraph", ".locks"),
+					version: "1.0.1",
+				},
 			]);
-			expect(outcomes).toEqual([{ action: "initialized", exitCode: 0, projectRoot: workspace, source: "provisioned", timedOut: false }]);
+			expect(outcomes).toEqual([
+				{
+					action: "initialized",
+					exitCode: 0,
+					projectRoot: workspace,
+					source: "provisioned",
+					timedOut: false,
+				},
+			]);
 		} finally {
 			rmSync(workspace, { recursive: true, force: true });
 			rmSync(homeDir, { recursive: true, force: true });
@@ -101,8 +135,12 @@ describe("CodeGraph SessionStart worker Node support", () => {
 
 	it("#given an unsupported local Node but bundled CodeGraph resolves through CODEGRAPH_NODE_BIN #when worker runs #then it bootstraps with the compatible runtime", async () => {
 		// given
-		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-compatible-node-"));
-		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-compatible-node-home-"));
+		const workspace = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-compatible-node-"),
+		);
+		const homeDir = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-compatible-node-home-"),
+		);
 		const nodeBin = "/opt/node22/bin/node";
 		const calls: Array<{ readonly args: readonly string[]; readonly command: string }> = [];
 		const outcomes: unknown[] = [];
@@ -126,10 +164,19 @@ describe("CodeGraph SessionStart worker Node support", () => {
 						mode: "global-linked",
 						projectLink: join(workspace, ".codegraph"),
 					}),
-					resolveCommand: () => ({ argsPrefix: ["codegraph.js"], command: nodeBin, exists: true, source: "bundled" }),
+					resolveCommand: () => ({
+						argsPrefix: ["codegraph.js"],
+						command: nodeBin,
+						exists: true,
+						source: "bundled",
+					}),
 					runCommand: (_projectRoot, command, args) => {
 						calls.push({ args, command });
-						return Promise.resolve({ exitCode: 0, stdout: calls.length === 1 ? '{"initialized":false}' : "", timedOut: false });
+						return Promise.resolve({
+							exitCode: 0,
+							stdout: calls.length === 1 ? '{"initialized":false}' : "",
+							timedOut: false,
+						});
 					},
 				},
 			});
@@ -140,7 +187,15 @@ describe("CodeGraph SessionStart worker Node support", () => {
 				{ args: ["codegraph.js", "status", "--json"], command: nodeBin },
 				{ args: ["codegraph.js", "init"], command: nodeBin },
 			]);
-			expect(outcomes).toEqual([{ action: "initialized", exitCode: 0, projectRoot: workspace, source: "bundled", timedOut: false }]);
+			expect(outcomes).toEqual([
+				{
+					action: "initialized",
+					exitCode: 0,
+					projectRoot: workspace,
+					source: "bundled",
+					timedOut: false,
+				},
+			]);
 		} finally {
 			rmSync(workspace, { recursive: true, force: true });
 			rmSync(homeDir, { recursive: true, force: true });

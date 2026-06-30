@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { readHooksJson, readPackageJson, readTextFile } from "../../test-support/package-smoke-fixture.ts";
+import {
+	readHooksJson,
+	readPackageJson,
+	readTextFile,
+} from "../../test-support/package-smoke-fixture.ts";
 
 describe("plugin package metadata", () => {
 	it("#given packaged plugin files #when validating entrypoints #then hook command uses portable plugin root interpolation", () => {
@@ -9,7 +13,7 @@ describe("plugin package metadata", () => {
 		const cliSource = readTextFile("src/cli.ts");
 
 		// when
-		const command = hooksJson.hooks["PostToolUse"]?.[0]?.hooks[0]?.command;
+		const command = hooksJson.hooks.PostToolUse?.[0]?.hooks[0]?.command;
 		const pluginRoot = ["$", "{PLUGIN_ROOT}"].join("");
 
 		// then

@@ -46,14 +46,16 @@ function makePlan(goals: UlwLoopItem[]): UlwLoopPlan {
 describe("classifyExternalAuthorizationBlocker", () => {
 	it("returns GHCR signature when evidence mentions ghcr.io auth failure", () => {
 		expect(
-			classifyExternalAuthorizationBlocker("ghcr.io returned 401 authentication required for package pull"),
+			classifyExternalAuthorizationBlocker(
+				"ghcr.io returned 401 authentication required for package pull",
+			),
 		).toBe("GHCR_PULL_ACCESS:HTTP_401_ANONYMOUS:GHCR_VISIBILITY_OR_CREDENTIAL_REQUIRED");
 	});
 
 	it("returns generic auth signature for generic 401 evidence", () => {
-		expect(classifyExternalAuthorizationBlocker("Registry returned 401 because credentials are missing")).toBe(
-			"EXTERNAL_AUTHORIZATION_REQUIRED",
-		);
+		expect(
+			classifyExternalAuthorizationBlocker("Registry returned 401 because credentials are missing"),
+		).toBe("EXTERNAL_AUTHORIZATION_REQUIRED");
 	});
 
 	it("returns null when no auth keywords", () => {
@@ -71,7 +73,11 @@ describe("sameBlockerOccurrences", () => {
 	it("counts goals matching signature", () => {
 		// given
 		const nested: GoalWithBlocker = { ...makeGoal({ id: "G002" }), blocker: { signature: "AUTH" } };
-		const plan = makePlan([makeGoal({ blockerSignature: "AUTH" }), nested, makeGoal({ id: "G003" })]);
+		const plan = makePlan([
+			makeGoal({ blockerSignature: "AUTH" }),
+			nested,
+			makeGoal({ id: "G003" }),
+		]);
 
 		// when/then
 		expect(sameBlockerOccurrences(plan, "AUTH")).toBe(2);

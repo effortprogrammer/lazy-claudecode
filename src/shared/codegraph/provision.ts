@@ -14,7 +14,9 @@ export interface CodegraphProvisionOptions {
 	readonly force?: boolean;
 }
 
-export async function ensureCodegraphProvisioned(options: CodegraphProvisionOptions): Promise<CodegraphProvisionResult> {
+export async function ensureCodegraphProvisioned(
+	options: CodegraphProvisionOptions,
+): Promise<CodegraphProvisionResult> {
 	const { join } = await import("node:path");
 	const { existsSync } = await import("node:fs");
 
@@ -23,5 +25,8 @@ export async function ensureCodegraphProvisioned(options: CodegraphProvisionOpti
 		return { provisioned: true, binaryPath };
 	}
 	// In production, this would download and install codegraph
-	return { provisioned: false, reason: "Codegraph binary not found; provision manually or run bootstrap" };
+	return {
+		provisioned: false,
+		reason: "Codegraph binary not found; provision manually or run bootstrap",
+	};
 }

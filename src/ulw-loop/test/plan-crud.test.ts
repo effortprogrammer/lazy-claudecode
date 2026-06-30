@@ -110,8 +110,12 @@ describe("createUlwLoopPlan", () => {
 
 		await createUlwLoopPlan(repoRoot, { brief });
 
-		expect(await readFile(ulwLoopBriefPath(repoRoot), "utf8")).toBe(brief.endsWith("\n") ? brief : `${brief}\n`);
-		expect(await readFile(ulwLoopGoalsPath(repoRoot), "utf8")).toContain("G001-build-the-jwt-auth-endpoint");
+		expect(await readFile(ulwLoopBriefPath(repoRoot), "utf8")).toBe(
+			brief.endsWith("\n") ? brief : `${brief}\n`,
+		);
+		expect(await readFile(ulwLoopGoalsPath(repoRoot), "utf8")).toContain(
+			"G001-build-the-jwt-auth-endpoint",
+		);
 		expect(await ledgerKinds(repoRoot)).toEqual(["plan_created"]);
 	});
 
@@ -127,7 +131,9 @@ describe("createUlwLoopPlan", () => {
 		await createUlwLoopPlan(repoRoot, { brief: "first" });
 
 		await expect(createUlwLoopPlan(repoRoot, { brief: "second" })).rejects.toThrow(UlwLoopError);
-		await expect(createUlwLoopPlan(repoRoot, { brief: "second" })).rejects.toThrow("Refusing to overwrite");
+		await expect(createUlwLoopPlan(repoRoot, { brief: "second" })).rejects.toThrow(
+			"Refusing to overwrite",
+		);
 	});
 
 	it("aggregate is the default claudeCodeGoalMode", async () => {
@@ -147,15 +153,17 @@ describe("deriveGoalCandidates", () => {
 	});
 
 	it("falls back to paragraph parsing when no bullets", () => {
-		expect(deriveGoalCandidates("First objective.\n\nSecond objective.").map((goal) => goal.objective)).toEqual([
-			"First objective.",
-			"Second objective.",
-		]);
+		expect(
+			deriveGoalCandidates("First objective.\n\nSecond objective.").map((goal) => goal.objective),
+		).toEqual(["First objective.", "Second objective."]);
 	});
 
 	it("returns single default goal for empty/whitespace brief", () => {
 		expect(deriveGoalCandidates(" \n\t ")).toEqual([
-			{ title: "Complete the requested project objective.", objective: "Complete the requested project objective." },
+			{
+				title: "Complete the requested project objective.",
+				objective: "Complete the requested project objective.",
+			},
 		]);
 	});
 });
@@ -165,7 +173,10 @@ describe("addUlwLoopGoal", () => {
 		const repoRoot = await makeRepo();
 		await createUlwLoopPlan(repoRoot, { brief: "Build auth" });
 
-		const { plan, goal } = await addUlwLoopGoal(repoRoot, { title: "Add rate limit", objective: "Throttle login" });
+		const { plan, goal } = await addUlwLoopGoal(repoRoot, {
+			title: "Add rate limit",
+			objective: "Throttle login",
+		});
 
 		expect(plan.goals).toHaveLength(2);
 		expect(goal.id).toBe("G002-add-rate-limit");
@@ -198,7 +209,11 @@ describe("startNextUlwLoop", () => {
 		const repoRoot = await makeRepo();
 		const plan = await createUlwLoopPlan(repoRoot, { brief: "- First\n- Second" });
 		const active = makeGoal({ ...plan.goals[1], status: "in_progress" });
-		await writePlan(repoRoot, { ...plan, goals: [makeGoal({ ...plan.goals[0] }), active], activeGoalId: active.id });
+		await writePlan(repoRoot, {
+			...plan,
+			goals: [makeGoal({ ...plan.goals[0] }), active],
+			activeGoalId: active.id,
+		});
 
 		const result = scheduled(await startNextUlwLoop(repoRoot, {}));
 
@@ -258,9 +273,18 @@ describe("summarizeUlwLoopPlan", () => {
 	it("aggregates criteria pass/pending/fail/blocked across all goals", () => {
 		const plan = makePlan([
 			makeGoal({ successCriteria: [criterion("pass"), criterion("pending")] }),
-			makeGoal({ id: "G002", successCriteria: [criterion("fail"), criterion("blocked"), criterion("pending")] }),
+			makeGoal({
+				id: "G002",
+				successCriteria: [criterion("fail"), criterion("blocked"), criterion("pending")],
+			}),
 		]);
 
-		expect(summarizeUlwLoopPlan(plan).criteria).toEqual({ total: 5, pass: 1, pending: 2, fail: 1, blocked: 1 });
+		expect(summarizeUlwLoopPlan(plan).criteria).toEqual({
+			total: 5,
+			pass: 1,
+			pending: 2,
+			fail: 1,
+			blocked: 1,
+		});
 	});
 });

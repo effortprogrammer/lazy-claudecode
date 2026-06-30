@@ -1,4 +1,4 @@
-import { copyFile, mkdir, mkdtemp, readdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, mkdir, mkdtemp, readFile, readdir, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { beforeEach, describe, expect, it } from "vitest";
@@ -76,13 +76,18 @@ describe("readUlwLoopPlan", () => {
 	it("throws UlwLoopError when goals.json is missing", async () => {
 		// when/then
 		await expect(readUlwLoopPlan(repoRoot)).rejects.toThrow(UlwLoopError);
-		await expect(readUlwLoopPlan(repoRoot)).rejects.toThrow("lazy-claudecode ulw-loop create-goals");
+		await expect(readUlwLoopPlan(repoRoot)).rejects.toThrow(
+			"lazy-claudecode ulw-loop create-goals",
+		);
 	});
 
 	it("returns parsed plan when fixture is present", async () => {
 		// given
 		await mkdir(ulwLoopDir(repoRoot), { recursive: true });
-		await copyFile(join(process.cwd(), "test", "fixtures", "sample-plan.json"), ulwLoopGoalsPath(repoRoot));
+		await copyFile(
+			join(process.cwd(), "test", "fixtures", "sample-plan.json"),
+			ulwLoopGoalsPath(repoRoot),
+		);
 
 		// when
 		const plan = await readUlwLoopPlan(repoRoot);
@@ -96,7 +101,8 @@ describe("readUlwLoopPlan", () => {
 
 	it("migrates legacy aggregate objective on read + writes aggregate_objective_migrated ledger entry + retains alias", async () => {
 		// given
-		const legacyObjective = "Complete all ulw-loop stories in .claude/ulw-loop/goals.json: G001 Build auth service";
+		const legacyObjective =
+			"Complete all ulw-loop stories in .claude/ulw-loop/goals.json: G001 Build auth service";
 		await writeRawPlan(repoRoot, makePlan({ claudeCodeObjective: legacyObjective }));
 
 		// when
@@ -106,7 +112,10 @@ describe("readUlwLoopPlan", () => {
 		expect(plan.claudeCodeObjective).toBe(STABLE_OBJECTIVE);
 		expect(plan.claudeCodeObjectiveAliases).toContain(legacyObjective);
 		const persisted = JSON.parse(await readFile(ulwLoopGoalsPath(repoRoot), "utf8"));
-		expect(persisted).toMatchObject({ claudeCodeObjective: STABLE_OBJECTIVE, claudeCodeObjectiveAliases: [legacyObjective] });
+		expect(persisted).toMatchObject({
+			claudeCodeObjective: STABLE_OBJECTIVE,
+			claudeCodeObjectiveAliases: [legacyObjective],
+		});
 		const lines = await readLedgerLines(repoRoot);
 		expect(lines).toHaveLength(1);
 		expect(JSON.parse(lines[0] ?? "{}")).toMatchObject({
@@ -127,7 +136,9 @@ describe("writePlan", () => {
 		// then
 		const raw = await readFile(ulwLoopGoalsPath(repoRoot), "utf8");
 		expect(JSON.parse(raw)).toMatchObject({ version: 1, goals: [{ id: "G001" }] });
-		expect((await readdir(ulwLoopDir(repoRoot))).filter((name) => name.endsWith(".tmp"))).toEqual([]);
+		expect((await readdir(ulwLoopDir(repoRoot))).filter((name) => name.endsWith(".tmp"))).toEqual(
+			[],
+		);
 	});
 
 	it("overwrites existing file", async () => {
@@ -180,7 +191,10 @@ describe("appendLedger", () => {
 		await appendLedger(repoRoot, second);
 
 		// then
-		expect(await readLedgerLines(repoRoot)).toEqual([JSON.stringify(first), JSON.stringify(second)]);
+		expect(await readLedgerLines(repoRoot)).toEqual([
+			JSON.stringify(first),
+			JSON.stringify(second),
+		]);
 	});
 });
 
@@ -197,7 +211,11 @@ describe("readSteeringLedgerEntries", () => {
 		const entries = await readSteeringLedgerEntries(repoRoot);
 
 		// then
-		expect(entries.map((item) => item.kind)).toEqual(["steering_accepted", "steering_rejected", "criteria_revised"]);
+		expect(entries.map((item) => item.kind)).toEqual([
+			"steering_accepted",
+			"steering_rejected",
+			"criteria_revised",
+		]);
 	});
 
 	it("returns empty array when ledger missing", async () => {

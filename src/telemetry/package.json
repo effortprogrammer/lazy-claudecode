@@ -25,14 +25,7 @@
 	"bin": {
 		"lazy-claudecode-telemetry": "./dist/cli.js"
 	},
-	"files": [
-		"dist",
-		"hooks",
-		"LICENSE",
-		"NOTICE",
-		"README.md",
-		"CHANGELOG.md"
-	],
+	"files": ["dist", "hooks", "LICENSE", "NOTICE", "README.md", "CHANGELOG.md"],
 	"scripts": {
 		"build": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\" && bun build src/cli.ts --target node --format esm --outfile dist/cli.js && bun build src/posthog.ts --target node --format esm --outfile dist/posthog.js",
 		"test": "vitest --run",

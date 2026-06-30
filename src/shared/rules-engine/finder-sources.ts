@@ -5,7 +5,7 @@ export function toProjectRuleSource(parentDirectory: string, subDirectory: strin
 	const source = `${parentDirectory}/${subDirectory}`;
 	switch (source) {
 		case ".claude/rules":
-		case ".claude/rules":
+		case ".opencode/rules":
 		case ".cursor/rules":
 		case ".github/instructions":
 			return source;
@@ -28,8 +28,7 @@ export function toUserHomeRuleSource(ruleSubdir: string): RuleSource {
 	const source = `~/${ruleSubdir}`;
 	switch (source) {
 		case "~/.claude/rules":
-		case "~/.claude/rules":
-		case "~/.claude/rules":
+		case "~/.opencode/rules":
 			return source;
 		default:
 			throw new UnsupportedRuleSourceError(`Unsupported user-home rule source: ${source}`);

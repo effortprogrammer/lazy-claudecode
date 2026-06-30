@@ -3,8 +3,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { fingerprintDynamicTargets } from "../src/dynamic-target-fingerprints.ts";
 import { defaultConfig } from "../../shared/rules-engine/index.ts";
+import { fingerprintDynamicTargets } from "../dynamic-target-fingerprints.ts";
 
 const tempDirectories: string[] = [];
 
@@ -34,9 +34,13 @@ describe("claude-code rules dynamic target fingerprints", () => {
 		const afterChange = fingerprintDynamicTargets(cwd, [targetPath], config);
 		writeFileSync(
 			path.join(cwd, ".github", "instructions", "workflow.md"),
-			["---", "description: Workflow rules", 'globs: ["**/*.ts"]', "---", "Prefer explicit return types."].join(
-				"\n",
-			),
+			[
+				"---",
+				"description: Workflow rules",
+				'globs: ["**/*.ts"]',
+				"---",
+				"Prefer explicit return types.",
+			].join("\n"),
 		);
 		const afterEnabledChange = fingerprintDynamicTargets(cwd, [targetPath], config);
 		const initialFingerprint = initial[0]?.fingerprint;
@@ -61,10 +65,19 @@ function makeProjectWithDefaultSources(): { cwd: string; targetPath: string } {
 	mkdirSync(path.dirname(targetPath), { recursive: true });
 	writeFileSync(path.join(projectRoot, "package.json"), "{}");
 	writeFileSync(path.join(projectRoot, "AGENTS.md"), "Default project AGENTS file.");
-	writeFileSync(path.join(projectRoot, ".github", "copilot-instructions.md"), "Legacy copilot instruction");
+	writeFileSync(
+		path.join(projectRoot, ".github", "copilot-instructions.md"),
+		"Legacy copilot instruction",
+	);
 	writeFileSync(
 		path.join(instructionPath, "workflow.md"),
-		["---", "description: Workflow rules", 'globs: ["**/*.ts"]', "---", "Keep async/await explicit."].join("\n"),
+		[
+			"---",
+			"description: Workflow rules",
+			'globs: ["**/*.ts"]',
+			"---",
+			"Keep async/await explicit.",
+		].join("\n"),
 	);
 	writeFileSync(targetPath, "export const answer = 42;\n");
 	return { cwd: projectRoot, targetPath };

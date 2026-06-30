@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type ClaudePostToolUseInput, runCommentCheckerPostToolUse } from "../src/claude-code-hook.ts";
+import { type ClaudePostToolUseInput, runCommentCheckerPostToolUse } from "../claude-hook.ts";
 
 function postToolUseInput(): ClaudePostToolUseInput {
 	return {

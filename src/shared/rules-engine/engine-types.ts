@@ -1,6 +1,13 @@
 import type { RuleDiscoveryCache } from "./finder.ts";
 import type { matchRule } from "./matcher.ts";
-import type { LoadedRule, MatchReason, PiRulesConfig, RuleCandidate, RuleDiagnostic, SessionState } from "./types.ts";
+import type {
+	LoadedRule,
+	MatchReason,
+	PiRulesConfig,
+	RuleCandidate,
+	RuleDiagnostic,
+	SessionState,
+} from "./types.ts";
 
 export interface LoadedRuleContent {
 	frontmatter: LoadedRule["frontmatter"];

@@ -13,7 +13,7 @@ import {
 	runPostToolUseHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 type CliResult = {
 	exitCode: number | null;
@@ -29,7 +29,11 @@ type SessionCache = {
 
 const CLI_PATH = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 
-function runHookCli(input: string, subcommand = "post-tool-use", env: NodeJS.ProcessEnv = {}): Promise<CliResult> {
+function runHookCli(
+	input: string,
+	subcommand = "post-tool-use",
+	env: NodeJS.ProcessEnv = {},
+): Promise<CliResult> {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, [CLI_PATH, "hook", subcommand], {
 			env: { ...process.env, ...env },
@@ -82,7 +86,10 @@ function makeTempProject(): { root: string; pluginData: string } {
 	tempDirectories.push(root, pluginData);
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 	writeFileSync(path.join(root, "AGENTS.md"), "Project AGENTS.md should stay Claude Code-native.");
-	writeFileSync(path.join(root, "CLAUDE.md"), "Project CLAUDE.md should stay outside rules hook context.");
+	writeFileSync(
+		path.join(root, "CLAUDE.md"),
+		"Project CLAUDE.md should stay outside rules hook context.",
+	);
 	writeFileSync(path.join(root, "CONTEXT.md"), "Always wear safety goggles when refactoring.");
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
@@ -236,7 +243,9 @@ describe("claude-code rules hooks", () => {
 		// then
 		const parsed = parseHookOutput(output);
 		expect(parsed.hookSpecificOutput?.additionalContext).toContain("## Project Instructions");
-		expect(parsed.hookSpecificOutput?.additionalContext).not.toContain("Project AGENTS.md should stay Claude Code-native.");
+		expect(parsed.hookSpecificOutput?.additionalContext).not.toContain(
+			"Project AGENTS.md should stay Claude Code-native.",
+		);
 		expect(parsed.hookSpecificOutput?.additionalContext).not.toContain(
 			"Project CLAUDE.md should stay outside rules hook context.",
 		);
@@ -273,7 +282,10 @@ describe("claude-code rules hooks", () => {
 	it("#given static context already injected #when UserPromptSubmit runs #then it emits no duplicate context", async () => {
 		// given
 		const { root, pluginData } = makeTempProject();
-		await runSessionStartHook(sessionStartInput(root), { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
+		await runSessionStartHook(sessionStartInput(root), {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
 
 		// when
 		const output = await runUserPromptSubmitHook(
@@ -403,12 +415,17 @@ describe("claude-code rules hooks", () => {
 		const cachedState = readSessionCache(pluginData);
 
 		// when
-		const output = await runPostToolUseHook(input, { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
+		const output = await runPostToolUseHook(input, {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
 
 		// then
 		expect(output).toBe("");
 		expect(Object.keys(cachedState.dynamicTargetFingerprints ?? {})).toHaveLength(1);
-		expect(readSessionCache(pluginData).dynamicTargetFingerprints).toEqual(cachedState.dynamicTargetFingerprints);
+		expect(readSessionCache(pluginData).dynamicTargetFingerprints).toEqual(
+			cachedState.dynamicTargetFingerprints,
+		);
 	});
 
 	it("#given default auto sources #when excluded AGENTS.md changes #then PostToolUse fingerprint stays stable", async () => {
@@ -418,14 +435,19 @@ describe("claude-code rules hooks", () => {
 		const input = postToolUseInput(root, filePath);
 		await runPostToolUseHook(input, { pluginDataRoot: pluginData });
 		const cachedState = readSessionCache(pluginData);
-		writeFileSync(path.join(root, "AGENTS.md"), "Native Claude Code instructions changed outside claude-code-rules auto.");
+		writeFileSync(
+			path.join(root, "AGENTS.md"),
+			"Native Claude Code instructions changed outside claude-code-rules auto.",
+		);
 
 		// when
 		const output = await runPostToolUseHook(input, { pluginDataRoot: pluginData });
 
 		// then
 		expect(output).toBe("");
-		expect(readSessionCache(pluginData).dynamicTargetFingerprints).toEqual(cachedState.dynamicTargetFingerprints);
+		expect(readSessionCache(pluginData).dynamicTargetFingerprints).toEqual(
+			cachedState.dynamicTargetFingerprints,
+		);
 	});
 
 	it("#given dynamic context remains in transcript but cache is missing #when PostToolUse repeats #then it emits no duplicate context", async () => {
@@ -433,7 +455,10 @@ describe("claude-code rules hooks", () => {
 		const { root, pluginData } = makeTempProject();
 		const filePath = path.join(root, "src", "app.ts");
 		const input = postToolUseInput(root, filePath);
-		const firstOutput = await runPostToolUseHook(input, { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
+		const firstOutput = await runPostToolUseHook(input, {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
 		const firstContext = parseHookOutput(firstOutput).hookSpecificOutput?.additionalContext ?? "";
 		const transcriptPath = writeTranscriptWithContext(root, firstContext);
 		rmSync(sessionCacheFilePath(pluginData), { force: true });
@@ -455,7 +480,10 @@ describe("claude-code rules hooks", () => {
 		// given
 		const { root, pluginData } = makeTempProject();
 		const filePath = path.join(root, "src", "app.ts");
-		await runPostToolUseHook(postToolUseInput(root, filePath), { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
+		await runPostToolUseHook(postToolUseInput(root, filePath), {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
 
 		// when
 		const output = await runPostToolUseHook(
@@ -464,7 +492,9 @@ describe("claude-code rules hooks", () => {
 		);
 
 		// then
-		expect(parseHookOutput(output).hookSpecificOutput?.additionalContext).toContain("Prefer strict TypeScript");
+		expect(parseHookOutput(output).hookSpecificOutput?.additionalContext).toContain(
+			"Prefer strict TypeScript",
+		);
 	});
 
 	it("#given cached dynamic target #when rule frontmatter changes #then PostToolUse rechecks the target", async () => {
@@ -476,7 +506,10 @@ describe("claude-code rules hooks", () => {
 		writeTypeScriptRule(root, '"**/*.ts"', "Prefer readonly TypeScript after rule edits.");
 
 		// when
-		const output = await runPostToolUseHook(input, { pluginDataRoot: pluginData, env: RULES_ONLY_ENV });
+		const output = await runPostToolUseHook(input, {
+			pluginDataRoot: pluginData,
+			env: RULES_ONLY_ENV,
+		});
 
 		// then
 		expect(parseHookOutput(output).hookSpecificOutput?.additionalContext).toContain(
@@ -489,7 +522,10 @@ describe("claude-code rules hooks", () => {
 		const { root, pluginData } = makeTempProject();
 		const filePath = path.join(root, "src", "app.ts");
 		const input = postToolUseInput(root, filePath);
-		const firstOutput = await runPostToolUseHook(input, { pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV });
+		const firstOutput = await runPostToolUseHook(input, {
+			pluginDataRoot: pluginData,
+			env: PROJECT_ONLY_ENV,
+		});
 		const firstContext = parseHookOutput(firstOutput).hookSpecificOutput?.additionalContext ?? "";
 		const transcriptPath = writeTranscriptWithContext(root, firstContext);
 		expect(
@@ -537,10 +573,13 @@ describe("claude-code rules hooks", () => {
 		);
 
 		// when
-		const staticReinjectOutput = await runUserPromptSubmitHook(userPromptSubmitInput(root, transcriptPath), {
-			pluginDataRoot: pluginData,
-			env: PROJECT_ONLY_ENV,
-		});
+		const staticReinjectOutput = await runUserPromptSubmitHook(
+			userPromptSubmitInput(root, transcriptPath),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
 		const dynamicReinjectOutput = await runPostToolUseHook(
 			{ ...postToolUseInput(root, filePath), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV },
@@ -578,10 +617,13 @@ describe("claude-code rules hooks", () => {
 			{ ...postToolUseInput(root, filePath), transcript_path: transcriptPath },
 			{ pluginDataRoot: pluginData, env: PROJECT_ONLY_ENV },
 		);
-		const staticReinjectOutput = await runUserPromptSubmitHook(userPromptSubmitInput(root, transcriptPath), {
-			pluginDataRoot: pluginData,
-			env: PROJECT_ONLY_ENV,
-		});
+		const staticReinjectOutput = await runUserPromptSubmitHook(
+			userPromptSubmitInput(root, transcriptPath),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
 
 		// then
 		expect(dynamicReinjectOutput).toBe("");
@@ -592,16 +634,24 @@ describe("claude-code rules hooks", () => {
 		// given
 		const { root, pluginData } = makeTempProject();
 		mkdirSync(path.join(pluginData, "sessions"), { recursive: true });
-		writeFileSync(sessionCacheFilePath(pluginData), `${JSON.stringify({ staticDedup: [], dynamicDedup: {} })}\n`);
+		writeFileSync(
+			sessionCacheFilePath(pluginData),
+			`${JSON.stringify({ staticDedup: [], dynamicDedup: {} })}\n`,
+		);
 
 		// when
-		const output = await runPostToolUseHook(postToolUseInput(root, path.join(root, "src", "app.ts")), {
-			pluginDataRoot: pluginData,
-			env: PROJECT_ONLY_ENV,
-		});
+		const output = await runPostToolUseHook(
+			postToolUseInput(root, path.join(root, "src", "app.ts")),
+			{
+				pluginDataRoot: pluginData,
+				env: PROJECT_ONLY_ENV,
+			},
+		);
 
 		// then
-		expect(parseHookOutput(output).hookSpecificOutput?.additionalContext).toContain("Prefer strict TypeScript");
+		expect(parseHookOutput(output).hookSpecificOutput?.additionalContext).toContain(
+			"Prefer strict TypeScript",
+		);
 	});
 
 	it("#given static-only mode #when PostToolUse runs #then emits no dynamic context", async () => {

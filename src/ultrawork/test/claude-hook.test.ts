@@ -28,7 +28,9 @@ describe("codex ultrawork hook", () => {
 		// then
 		expect(parsed.hookSpecificOutput.hookEventName).toBe("UserPromptSubmit");
 		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/^<ultrawork-mode>/);
-		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/First user-visible line this turn MUST be exactly:/);
+		expect(parsed.hookSpecificOutput.additionalContext).toMatch(
+			/First user-visible line this turn MUST be exactly:/,
+		);
 	});
 
 	it("#given Windows cwd #when hook sees ultrawork prompt #then emits directive as Codex hook JSON", () => {
@@ -194,8 +196,12 @@ describe("codex ultrawork hook", () => {
 		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/3\. Browser use/);
 		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/4\. Computer use/);
 		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/CLEANUP \(PAIRED/);
-		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/refresh current branch\/PR\/issue state/);
-		expect(parsed.hookSpecificOutput.additionalContext).toMatch(/preserve existing ordering\/policy/);
+		expect(parsed.hookSpecificOutput.additionalContext).toMatch(
+			/refresh current branch\/PR\/issue state/,
+		);
+		expect(parsed.hookSpecificOutput.additionalContext).toMatch(
+			/preserve existing ordering\/policy/,
+		);
 		expect(parsed.hookSpecificOutput.additionalContext).toMatch(
 			/separate compatibility detection from policy changes/,
 		);

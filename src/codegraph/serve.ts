@@ -7,8 +7,8 @@ import {
 	cwd as processCwd,
 	env as processEnv,
 	execPath as processExecPath,
-	stdin as processStdin,
 	stderr as processStderr,
+	stdin as processStdin,
 	stdout as processStdout,
 } from "node:process";
 import type { Readable, Writable } from "node:stream";
@@ -20,16 +20,16 @@ import {
 	evaluateCodegraphNodeSupport,
 } from "../shared/codegraph/node-support.ts";
 import {
-	ensureCodegraphProvisioned,
 	type EnsureCodegraphProvisionedOptions,
+	ensureCodegraphProvisioned,
 } from "../shared/codegraph/provision.ts";
 import {
-	codegraphCommandRequiresSupportedLocalNode,
-	resolveCodegraphCommand,
 	type CodegraphCommandResolution,
 	type ResolveCodegraphCommandOptions,
+	codegraphCommandRequiresSupportedLocalNode,
+	resolveCodegraphCommand,
 } from "../shared/codegraph/resolve.ts";
-import { getLazyClaudeCodeConfig, type LazyClaudeCodeConfig } from "../shared/config-loader.ts";
+import { type LazyClaudeCodeConfig, getLazyClaudeCodeConfig } from "../shared/config-loader.ts";
 import type { CodegraphConfig } from "./hook.ts";
 import { runUnavailableCodegraphMcpServer } from "./mcp-unavailable.ts";
 
@@ -68,7 +68,9 @@ export interface RunCodegraphServeOptions {
 	readonly stdin?: Readable;
 	readonly stdout?: Writable;
 	readonly nodeVersion?: string;
-	readonly resolve?: (options: ResolveCodegraphCommandOptions) => ReturnType<typeof resolveCodegraphCommand>;
+	readonly resolve?: (
+		options: ResolveCodegraphCommandOptions,
+	) => ReturnType<typeof resolveCodegraphCommand>;
 	readonly runProcess?: CodegraphServeProcessRunner;
 	readonly stderr?: CodegraphServeStderr;
 	readonly ensureProvisioned?: CodegraphProvisioner;
@@ -85,7 +87,8 @@ const WINDOWS_NODE_SCRIPT_EXTENSIONS = new Set([".cjs", ".js", ".mjs"]);
 export async function runCodegraphServe(options: RunCodegraphServeOptions = {}): Promise<number> {
 	const env = options.env ?? processEnv;
 	const homeDir = options.homeDir ?? homedir();
-	const config = options.config ?? getLazyClaudeCodeConfig({ cwd: options.cwd ?? processCwd(), env, homeDir });
+	const config =
+		options.config ?? getLazyClaudeCodeConfig({ cwd: options.cwd ?? processCwd(), env, homeDir });
 	const codegraphConfig = config.codegraph ?? {};
 	if (codegraphConfig.enabled === false) {
 		return runUnavailableMcp(CODEGRAPH_DISABLED_HINT, options);
@@ -97,9 +100,13 @@ export async function runCodegraphServe(options: RunCodegraphServeOptions = {}):
 		homeDir,
 		provisioned: () => provisionedBinFromInstallDir(trustedInstallDir),
 	} satisfies ResolveCodegraphCommandOptions;
-	let resolution = options.resolve?.(resolutionOptions) ?? resolveCodegraphCommand(resolutionOptions);
+	let resolution =
+		options.resolve?.(resolutionOptions) ?? resolveCodegraphCommand(resolutionOptions);
 	const nodeSupport = evaluateCodegraphNodeSupport({ env, nodeVersion: options.nodeVersion });
-	if (!resolution.exists || shouldSkipResolvedCommand(resolution, options.commandExists ?? existsSync)) {
+	if (
+		!resolution.exists ||
+		shouldSkipResolvedCommand(resolution, options.commandExists ?? existsSync)
+	) {
 		if (resolution.source === "path" && !nodeSupport.supported) {
 			return runUnavailableMcp(buildCodegraphNodeSkipHint(nodeSupport), options);
 		}
@@ -132,7 +139,10 @@ export async function runCodegraphServe(options: RunCodegraphServeOptions = {}):
 	});
 }
 
-async function runUnavailableMcp(reason: string, options: RunCodegraphServeOptions): Promise<number> {
+async function runUnavailableMcp(
+	reason: string,
+	options: RunCodegraphServeOptions,
+): Promise<number> {
 	(options.stderr ?? processStderr).write(reason);
 	await runUnavailableCodegraphMcpServer({
 		input: options.stdin ?? processStdin,
@@ -182,12 +192,18 @@ function codegraphEnvForConfig(
 	buildEnv: ((options: { readonly homeDir: string }) => Record<string, string>) | undefined,
 ): Record<string, string> {
 	const env = buildEnv?.({ homeDir }) ?? buildCodegraphEnv({ homeDir });
-	return trustedInstallDir === undefined ? env : { ...env, CODEGRAPH_INSTALL_DIR: trustedInstallDir };
+	return trustedInstallDir === undefined
+		? env
+		: { ...env, CODEGRAPH_INSTALL_DIR: trustedInstallDir };
 }
 
 function provisionedBinFromInstallDir(installDir: string | undefined): string | null {
 	if (installDir === undefined) return null;
-	const candidate = join(installDir, "bin", process.platform === "win32" ? "codegraph.cmd" : "codegraph");
+	const candidate = join(
+		installDir,
+		"bin",
+		process.platform === "win32" ? "codegraph.cmd" : "codegraph",
+	);
 	return existsSync(candidate) ? candidate : null;
 }
 
@@ -201,7 +217,10 @@ async function runChildProcess(
 	options: CodegraphServeProcessOptions,
 ): Promise<number> {
 	const invocation = resolveServeProcessInvocation(command, args);
-	const child = spawn(invocation.command, invocation.args, { env: options.env, stdio: options.stdio });
+	const child = spawn(invocation.command, invocation.args, {
+		env: options.env,
+		stdio: options.stdio,
+	});
 	return new Promise<number>((resolve, reject) => {
 		child.once("error", reject);
 		child.once("exit", (code, signal) => {
@@ -235,7 +254,9 @@ export function resolveServeProcessInvocation(
 
 if (isDirectInvocation(process.argv[1])) {
 	runCodegraphServeCli().catch((error: unknown) => {
-		processStderr.write(`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`);
+		processStderr.write(
+			`${error instanceof Error ? (error.stack ?? error.message) : String(error)}\n`,
+		);
 		process.exitCode = 1;
 	});
 }

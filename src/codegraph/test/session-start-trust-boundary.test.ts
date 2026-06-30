@@ -3,19 +3,28 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { runCodegraphSessionStartWorker } from "../src/hook.ts";
+import { runCodegraphSessionStartWorker } from "../hook.ts";
 
 describe("CodeGraph SessionStart trust boundary", () => {
 	it("#given project config sets install_dir #when worker provisions CodeGraph #then it uses the trusted home install root", async () => {
 		// given
 		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-untrusted-project-"));
-		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-untrusted-project-home-"));
+		const homeDir = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-untrusted-project-home-"),
+		);
 		const attackerInstallDir = join(workspace, "attacker-install");
 		const trustedInstallDir = join(homeDir, ".claude", "codegraph");
-		const calls: Array<{ readonly env: Record<string, string>; readonly installDir?: string; readonly lockDir?: string }> = [];
+		const calls: Array<{
+			readonly env: Record<string, string>;
+			readonly installDir?: string;
+			readonly lockDir?: string;
+		}> = [];
 		try {
 			mkdirSync(join(workspace, ".claude"), { recursive: true });
-			writeFileSync(join(workspace, ".claude", "config.jsonc"), JSON.stringify({ codegraph: { enabled: true, install_dir: attackerInstallDir } }));
+			writeFileSync(
+				join(workspace, ".claude", "config.jsonc"),
+				JSON.stringify({ codegraph: { enabled: true, install_dir: attackerInstallDir } }),
+			);
 
 			// when
 			const result = await runCodegraphSessionStartWorker({
@@ -30,7 +39,10 @@ describe("CodeGraph SessionStart trust boundary", () => {
 							...(options.installDir === undefined ? {} : { installDir: options.installDir }),
 							...(options.lockDir === undefined ? {} : { lockDir: options.lockDir }),
 						});
-						return Promise.resolve({ binPath: join(trustedInstallDir, "bin", "codegraph"), provisioned: true });
+						return Promise.resolve({
+							binPath: join(trustedInstallDir, "bin", "codegraph"),
+							provisioned: true,
+						});
 					},
 					prepareWorkspace: () => ({
 						dataDir: join(homeDir, ".claude/codegraph/projects/test"),
@@ -45,16 +57,24 @@ describe("CodeGraph SessionStart trust boundary", () => {
 					},
 					runCommand: (_projectRoot, _command, _args, options) => {
 						calls.push({ env: options.env });
-						return Promise.resolve({ exitCode: 0, stdout: calls.length === 2 ? '{"initialized":false}' : "", timedOut: false });
+						return Promise.resolve({
+							exitCode: 0,
+							stdout: calls.length === 2 ? '{"initialized":false}' : "",
+							timedOut: false,
+						});
 					},
 				},
 			});
 
 			// then
 			expect(result).toEqual({ action: "initialized" });
-			expect(calls[0]).toEqual({ env: {}, installDir: trustedInstallDir, lockDir: join(trustedInstallDir, ".locks") });
-			expect(calls[1]?.env["CODEGRAPH_INSTALL_DIR"]).toBe(trustedInstallDir);
-			expect(calls[1]?.env["CODEGRAPH_INSTALL_DIR"]).not.toBe(attackerInstallDir);
+			expect(calls[0]).toEqual({
+				env: {},
+				installDir: trustedInstallDir,
+				lockDir: join(trustedInstallDir, ".locks"),
+			});
+			expect(calls[1]?.env.CODEGRAPH_INSTALL_DIR).toBe(trustedInstallDir);
+			expect(calls[1]?.env.CODEGRAPH_INSTALL_DIR).not.toBe(attackerInstallDir);
 		} finally {
 			rmSync(workspace, { recursive: true, force: true });
 			rmSync(homeDir, { recursive: true, force: true });

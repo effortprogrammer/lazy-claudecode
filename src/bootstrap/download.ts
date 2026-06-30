@@ -23,7 +23,11 @@ export class ChecksumMismatchError extends DownloadError {
 	readonly expectedSha256: string;
 	readonly actualSha256: string;
 
-	constructor(options: { readonly url: string; readonly expectedSha256: string; readonly actualSha256: string }) {
+	constructor(options: {
+		readonly url: string;
+		readonly expectedSha256: string;
+		readonly actualSha256: string;
+	}) {
 		super(
 			"checksum-mismatch",
 			`Checksum mismatch for ${options.url}: expected sha256 ${options.expectedSha256} but downloaded sha256 ${options.actualSha256}; deleted the partial download.`,
@@ -95,7 +99,10 @@ function describeFailure(error: unknown): string {
 	return error instanceof Error ? error.message : String(error);
 }
 
-async function writeBodyToFile(body: NodeWebReadableStream<Uint8Array> | null, tempPath: string): Promise<string> {
+async function writeBodyToFile(
+	body: NodeWebReadableStream<Uint8Array> | null,
+	tempPath: string,
+): Promise<string> {
 	const hash = createHash("sha256");
 	if (body === null) {
 		await pipeline(Readable.from([]), createWriteStream(tempPath));
@@ -115,7 +122,9 @@ async function writeBodyToFile(body: NodeWebReadableStream<Uint8Array> | null, t
 	return hash.digest("hex");
 }
 
-export async function downloadChecksummedAsset(options: DownloadChecksummedAssetOptions): Promise<string> {
+export async function downloadChecksummedAsset(
+	options: DownloadChecksummedAssetOptions,
+): Promise<string> {
 	const fetchImpl = options.fetchImpl ?? globalThis.fetch;
 	const env = options.env ?? process.env;
 	const expectedSha256 = options.sha256.toLowerCase();
@@ -140,7 +149,10 @@ export async function downloadChecksummedAsset(options: DownloadChecksummedAsset
 
 	let actualSha256: string;
 	try {
-		actualSha256 = await writeBodyToFile(response.body as NodeWebReadableStream<Uint8Array> | null, tempPath);
+		actualSha256 = await writeBodyToFile(
+			response.body as NodeWebReadableStream<Uint8Array> | null,
+			tempPath,
+		);
 	} catch (error) {
 		await rm(tempPath, { force: true });
 		throw new DownloadError(
@@ -166,26 +178,42 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 	return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function parseManifestAsset(value: unknown, manifestName: string, platformKey: string): ManifestAsset {
-	if (!isRecord(value) || typeof value["url"] !== "string" || typeof value["sha256"] !== "string") {
-		throw new Error(`Manifest "${manifestName}" platform "${platformKey}" must pin both url and sha256 strings.`);
+function parseManifestAsset(
+	value: unknown,
+	manifestName: string,
+	platformKey: string,
+): ManifestAsset {
+	if (!isRecord(value) || typeof value.url !== "string" || typeof value.sha256 !== "string") {
+		throw new Error(
+			`Manifest "${manifestName}" platform "${platformKey}" must pin both url and sha256 strings.`,
+		);
 	}
-	return { sha256: value["sha256"], url: value["url"] };
+	return { sha256: value.sha256, url: value.url };
 }
 
 export function parseAssetManifest(raw: string, manifestName: string): AssetManifest {
 	const data: unknown = JSON.parse(raw);
-	if (!isRecord(data) || typeof data["name"] !== "string" || typeof data["version"] !== "string" || !isRecord(data["platforms"])) {
-		throw new Error(`Manifest "${manifestName}" must declare name, version, and a platforms object.`);
+	if (
+		!isRecord(data) ||
+		typeof data.name !== "string" ||
+		typeof data.version !== "string" ||
+		!isRecord(data.platforms)
+	) {
+		throw new Error(
+			`Manifest "${manifestName}" must declare name, version, and a platforms object.`,
+		);
 	}
 	const platforms: Record<string, ManifestAsset> = {};
-	for (const [platformKey, asset] of Object.entries(data["platforms"])) {
+	for (const [platformKey, asset] of Object.entries(data.platforms)) {
 		platforms[platformKey] = parseManifestAsset(asset, manifestName, platformKey);
 	}
-	return { name: data["name"], platforms, version: data["version"] };
+	return { name: data.name, platforms, version: data.version };
 }
 
-export async function loadAssetManifest(manifestName: string, manifestsDir?: string): Promise<AssetManifest> {
+export async function loadAssetManifest(
+	manifestName: string,
+	manifestsDir?: string,
+): Promise<AssetManifest> {
 	const directory = manifestsDir ?? resolveDefaultManifestsDir();
 	const raw = await readFile(join(directory, `${manifestName}.json`), "utf8");
 	return parseAssetManifest(raw, manifestName);

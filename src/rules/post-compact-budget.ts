@@ -1,5 +1,5 @@
-import { hasContextPressureMarker } from "./context-pressure.ts";
 import type { PiRulesConfig } from "../shared/rules-engine/index.ts";
+import { hasContextPressureMarker } from "./context-pressure.ts";
 import { readTranscriptSearchText } from "./transcript-search.ts";
 
 export interface PostCompactBudgetContext {
@@ -21,8 +21,16 @@ const POST_COMPACT_MIN_RESERVED_TOKENS = 8_000;
 const POST_COMPACT_MIN_GUIDE_CHARS = 500;
 const FALLBACK_CONTEXT_WINDOW_TOKENS = 200_000;
 const MODEL_CONTEXT_BUDGETS: readonly ModelContextBudget[] = [
-	{ slug: "gpt-5.5", contextWindowTokens: 272_000, effectivePercent: DEFAULT_EFFECTIVE_CONTEXT_WINDOW_PERCENT },
-	{ slug: "gpt-5.4-mini", contextWindowTokens: 272_000, effectivePercent: DEFAULT_EFFECTIVE_CONTEXT_WINDOW_PERCENT },
+	{
+		slug: "gpt-5.5",
+		contextWindowTokens: 272_000,
+		effectivePercent: DEFAULT_EFFECTIVE_CONTEXT_WINDOW_PERCENT,
+	},
+	{
+		slug: "gpt-5.4-mini",
+		contextWindowTokens: 272_000,
+		effectivePercent: DEFAULT_EFFECTIVE_CONTEXT_WINDOW_PERCENT,
+	},
 	{
 		slug: "claude-code-auto-review",
 		contextWindowTokens: 272_000,
@@ -30,10 +38,22 @@ const MODEL_CONTEXT_BUDGETS: readonly ModelContextBudget[] = [
 	},
 ];
 
-export function withPostCompactBudget(config: PiRulesConfig, context?: PostCompactBudgetContext): PiRulesConfig {
-	const postCompactMaxResultChars = dynamicPostCompactMaxResultChars(context) ?? config.postCompactMaxResultChars;
-	const maxResultChars = Math.min(config.maxResultChars, config.postCompactMaxResultChars, postCompactMaxResultChars);
-	const maxRuleChars = Math.min(config.maxRuleChars, config.postCompactMaxRuleChars, maxResultChars);
+export function withPostCompactBudget(
+	config: PiRulesConfig,
+	context?: PostCompactBudgetContext,
+): PiRulesConfig {
+	const postCompactMaxResultChars =
+		dynamicPostCompactMaxResultChars(context) ?? config.postCompactMaxResultChars;
+	const maxResultChars = Math.min(
+		config.maxResultChars,
+		config.postCompactMaxResultChars,
+		postCompactMaxResultChars,
+	);
+	const maxRuleChars = Math.min(
+		config.maxRuleChars,
+		config.postCompactMaxRuleChars,
+		maxResultChars,
+	);
 	return {
 		...config,
 		maxRuleChars,
@@ -41,7 +61,9 @@ export function withPostCompactBudget(config: PiRulesConfig, context?: PostCompa
 	};
 }
 
-function dynamicPostCompactMaxResultChars(context: PostCompactBudgetContext | undefined): number | undefined {
+function dynamicPostCompactMaxResultChars(
+	context: PostCompactBudgetContext | undefined,
+): number | undefined {
 	if (context === undefined || context.transcriptPath === null) {
 		return undefined;
 	}
@@ -56,13 +78,18 @@ function dynamicPostCompactMaxResultChars(context: PostCompactBudgetContext | un
 	}
 
 	const modelBudget = modelContextBudgetFor(context.model) ?? fallbackModelContextBudget();
-	const effectiveContextWindow = Math.floor((modelBudget.contextWindowTokens * modelBudget.effectivePercent) / 100);
+	const effectiveContextWindow = Math.floor(
+		(modelBudget.contextWindowTokens * modelBudget.effectivePercent) / 100,
+	);
 	const reservedTokens = Math.max(
 		POST_COMPACT_MIN_RESERVED_TOKENS,
 		Math.floor((effectiveContextWindow * POST_COMPACT_RESERVED_CONTEXT_PERCENT) / 100),
 	);
 	const injectableTokens = Math.max(0, effectiveContextWindow - reservedTokens - transcript.tokens);
-	return Math.max(POST_COMPACT_MIN_GUIDE_CHARS, Math.floor(injectableTokens * PROJECTED_INJECTION_CHARS_PER_TOKEN));
+	return Math.max(
+		POST_COMPACT_MIN_GUIDE_CHARS,
+		Math.floor(injectableTokens * PROJECTED_INJECTION_CHARS_PER_TOKEN),
+	);
 }
 
 function modelContextBudgetFor(model: string): ModelContextBudget | undefined {
@@ -87,7 +114,9 @@ function fallbackModelContextBudget(): ModelContextBudget {
 	};
 }
 
-function estimateTranscript(transcriptPath: string): { readonly text: string; readonly tokens: number } | undefined {
+function estimateTranscript(
+	transcriptPath: string,
+): { readonly text: string; readonly tokens: number } | undefined {
 	const transcriptText =
 		readTranscriptSearchText(transcriptPath, { latestCompactedReplacementOnly: true }) ??
 		readTranscriptSearchText(transcriptPath);
@@ -96,6 +125,8 @@ function estimateTranscript(transcriptPath: string): { readonly text: string; re
 	}
 	return {
 		text: transcriptText,
-		tokens: Math.ceil(Buffer.byteLength(transcriptText, "utf8") / ESTIMATED_TRANSCRIPT_CHARS_PER_TOKEN),
+		tokens: Math.ceil(
+			Buffer.byteLength(transcriptText, "utf8") / ESTIMATED_TRANSCRIPT_CHARS_PER_TOKEN,
+		),
 	};
 }

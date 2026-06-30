@@ -16,13 +16,17 @@ type CliResult = {
 
 function sanitizedEnv(): NodeJS.ProcessEnv {
 	const env = { ...process.env };
-	delete env["LAZY_CLAUDECODE_SESSION_ID"];
-	delete env["LAZY_CLAUDECODE_THREAD_ID"];
-	delete env["LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID"];
+	env.LAZY_CLAUDECODE_SESSION_ID = undefined;
+	env.LAZY_CLAUDECODE_THREAD_ID = undefined;
+	env.LAZY_CLAUDECODE_ULW_LOOP_SESSION_ID = undefined;
 	return env;
 }
 
-async function runProcess(command: string, args: readonly string[], cwd: string): Promise<CliResult> {
+async function runProcess(
+	command: string,
+	args: readonly string[],
+	cwd: string,
+): Promise<CliResult> {
 	return new Promise((resolvePromise, reject) => {
 		const child = spawn(command, [...args], { cwd, env: sanitizedEnv() });
 		const stdout: Buffer[] = [];

@@ -3,7 +3,7 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { resolveCodegraphCommandInvocation, runCodegraphSessionStartWorker } from "../src/hook.ts";
+import { resolveCodegraphCommandInvocation, runCodegraphSessionStartWorker } from "../hook.ts";
 
 describe("CodeGraph SessionStart worker flow", () => {
 	it("#given Windows install_dir has codegraph.cmd #when worker resolves provisioned CodeGraph #then it uses the cmd shim", async () => {
@@ -11,9 +11,15 @@ describe("CodeGraph SessionStart worker flow", () => {
 			// given
 			const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-win32-"));
 			const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-win32-home-"));
-			const installDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-win32-install-"));
+			const installDir = mkdtempSync(
+				join(tmpdir(), "lazy-claudecode-codegraph-worker-win32-install-"),
+			);
 			const binPath = join(installDir, "bin", "codegraph.cmd");
-			const calls: { readonly args: readonly string[]; readonly command: string; readonly env: Record<string, string> }[] = [];
+			const calls: {
+				readonly args: readonly string[];
+				readonly command: string;
+				readonly env: Record<string, string>;
+			}[] = [];
 			const outcomes: unknown[] = [];
 			try {
 				mkdirSync(join(installDir, "bin"), { recursive: true });
@@ -21,7 +27,12 @@ describe("CodeGraph SessionStart worker flow", () => {
 
 				// when
 				const result = await runCodegraphSessionStartWorker({
-					config: { codegraph: { enabled: true, install_dir: installDir }, sources: [], trustedCodegraphInstallDir: installDir, warnings: [] },
+					config: {
+						codegraph: { enabled: true, install_dir: installDir },
+						sources: [],
+						trustedCodegraphInstallDir: installDir,
+						warnings: [],
+					},
 					nodeVersion: "22.14.0",
 					cwd: workspace,
 					env: { HOME: homeDir },
@@ -40,11 +51,20 @@ describe("CodeGraph SessionStart worker flow", () => {
 						}),
 						resolveCommand: (options) => {
 							const provisioned = options?.provisioned?.() ?? null;
-							return { argsPrefix: [], command: provisioned ?? "missing-codegraph", exists: provisioned !== null, source: provisioned === null ? "path" : "provisioned" };
+							return {
+								argsPrefix: [],
+								command: provisioned ?? "missing-codegraph",
+								exists: provisioned !== null,
+								source: provisioned === null ? "path" : "provisioned",
+							};
 						},
 						runCommand: (_projectRoot, command, args, options) => {
 							calls.push({ args, command, env: options.env });
-							return Promise.resolve({ exitCode: 0, stdout: calls.length === 1 ? '{"initialized":false}' : "", timedOut: false });
+							return Promise.resolve({
+								exitCode: 0,
+								stdout: calls.length === 1 ? '{"initialized":false}' : "",
+								timedOut: false,
+							});
 						},
 					},
 				});
@@ -55,8 +75,16 @@ describe("CodeGraph SessionStart worker flow", () => {
 					{ args: ["status", "--json"], command: binPath },
 					{ args: ["init"], command: binPath },
 				]);
-				expect(calls[0]?.env["CODEGRAPH_INSTALL_DIR"]).toBe(installDir);
-				expect(outcomes).toEqual([{ action: "initialized", exitCode: 0, projectRoot: workspace, source: "provisioned", timedOut: false }]);
+				expect(calls[0]?.env.CODEGRAPH_INSTALL_DIR).toBe(installDir);
+				expect(outcomes).toEqual([
+					{
+						action: "initialized",
+						exitCode: 0,
+						projectRoot: workspace,
+						source: "provisioned",
+						timedOut: false,
+					},
+				]);
 			} finally {
 				rmSync(workspace, { recursive: true, force: true });
 				rmSync(homeDir, { recursive: true, force: true });
@@ -92,25 +120,39 @@ describe("CodeGraph SessionStart worker flow", () => {
 
 	it("#given resolved CodeGraph status #when worker runs #then it runs status before init or sync", async () => {
 		for (const scenario of [
-			{ action: "initialized", args: [["status", "--json"], ["init"]], stdout: '{"initialized":false}' },
+			{
+				action: "initialized",
+				args: [["status", "--json"], ["init"]],
+				stdout: '{"initialized":false}',
+			},
 			{ action: "synced", args: [["status", "--json"], ["sync"]], stdout: '{"initialized":true}' },
 		] as const) {
 			// given
 			const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-status-"));
 			const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-status-home-"));
-			const calls: { readonly args: readonly string[]; readonly command: string; readonly env: Record<string, string> }[] = [];
+			const calls: {
+				readonly args: readonly string[];
+				readonly command: string;
+				readonly env: Record<string, string>;
+			}[] = [];
 			const outcomes: unknown[] = [];
 			try {
 				// when
 				const result = await runCodegraphSessionStartWorker({
-					config: { codegraph: { enabled: true, install_dir: "/tmp/codegraph-install" }, sources: [], trustedCodegraphInstallDir: "/tmp/codegraph-install", warnings: [] },
+					config: {
+						codegraph: { enabled: true, install_dir: "/tmp/codegraph-install" },
+						sources: [],
+						trustedCodegraphInstallDir: "/tmp/codegraph-install",
+						warnings: [],
+					},
 					nodeVersion: "22.14.0",
 					cwd: workspace,
 					env: { HOME: homeDir },
 					logOutcome: (outcome) => outcomes.push(outcome),
 					deps: {
 						ensureGitignored: () => true,
-						ensureProvisioned: () => Promise.resolve({ binPath: "/tmp/codegraph", provisioned: true }),
+						ensureProvisioned: () =>
+							Promise.resolve({ binPath: "/tmp/codegraph", provisioned: true }),
 						prepareWorkspace: () => ({
 							dataDir: join(homeDir, ".claude/codegraph/projects/test"),
 							dataRoot: join(homeDir, ".claude/codegraph"),
@@ -118,10 +160,19 @@ describe("CodeGraph SessionStart worker flow", () => {
 							mode: "global-linked",
 							projectLink: join(workspace, ".codegraph"),
 						}),
-						resolveCommand: () => ({ argsPrefix: [], command: "/tmp/codegraph", exists: true, source: "path" }),
+						resolveCommand: () => ({
+							argsPrefix: [],
+							command: "/tmp/codegraph",
+							exists: true,
+							source: "path",
+						}),
 						runCommand: (_projectRoot, command, args, options) => {
 							calls.push({ args, command, env: options.env });
-							return Promise.resolve({ exitCode: 0, stdout: calls.length === 1 ? scenario.stdout : "", timedOut: false });
+							return Promise.resolve({
+								exitCode: 0,
+								stdout: calls.length === 1 ? scenario.stdout : "",
+								timedOut: false,
+							});
 						},
 					},
 				});
@@ -129,8 +180,16 @@ describe("CodeGraph SessionStart worker flow", () => {
 				// then
 				expect(result).toEqual({ action: scenario.action });
 				expect(calls.map((call) => [...call.args])).toEqual(scenario.args.map((args) => [...args]));
-				expect(calls[0]?.env["CODEGRAPH_INSTALL_DIR"]).toBe("/tmp/codegraph-install");
-				expect(outcomes).toEqual([{ action: scenario.action, exitCode: 0, projectRoot: workspace, source: "path", timedOut: false }]);
+				expect(calls[0]?.env.CODEGRAPH_INSTALL_DIR).toBe("/tmp/codegraph-install");
+				expect(outcomes).toEqual([
+					{
+						action: scenario.action,
+						exitCode: 0,
+						projectRoot: workspace,
+						source: "path",
+						timedOut: false,
+					},
+				]);
 			} finally {
 				rmSync(workspace, { recursive: true, force: true });
 				rmSync(homeDir, { recursive: true, force: true });
@@ -139,9 +198,16 @@ describe("CodeGraph SessionStart worker flow", () => {
 	});
 });
 
-async function withProcessPlatform(platform: NodeJS.Platform, run: () => Promise<void>): Promise<void> {
+async function withProcessPlatform(
+	platform: NodeJS.Platform,
+	run: () => Promise<void>,
+): Promise<void> {
 	const descriptor = Object.getOwnPropertyDescriptor(process, "platform");
-	Object.defineProperty(process, "platform", { configurable: true, enumerable: true, value: platform });
+	Object.defineProperty(process, "platform", {
+		configurable: true,
+		enumerable: true,
+		value: platform,
+	});
 	try {
 		await run();
 	} finally {

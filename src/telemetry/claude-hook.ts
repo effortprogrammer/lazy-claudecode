@@ -4,10 +4,10 @@ import {
 	writeTelemetryDiagnostic,
 } from "./diagnostics.ts";
 import {
-	createPluginPostHog,
-	getPostHogDistinctId,
 	type PostHogActivityReason,
 	type PostHogClient,
+	createPluginPostHog,
+	getPostHogDistinctId,
 } from "./posthog.ts";
 
 export type ClaudeCodeSessionStartInput = {
@@ -51,7 +51,11 @@ export async function runSessionStartHook(
 	try {
 		client.trackActive(getDistinctId(), SESSION_START_REASON);
 	} catch (error) {
-		writeHookDiagnostic("telemetry_capture_failed", error, error instanceof Error ? "error" : "non_error");
+		writeHookDiagnostic(
+			"telemetry_capture_failed",
+			error,
+			error instanceof Error ? "error" : "non_error",
+		);
 		await safeShutdown(client);
 		return "";
 	}
@@ -63,7 +67,11 @@ async function safeShutdown(client: PostHogClient): Promise<void> {
 	try {
 		await client.shutdown();
 	} catch (error) {
-		writeHookDiagnostic("telemetry_shutdown_failed", error, error instanceof Error ? "error" : "non_error");
+		writeHookDiagnostic(
+			"telemetry_shutdown_failed",
+			error,
+			error instanceof Error ? "error" : "non_error",
+		);
 		return;
 	}
 }

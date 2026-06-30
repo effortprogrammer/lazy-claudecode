@@ -11,7 +11,12 @@ import {
 } from "../src/evidence.ts";
 import { ulwLoopDir } from "../src/paths.ts";
 import { readUlwLoopPlan, writePlan } from "../src/plan-io.ts";
-import type { UlwLoopItem, UlwLoopLedgerEntry, UlwLoopPlan, UlwLoopSuccessCriterion } from "../src/types.ts";
+import type {
+	UlwLoopItem,
+	UlwLoopLedgerEntry,
+	UlwLoopPlan,
+	UlwLoopSuccessCriterion,
+} from "../src/types.ts";
 import { UlwLoopError } from "../src/types.ts";
 
 const NOW = "2026-05-23T00:00:00.000Z";
@@ -24,7 +29,9 @@ async function bootstrapRepo(plan: UlwLoopPlan): Promise<string> {
 }
 
 async function readLastLedgerEntry(repo: string): Promise<UlwLoopLedgerEntry> {
-	const lines = (await readFile(join(repo, ".claude/ulw-loop/ledger.jsonl"), "utf8")).trim().split("\n");
+	const lines = (await readFile(join(repo, ".claude/ulw-loop/ledger.jsonl"), "utf8"))
+		.trim()
+		.split("\n");
 	const last = lines.at(-1);
 	if (last === undefined) throw new Error("expected ledger entry");
 	return JSON.parse(last);
@@ -101,7 +108,12 @@ describe("recordEvidence (status=pass)", () => {
 	it("appends evidence_captured ledger event", async () => {
 		const repo = await bootstrapRepo(makePlan());
 
-		await recordEvidence(repo, { goalId: "G001", criterionId: "C001", status: "pass", evidence: "observable proof" });
+		await recordEvidence(repo, {
+			goalId: "G001",
+			criterionId: "C001",
+			status: "pass",
+			evidence: "observable proof",
+		});
 
 		const last = await readLastLedgerEntry(repo);
 		expect(last.kind).toBe("evidence_captured");
@@ -112,9 +124,16 @@ describe("recordEvidence (status=pass)", () => {
 	it("persists the change so a fresh read sees status=pass", async () => {
 		const repo = await bootstrapRepo(makePlan());
 
-		await recordEvidence(repo, { goalId: "G001", criterionId: "C001", status: "pass", evidence: "observable proof" });
+		await recordEvidence(repo, {
+			goalId: "G001",
+			criterionId: "C001",
+			status: "pass",
+			evidence: "observable proof",
+		});
 
-		const criterion = firstGoal(await readUlwLoopPlan(repo)).successCriteria.find((c) => c.id === "C001");
+		const criterion = firstGoal(await readUlwLoopPlan(repo)).successCriteria.find(
+			(c) => c.id === "C001",
+		);
 		expect(criterion?.status).toBe("pass");
 	});
 });
@@ -156,7 +175,12 @@ describe("recordEvidence error cases", () => {
 		const repo = await bootstrapRepo(makePlan());
 
 		await expect(
-			recordEvidence(repo, { goalId: "GUNKNOWN", criterionId: "C001", status: "pass", evidence: "x" }),
+			recordEvidence(repo, {
+				goalId: "GUNKNOWN",
+				criterionId: "C001",
+				status: "pass",
+				evidence: "x",
+			}),
 		).rejects.toBeInstanceOf(UlwLoopError);
 	});
 
@@ -164,7 +188,12 @@ describe("recordEvidence error cases", () => {
 		const repo = await bootstrapRepo(makePlan());
 
 		await expect(
-			recordEvidence(repo, { goalId: "G001", criterionId: "CUNKNOWN", status: "pass", evidence: "x" }),
+			recordEvidence(repo, {
+				goalId: "G001",
+				criterionId: "CUNKNOWN",
+				status: "pass",
+				evidence: "x",
+			}),
 		).rejects.toBeInstanceOf(UlwLoopError);
 	});
 
@@ -172,7 +201,12 @@ describe("recordEvidence error cases", () => {
 		const repo = await bootstrapRepo(makePlan());
 
 		await expect(
-			recordEvidence(repo, { goalId: "G001", criterionId: "C001", status: "pass", evidence: "   " }),
+			recordEvidence(repo, {
+				goalId: "G001",
+				criterionId: "C001",
+				status: "pass",
+				evidence: "   ",
+			}),
 		).rejects.toBeInstanceOf(UlwLoopError);
 	});
 });

@@ -11,14 +11,17 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function section(value: unknown, field: string): Record<string, unknown> {
-	return isRecord(value) ? value : invalid(`Final quality gate is missing ${field} evidence.`, field);
+	return isRecord(value)
+		? value
+		: invalid(`Final quality gate is missing ${field} evidence.`, field);
 }
 
 export function textField(value: unknown, field: string): string {
 	if (typeof value !== "string" || value.trim() === "")
 		invalid(`Final quality gate requires non-empty ${field}.`, field);
 	const trimmed = value.trim();
-	if (PLACEHOLDER_PATTERN.test(trimmed)) invalid(`Final quality gate rejects placeholder ${field}.`, field);
+	if (PLACEHOLDER_PATTERN.test(trimmed))
+		invalid(`Final quality gate rejects placeholder ${field}.`, field);
 	return trimmed;
 }
 
@@ -29,7 +32,8 @@ export function numberField(value: unknown, field: string): number {
 }
 
 export function stringArray(value: unknown, field: string): readonly string[] {
-	if (!Array.isArray(value) || value.length === 0) return invalid(`Final quality gate requires ${field}.`, field);
+	if (!Array.isArray(value) || value.length === 0)
+		return invalid(`Final quality gate requires ${field}.`, field);
 	return value.map((item) => textField(item, field));
 }
 

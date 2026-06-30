@@ -9,7 +9,7 @@ import {
 	type SgManifestAsset,
 	type SgRuntimeSlug,
 } from "../shared/ast-grep/index.ts";
-import { appendBootstrapLog, BOOTSTRAP_DOCTOR_HINT } from "./worker.ts";
+import { BOOTSTRAP_DOCTOR_HINT, appendBootstrapLog } from "./worker.ts";
 import type { BootstrapStepOutcome, BootstrapWorkerContext } from "./worker.ts";
 
 // TODO: re-enable when API is ported — these functions were in the monorepo's ast-grep module
@@ -19,10 +19,21 @@ function sgBinaryName(_platform: NodeJS.Platform): string {
 function runtimeSlug(_platform: NodeJS.Platform, _arch: string): string {
 	return `${_arch}-${_platform}` as string;
 }
-function findSgBinarySync(_options: { arch: string; env: Record<string, string | undefined>; platform: NodeJS.Platform; runtimeDir: string }): string | null {
+function findSgBinarySync(_options: {
+	arch: string;
+	env: Record<string, string | undefined>;
+	platform: NodeJS.Platform;
+	runtimeDir: string;
+}): string | null {
 	return null;
 }
-async function provisionSgBinary(_options: { arch: string; platform: NodeJS.Platform; targetDir: string; fetchImpl?: SgFetch; releaseAssets?: Partial<Record<SgRuntimeSlug, SgManifestAsset>> }): Promise<string> {
+async function provisionSgBinary(_options: {
+	arch: string;
+	platform: NodeJS.Platform;
+	targetDir: string;
+	fetchImpl?: SgFetch;
+	releaseAssets?: Partial<Record<SgRuntimeSlug, SgManifestAsset>>;
+}): Promise<string> {
 	throw new Error("provisionSgBinary not ported yet");
 }
 
@@ -45,7 +56,10 @@ export interface SgProvisionSeams {
 }
 
 export function sgProvisionDestination(context: BootstrapWorkerContext, arch: string): string {
-	return join(sgRuntimeDir(context.claudeCodeHome, context.platform, arch), sgBinaryName(context.platform));
+	return join(
+		sgRuntimeDir(context.claudeCodeHome, context.platform, arch),
+		sgBinaryName(context.platform),
+	);
 }
 
 function sgRuntimeDir(claudeCodeHome: string, platform: NodeJS.Platform, arch: string): string {
@@ -67,7 +81,9 @@ export async function runSgProvision(
 			platform: context.platform,
 		});
 		if (preexisting !== null) {
-			await appendBootstrapLog(context.pluginData, context.now, "sg-provision", { sg: `preexisting:${preexisting}` });
+			await appendBootstrapLog(context.pluginData, context.now, "sg-provision", {
+				sg: `preexisting:${preexisting}`,
+			});
 			return { degraded: [] };
 		}
 	}
@@ -82,7 +98,9 @@ export async function runSgProvision(
 	} catch (error) {
 		const reason = error instanceof Error ? error.message : String(error);
 		await appendBootstrapLog(context.pluginData, context.now, "sg-provision-failed", { reason });
-		return { degraded: [{ component: SG_PROVISION_COMPONENT, hint: BOOTSTRAP_DOCTOR_HINT, reason }] };
+		return {
+			degraded: [{ component: SG_PROVISION_COMPONENT, hint: BOOTSTRAP_DOCTOR_HINT, reason }],
+		};
 	}
 }
 
@@ -100,7 +118,9 @@ async function provisionFromSharedManifest(
 	});
 	if (provisionedPath !== layout.destination) {
 		await rm(provisionedPath, { force: true });
-		throw new Error(`provisioned sg at ${provisionedPath} but expected ${layout.destination}; removed the binary.`);
+		throw new Error(
+			`provisioned sg at ${provisionedPath} but expected ${layout.destination}; removed the binary.`,
+		);
 	}
 	await verifyProvisionedVersion(layout.destination, SG_PINNED_VERSION, seams);
 	return SG_PINNED_VERSION;

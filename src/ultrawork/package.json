@@ -33,15 +33,7 @@
 		"lint:fix": "biome check --write .",
 		"check": "tsc --noEmit && biome check . && npm run build"
 	},
-	"files": [
-		"agents",
-		"dist",
-		"directive.md",
-		"hooks",
-		"README.md",
-		"LICENSE",
-		"NOTICE"
-	],
+	"files": ["agents", "dist", "directive.md", "hooks", "README.md", "LICENSE", "NOTICE"],
 	"devDependencies": {
 		"@biomejs/biome": "2.4.16",
 		"@effortprogrammer/prompts-core": "file:../../../../prompts-core",

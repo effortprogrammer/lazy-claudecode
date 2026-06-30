@@ -4,7 +4,7 @@ import path from "node:path";
 
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runLspPostCompactHook, runLspPostToolUseHook } from "../src/claude-hook.ts";
+import { runLspPostCompactHook, runLspPostToolUseHook } from "../claude-hook.ts";
 
 const MARKSMAN_INITIALIZE_TIMEOUT = [
 	"LSP request timeout (method: initialize)",
@@ -151,7 +151,10 @@ describe("codex PostToolUse unavailable LSP suppression", () => {
 	it("#given a cached unavailable extension #when the post-compact probe hits a daemon outage #then the cache survives and the probe stays pending", async () => {
 		// given
 		const pluginData = tempPluginData();
-		const input = postToolUseInput("session-daemon-down-probe", ".claude/ulw-loop/evidence/note.md");
+		const input = postToolUseInput(
+			"session-daemon-down-probe",
+			".claude/ulw-loop/evidence/note.md",
+		);
 		let calls = 0;
 
 		await withPluginData(pluginData, async () => {
@@ -229,15 +232,15 @@ function postToolUseInput(sessionId: string, filePath: string) {
 }
 
 async function withPluginData(pluginData: string, fn: () => Promise<void>): Promise<void> {
-	const previous = process.env["PLUGIN_DATA"];
-	process.env["PLUGIN_DATA"] = pluginData;
+	const previous = process.env.PLUGIN_DATA;
+	process.env.PLUGIN_DATA = pluginData;
 	try {
 		await fn();
 	} finally {
 		if (previous === undefined) {
-			delete process.env["PLUGIN_DATA"];
+			process.env.PLUGIN_DATA = undefined;
 		} else {
-			process.env["PLUGIN_DATA"] = previous;
+			process.env.PLUGIN_DATA = previous;
 		}
 	}
 }
@@ -259,13 +262,13 @@ interface PostToolUseHookOutput {
 
 function isPostToolUseHookOutput(value: unknown): value is PostToolUseHookOutput {
 	if (!isRecord(value)) return false;
-	const hookSpecificOutput = value["hookSpecificOutput"];
+	const hookSpecificOutput = value.hookSpecificOutput;
 	return (
-		value["decision"] === "block" &&
-		typeof value["reason"] === "string" &&
+		value.decision === "block" &&
+		typeof value.reason === "string" &&
 		isRecord(hookSpecificOutput) &&
-		hookSpecificOutput["hookEventName"] === "PostToolUse" &&
-		typeof hookSpecificOutput["additionalContext"] === "string"
+		hookSpecificOutput.hookEventName === "PostToolUse" &&
+		typeof hookSpecificOutput.additionalContext === "string"
 	);
 }
 

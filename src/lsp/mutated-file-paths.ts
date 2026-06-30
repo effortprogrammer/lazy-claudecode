@@ -12,15 +12,15 @@ export function extractMutatedFilePaths(input: MutatedFileInput): string[] {
 
 	const toolInput = isRecord(input.tool_input) ? input.tool_input : {};
 	const paths = new Set<string>();
-	addStringValue(paths, toolInput["path"]);
-	addStringValue(paths, toolInput["filePath"]);
-	addStringValue(paths, toolInput["file_path"]);
-	addStringArray(paths, toolInput["paths"]);
-	addStringArray(paths, toolInput["filePaths"]);
-	addStringArray(paths, toolInput["file_paths"]);
+	addStringValue(paths, toolInput.path);
+	addStringValue(paths, toolInput.filePath);
+	addStringValue(paths, toolInput.file_path);
+	addStringArray(paths, toolInput.paths);
+	addStringArray(paths, toolInput.filePaths);
+	addStringArray(paths, toolInput.file_paths);
 	addPatchPayloads(paths, toolInput);
-	addPatchFiles(paths, toolInput["files"]);
-	addPatchFiles(paths, toolInput["changes"]);
+	addPatchFiles(paths, toolInput.files);
+	addPatchFiles(paths, toolInput.changes);
 	return [...paths];
 }
 
@@ -32,7 +32,10 @@ function isMutationTool(value: unknown): boolean {
 function isFailedToolResponse(value: unknown): boolean {
 	if (!isRecord(value)) return false;
 	return (
-		value["isError"] === true || value["is_error"] === true || value["error"] === true || value["status"] === "error"
+		value.isError === true ||
+		value.is_error === true ||
+		value.error === true ||
+		value.status === "error"
 	);
 }
 
@@ -50,9 +53,9 @@ function addStringArray(paths: Set<string>, value: unknown): void {
 }
 
 function addPatchPayloads(paths: Set<string>, input: Record<string, unknown>): void {
-	addPatchInput(paths, input["input"]);
-	addPatchInput(paths, input["patch"]);
-	addPatchInput(paths, input["command"]);
+	addPatchInput(paths, input.input);
+	addPatchInput(paths, input.patch);
+	addPatchInput(paths, input.command);
 }
 
 function addPatchInput(paths: Set<string>, value: unknown): void {
@@ -75,11 +78,11 @@ function addPatchFiles(paths: Set<string>, value: unknown): void {
 	if (!Array.isArray(value)) return;
 	for (const item of value) {
 		if (!isRecord(item)) continue;
-		addStringValue(paths, item["path"]);
-		addStringValue(paths, item["filePath"]);
-		addStringValue(paths, item["file_path"]);
-		addStringValue(paths, item["movePath"]);
-		addStringValue(paths, item["move_path"]);
+		addStringValue(paths, item.path);
+		addStringValue(paths, item.filePath);
+		addStringValue(paths, item.file_path);
+		addStringValue(paths, item.movePath);
+		addStringValue(paths, item.move_path);
 	}
 }
 

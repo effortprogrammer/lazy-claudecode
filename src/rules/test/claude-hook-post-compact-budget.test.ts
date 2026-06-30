@@ -9,7 +9,7 @@ import {
 	runPostCompactHook,
 	runSessionStartHook,
 	runUserPromptSubmitHook,
-} from "../src/claude-code-hook.ts";
+} from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 const PROJECT_RULES_ENV = {
@@ -61,11 +61,16 @@ describe("claude-code rules post-compaction context budget", () => {
 
 function makeOversizedProject(): { root: string; pluginData: string } {
 	const root = mkdtempSync(path.join(tmpdir(), "claude-code-rules-post-compact-budget-project-"));
-	const pluginData = mkdtempSync(path.join(tmpdir(), "claude-code-rules-post-compact-budget-data-"));
+	const pluginData = mkdtempSync(
+		path.join(tmpdir(), "claude-code-rules-post-compact-budget-data-"),
+	);
 	tempDirectories.push(root, pluginData);
 	writeFileSync(path.join(root, "package.json"), JSON.stringify({ name: "fixture" }));
 	writeFileSync(path.join(root, "AGENTS.md"), "Project AGENTS.md should stay Claude Code-native.");
-	writeFileSync(path.join(root, "CLAUDE.md"), "Project CLAUDE.md should stay outside rules hook context.");
+	writeFileSync(
+		path.join(root, "CLAUDE.md"),
+		"Project CLAUDE.md should stay outside rules hook context.",
+	);
 	writeFileSync(path.join(root, "CONTEXT.md"), `Project rule\n${"A".repeat(30_000)}`);
 	mkdirSync(path.join(root, ".claude", "rules"), { recursive: true });
 	writeFileSync(
@@ -99,7 +104,10 @@ function postCompactInput(root: string): ClaudePostCompactInput {
 	};
 }
 
-function userPromptSubmitInput(root: string, transcriptPath: string): Parameters<typeof runUserPromptSubmitHook>[0] {
+function userPromptSubmitInput(
+	root: string,
+	transcriptPath: string,
+): Parameters<typeof runUserPromptSubmitHook>[0] {
 	return {
 		session_id: "session-post-compact-budget",
 		turn_id: "turn-after-compact",
@@ -131,9 +139,9 @@ function readAdditionalContext(output: string): string {
 	expect(output.trim().length).toBeGreaterThan(0);
 	const parsed: unknown = JSON.parse(output);
 	if (!isRecord(parsed)) return "";
-	const hookSpecificOutput = parsed["hookSpecificOutput"];
+	const hookSpecificOutput = parsed.hookSpecificOutput;
 	if (!isRecord(hookSpecificOutput)) return "";
-	const additionalContext = hookSpecificOutput["additionalContext"];
+	const additionalContext = hookSpecificOutput.additionalContext;
 	return typeof additionalContext === "string" ? additionalContext : "";
 }
 

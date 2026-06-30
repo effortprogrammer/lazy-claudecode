@@ -5,12 +5,12 @@ import { join, resolve } from "node:path";
 import { Readable } from "node:stream";
 import { fileURLToPath } from "node:url";
 
-import { runCodegraphCli } from "../src/cli.ts";
+import { runCodegraphCli } from "../cli.ts";
 import {
+	type WorkerSpawnInvocation,
 	executeCodegraphSessionStartHook,
 	runCodegraphPostToolUseHook,
-	type WorkerSpawnInvocation,
-} from "../src/hook.ts";
+} from "../hook.ts";
 
 const pluginRoot = resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const pluginConfigPath = resolve(pluginRoot, ".claude-code-plugin/plugin.json");
@@ -70,10 +70,14 @@ describe("CodeGraph SessionStart hook", () => {
 		expect(parsed).toEqual({
 			hookSpecificOutput: {
 				hookEventName: "PostToolUse",
-				additionalContext: expect.stringContaining('"/Users/me/.claude/codegraph/projects/project-'),
+				additionalContext: expect.stringContaining(
+					'"/Users/me/.claude/codegraph/projects/project-',
+				),
 			},
 		});
-		expect(parsed.hookSpecificOutput.additionalContext).toContain('run `codegraph init` from "/Users/me/project"');
+		expect(parsed.hookSpecificOutput.additionalContext).toContain(
+			'run `codegraph init` from "/Users/me/project"',
+		);
 	});
 
 	it("#given real CodeGraph status output has no MCP path phrase #when PostToolUse fires #then it emits LAZY_CLAUDECODE global-store init guidance", async () => {
@@ -82,7 +86,11 @@ describe("CodeGraph SessionStart hook", () => {
 			{
 				cwd: "/Users/me/project",
 				tool_name: "mcp__codegraph__codegraph_status",
-				tool_response: ['Project: /Users/me/project', "Not initialized", 'Run "codegraph init" to initialize'].join("\n"),
+				tool_response: [
+					"Project: /Users/me/project",
+					"Not initialized",
+					'Run "codegraph init" to initialize',
+				].join("\n"),
 			},
 			{ homeDir: "/Users/me" },
 		);
@@ -91,8 +99,12 @@ describe("CodeGraph SessionStart hook", () => {
 		const parsed = JSON.parse(output);
 
 		// then
-		expect(parsed.hookSpecificOutput.additionalContext).toContain('CodeGraph is not initialized for "/Users/me/project"');
-		expect(parsed.hookSpecificOutput.additionalContext).toContain('"/Users/me/.claude/codegraph/projects/project-');
+		expect(parsed.hookSpecificOutput.additionalContext).toContain(
+			'CodeGraph is not initialized for "/Users/me/project"',
+		);
+		expect(parsed.hookSpecificOutput.additionalContext).toContain(
+			'"/Users/me/.claude/codegraph/projects/project-',
+		);
 	});
 
 	it("#given CodeGraph is disabled by Claude Code SOT config #when SessionStart fires #then it skips without spawning", async () => {
@@ -150,14 +162,22 @@ describe("CodeGraph SessionStart hook", () => {
 	it("#given project Claude Code SOT disables global CodeGraph enablement #when SessionStart fires #then project config wins", async () => {
 		// given
 		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-project-sot-home-"));
-		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-project-sot-workspace-"));
+		const workspace = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-project-sot-workspace-"),
+		);
 		const stdout: string[] = [];
 		const spawned: WorkerSpawnInvocation[] = [];
 		try {
 			mkdirSync(join(homeDir, ".claude"), { recursive: true });
 			mkdirSync(join(workspace, ".claude"), { recursive: true });
-			writeFileSync(join(homeDir, ".claude", "config.jsonc"), '{ "codegraph": { "enabled": true } }\n');
-			writeFileSync(join(workspace, ".claude", "config.jsonc"), '{ "[claude-code]": { "codegraph": { "enabled": false } } }\n');
+			writeFileSync(
+				join(homeDir, ".claude", "config.jsonc"),
+				'{ "codegraph": { "enabled": true } }\n',
+			);
+			writeFileSync(
+				join(workspace, ".claude", "config.jsonc"),
+				'{ "[claude-code]": { "codegraph": { "enabled": false } } }\n',
+			);
 
 			// when
 			const result = await executeCodegraphSessionStartHook({
@@ -185,7 +205,10 @@ describe("CodeGraph SessionStart hook", () => {
 		const spawned: WorkerSpawnInvocation[] = [];
 		try {
 			mkdirSync(join(homeDir, ".claude"), { recursive: true });
-			writeFileSync(join(homeDir, ".claude", "config.jsonc"), '{ "codegraph": { "enabled": true } }\n');
+			writeFileSync(
+				join(homeDir, ".claude", "config.jsonc"),
+				'{ "codegraph": { "enabled": true } }\n',
+			);
 
 			// when
 			const result = await executeCodegraphSessionStartHook({
@@ -271,14 +294,17 @@ describe("CodeGraph SessionStart hook", () => {
 
 		// when
 		const hookPaths =
-			typeof pluginConfig === "object" && pluginConfig !== null && "hooks" in pluginConfig && Array.isArray(pluginConfig.hooks)
+			typeof pluginConfig === "object" &&
+			pluginConfig !== null &&
+			"hooks" in pluginConfig &&
+			Array.isArray(pluginConfig.hooks)
 				? pluginConfig.hooks.filter((hookPath): hookPath is string => typeof hookPath === "string")
 				: [];
 
 		// then
 		expect(hookPaths).toContain("./hooks/session-start-checking-codegraph-bootstrap.json");
-		expect(hookPaths.indexOf("./hooks/session-start-checking-bootstrap-provisioning.json")).toBeLessThan(
-			hookPaths.indexOf("./hooks/session-start-checking-codegraph-bootstrap.json"),
-		);
+		expect(
+			hookPaths.indexOf("./hooks/session-start-checking-bootstrap-provisioning.json"),
+		).toBeLessThan(hookPaths.indexOf("./hooks/session-start-checking-codegraph-bootstrap.json"));
 	});
 });

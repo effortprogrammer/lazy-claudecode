@@ -13,10 +13,15 @@ export interface DiagnosticsObservation {
 }
 
 export function sessionIdFrom(input: { readonly session_id?: unknown }): string | undefined {
-	return typeof input.session_id === "string" && input.session_id.length > 0 ? input.session_id : undefined;
+	return typeof input.session_id === "string" && input.session_id.length > 0
+		? input.session_id
+		: undefined;
 }
 
-export function shouldSkipUnavailableLspDiagnostics(filePath: string, sessionId: string | undefined): boolean {
+export function shouldSkipUnavailableLspDiagnostics(
+	filePath: string,
+	sessionId: string | undefined,
+): boolean {
 	if (sessionId === undefined) return false;
 	const state = readSessionState(sessionStatePath(sessionId));
 	const extension = extensionKey(filePath);
@@ -45,7 +50,9 @@ export function recordLspDiagnosticsObservations(
 		}
 	}
 
-	writeSessionState(sessionStatePath(sessionId), { unavailableExtensions: [...unavailableExtensions].sort() });
+	writeSessionState(sessionStatePath(sessionId), {
+		unavailableExtensions: [...unavailableExtensions].sort(),
+	});
 }
 
 export function markLspSessionCompacted(sessionId: string | undefined): void {
@@ -73,7 +80,7 @@ export function isLspDaemonUnreachableDiagnostics(diagnostics: string): boolean 
 }
 
 function sessionStatePath(sessionId: string): string {
-	const root = process.env["PLUGIN_DATA"] ?? join(homedir(), ".claude", "claude-lsp");
+	const root = process.env.PLUGIN_DATA ?? join(homedir(), ".claude", "claude-lsp");
 	return join(root, "sessions", `${safePathSegment(sessionId)}.json`);
 }
 
@@ -83,7 +90,8 @@ function readSessionState(path: string): LspSessionState {
 		if (isLspSessionState(parsed)) return parsed;
 		return emptyState();
 	} catch (error) {
-		if (error instanceof SyntaxError || (isRecord(error) && error["code"] === "ENOENT")) return emptyState();
+		if (error instanceof SyntaxError || (isRecord(error) && error.code === "ENOENT"))
+			return emptyState();
 		throw error;
 	}
 }
@@ -107,10 +115,10 @@ function safePathSegment(value: string): string {
 }
 
 function isLspSessionState(value: unknown): value is LspSessionState {
-	if (!isRecord(value) || !Array.isArray(value["unavailableExtensions"])) return false;
-	const postCompactProbePending = value["postCompactProbePending"];
+	if (!isRecord(value) || !Array.isArray(value.unavailableExtensions)) return false;
+	const postCompactProbePending = value.postCompactProbePending;
 	return (
-		value["unavailableExtensions"].every((item) => typeof item === "string") &&
+		value.unavailableExtensions.every((item) => typeof item === "string") &&
 		(postCompactProbePending === undefined || typeof postCompactProbePending === "boolean")
 	);
 }

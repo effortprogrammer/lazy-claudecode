@@ -22,13 +22,13 @@ type CliResult = {
 };
 
 const tempDirectories: string[] = [];
-const originalXdgDataHome = process.env["XDG_DATA_HOME"];
+const originalXdgDataHome = process.env.XDG_DATA_HOME;
 
 afterEach(() => {
 	if (originalXdgDataHome === undefined) {
-		delete process.env["XDG_DATA_HOME"];
+		process.env.XDG_DATA_HOME = undefined;
 	} else {
-		process.env["XDG_DATA_HOME"] = originalXdgDataHome;
+		process.env.XDG_DATA_HOME = originalXdgDataHome;
 	}
 
 	for (const directory of tempDirectories.splice(0)) {
@@ -36,7 +36,9 @@ afterEach(() => {
 	}
 });
 
-function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> = {}): ClaudeCodeSessionStartInput {
+function makeSessionStartInput(
+	overrides: Partial<ClaudeCodeSessionStartInput> = {},
+): ClaudeCodeSessionStartInput {
 	return {
 		session_id: "session-123",
 		transcript_path: null,
@@ -49,7 +51,11 @@ function makeSessionStartInput(overrides: Partial<ClaudeCodeSessionStartInput> =
 	};
 }
 
-function makeRecordingClient(): { client: PostHogClient; calls: CapturedCall[]; shutdownCalls: number } {
+function makeRecordingClient(): {
+	client: PostHogClient;
+	calls: CapturedCall[];
+	shutdownCalls: number;
+} {
 	const calls: CapturedCall[] = [];
 	let shutdownCalls = 0;
 	const client: PostHogClient = {
@@ -73,7 +79,11 @@ function runHookCli(input: string, env: NodeJS.ProcessEnv = {}): Promise<CliResu
 	return runHookCliAt(CLI_PATH, input, env);
 }
 
-function runHookCliAt(cliPath: string, input: string, env: NodeJS.ProcessEnv = {}): Promise<CliResult> {
+function runHookCliAt(
+	cliPath: string,
+	input: string,
+	env: NodeJS.ProcessEnv = {},
+): Promise<CliResult> {
 	return new Promise((resolve, reject) => {
 		const child = spawn(process.execPath, [cliPath, "hook", "session-start"], {
 			env: { ...process.env, ...env },

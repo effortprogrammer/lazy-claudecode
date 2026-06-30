@@ -4,7 +4,10 @@ export interface TranscriptSearchOptions {
 	readonly latestCompactedReplacementOnly?: boolean;
 }
 
-export function readTranscriptSearchText(transcriptPath: string, options: TranscriptSearchOptions = {}): string | null {
+export function readTranscriptSearchText(
+	transcriptPath: string,
+	options: TranscriptSearchOptions = {},
+): string | null {
 	try {
 		const rawTranscript = readFileSync(transcriptPath, "utf8");
 		if (options.latestCompactedReplacementOnly === true) {
@@ -25,16 +28,16 @@ function latestCompactedReplacementSearchText(rawTranscript: string): string | n
 	let replacementHistory: unknown[] | null = null;
 	for (const [index, line] of lines.entries()) {
 		const parsed = parseJsonLine(line);
-		if (!isRecord(parsed) || parsed["type"] !== "compacted") {
+		if (!isRecord(parsed) || parsed.type !== "compacted") {
 			continue;
 		}
 
-		const payload = parsed["payload"];
+		const payload = parsed.payload;
 		if (!isRecord(payload)) {
 			continue;
 		}
 
-		const candidateReplacementHistory = payload["replacement_history"];
+		const candidateReplacementHistory = payload.replacement_history;
 		if (!Array.isArray(candidateReplacementHistory)) {
 			continue;
 		}

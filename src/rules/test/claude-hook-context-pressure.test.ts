@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
-import { runPostToolUseHook, runUserPromptSubmitHook } from "../src/claude-code-hook.ts";
+import { runPostToolUseHook, runUserPromptSubmitHook } from "../claude-hook.ts";
 
 const tempDirectories: string[] = [];
 const PROJECT_ONLY_ENV = {

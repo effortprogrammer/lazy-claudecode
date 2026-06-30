@@ -3,8 +3,8 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 
-import { runCodegraphSessionStartWorker } from "../src/hook.ts";
-import { runCodegraphServe } from "../src/serve.ts";
+import { runCodegraphSessionStartWorker } from "../hook.ts";
+import { runCodegraphServe } from "../serve.ts";
 
 describe("CodeGraph provisioned launcher Node guard", () => {
 	it("#given provisioned CodeGraph binary #when serve runs under unsupported local Node #then it trusts the launcher", async () => {
@@ -17,7 +17,12 @@ describe("CodeGraph provisioned launcher Node guard", () => {
 			env: {},
 			nodeVersion: "26.3.0",
 			buildEnv: () => ({}),
-			resolve: () => ({ argsPrefix: [], command: commandPath, exists: true, source: "provisioned" }),
+			resolve: () => ({
+				argsPrefix: [],
+				command: commandPath,
+				exists: true,
+				source: "provisioned",
+			}),
 			runProcess: (command, args) => {
 				spawned.push({ args, command });
 				return Promise.resolve(0);
@@ -34,8 +39,14 @@ describe("CodeGraph provisioned launcher Node guard", () => {
 		// given
 		const workspace = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-node25-"));
 		const homeDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-node25-home-"));
-		const installDir = mkdtempSync(join(tmpdir(), "lazy-claudecode-codegraph-worker-node25-install-"));
-		const binPath = join(installDir, "bin", process.platform === "win32" ? "codegraph.cmd" : "codegraph");
+		const installDir = mkdtempSync(
+			join(tmpdir(), "lazy-claudecode-codegraph-worker-node25-install-"),
+		);
+		const binPath = join(
+			installDir,
+			"bin",
+			process.platform === "win32" ? "codegraph.cmd" : "codegraph",
+		);
 		const calls: Array<{ readonly args: readonly string[]; readonly command: string }> = [];
 		const outcomes: unknown[] = [];
 
@@ -45,7 +56,12 @@ describe("CodeGraph provisioned launcher Node guard", () => {
 
 			// when
 			const result = await runCodegraphSessionStartWorker({
-				config: { codegraph: { enabled: true, install_dir: installDir }, sources: [], trustedCodegraphInstallDir: installDir, warnings: [] },
+				config: {
+					codegraph: { enabled: true, install_dir: installDir },
+					sources: [],
+					trustedCodegraphInstallDir: installDir,
+					warnings: [],
+				},
 				nodeVersion: "26.3.0",
 				cwd: workspace,
 				env: { HOME: homeDir },
@@ -73,7 +89,11 @@ describe("CodeGraph provisioned launcher Node guard", () => {
 					},
 					runCommand: (_projectRoot, command, args) => {
 						calls.push({ args, command });
-						return Promise.resolve({ exitCode: 0, stdout: calls.length === 1 ? '{"initialized":false}' : "", timedOut: false });
+						return Promise.resolve({
+							exitCode: 0,
+							stdout: calls.length === 1 ? '{"initialized":false}' : "",
+							timedOut: false,
+						});
 					},
 				},
 			});
@@ -84,7 +104,15 @@ describe("CodeGraph provisioned launcher Node guard", () => {
 				{ args: ["status", "--json"], command: binPath },
 				{ args: ["init"], command: binPath },
 			]);
-			expect(outcomes).toEqual([{ action: "initialized", exitCode: 0, projectRoot: workspace, source: "provisioned", timedOut: false }]);
+			expect(outcomes).toEqual([
+				{
+					action: "initialized",
+					exitCode: 0,
+					projectRoot: workspace,
+					source: "provisioned",
+					timedOut: false,
+				},
+			]);
 		} finally {
 			rmSync(workspace, { recursive: true, force: true });
 			rmSync(homeDir, { recursive: true, force: true });

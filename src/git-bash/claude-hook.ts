@@ -61,7 +61,10 @@ export function parsePostCompactPayload(raw: string): PostCompactPayload | null 
 	}
 }
 
-export function applyGitBashPreToolUseReminder(payload: PreToolUsePayload, options: GitBashHookOptions = {}): string {
+export function applyGitBashPreToolUseReminder(
+	payload: PreToolUsePayload,
+	options: GitBashHookOptions = {},
+): string {
 	if (payload.hook_event_name !== "PreToolUse") return "";
 	if (payload.tool_name !== BASH_TOOL_NAME) return "";
 	if (!isWindowsHost(options)) return "";
@@ -80,7 +83,10 @@ export function applyGitBashPreToolUseReminder(payload: PreToolUsePayload, optio
 	return `${JSON.stringify(output)}\n`;
 }
 
-export function applyGitBashPostCompactReset(payload: PostCompactPayload, options: GitBashHookOptions = {}): string {
+export function applyGitBashPostCompactReset(
+	payload: PostCompactPayload,
+	options: GitBashHookOptions = {},
+): string {
 	if (payload.hook_event_name !== "PostCompact") return "";
 	rmSync(reminderMarkerPath(payload.session_id, options.pluginDataRoot), { force: true });
 	return "";
@@ -95,7 +101,9 @@ export async function runGitBashHookCli(
 	try {
 		const raw = await readAll(stdin);
 		const output =
-			eventName === "post-compact" ? postCompactOutput(raw, options) : preToolUseOutput(raw, options);
+			eventName === "post-compact"
+				? postCompactOutput(raw, options)
+				: preToolUseOutput(raw, options);
 		if (output.length > 0) stdout.write(output);
 	} catch (error) {
 		if (error instanceof Error) return;
@@ -119,7 +127,7 @@ function isWindowsHost(options: GitBashHookOptions): boolean {
 	const platform = options.platform ?? process.platform;
 	if (platform === "win32") return true;
 	const env = options.env ?? process.env;
-	return env["OS"] === "Windows_NT" || env["ComSpec"] !== undefined || env["SystemRoot"] !== undefined;
+	return env.OS === "Windows_NT" || env.ComSpec !== undefined || env.SystemRoot !== undefined;
 }
 
 function hasReminderMarker(path: string): boolean {
@@ -127,7 +135,10 @@ function hasReminderMarker(path: string): boolean {
 }
 
 function reminderMarkerPath(sessionId: string, pluginDataRoot?: string): string {
-	const root = pluginDataRoot ?? process.env["PLUGIN_DATA"] ?? join(homedir(), ".claude-code", "lazy-claudecode-git-bash");
+	const root =
+		pluginDataRoot ??
+		process.env.PLUGIN_DATA ??
+		join(homedir(), ".claude-code", "lazy-claudecode-git-bash");
 	return join(root, "git-bash-reminder", `${safePathSegment(sessionId)}.seen`);
 }
 
@@ -138,15 +149,15 @@ function safePathSegment(value: string): string {
 function isPreToolUsePayload(value: unknown): value is PreToolUsePayload {
 	if (!isRecord(value)) return false;
 	return (
-		value["hook_event_name"] === "PreToolUse" &&
-		typeof value["cwd"] === "string" &&
-		typeof value["model"] === "string" &&
-		typeof value["permission_mode"] === "string" &&
-		typeof value["session_id"] === "string" &&
-		typeof value["tool_name"] === "string" &&
-		typeof value["tool_use_id"] === "string" &&
-		(value["transcript_path"] === null || typeof value["transcript_path"] === "string") &&
-		typeof value["turn_id"] === "string" &&
+		value.hook_event_name === "PreToolUse" &&
+		typeof value.cwd === "string" &&
+		typeof value.model === "string" &&
+		typeof value.permission_mode === "string" &&
+		typeof value.session_id === "string" &&
+		typeof value.tool_name === "string" &&
+		typeof value.tool_use_id === "string" &&
+		(value.transcript_path === null || typeof value.transcript_path === "string") &&
+		typeof value.turn_id === "string" &&
 		Object.hasOwn(value, "tool_input")
 	);
 }
@@ -154,12 +165,12 @@ function isPreToolUsePayload(value: unknown): value is PreToolUsePayload {
 function isPostCompactPayload(value: unknown): value is PostCompactPayload {
 	if (!isRecord(value)) return false;
 	return (
-		value["hook_event_name"] === "PostCompact" &&
-		typeof value["session_id"] === "string" &&
-		(value["transcript_path"] === undefined ||
-			value["transcript_path"] === null ||
-			typeof value["transcript_path"] === "string") &&
-		(value["trigger"] === undefined || typeof value["trigger"] === "string")
+		value.hook_event_name === "PostCompact" &&
+		typeof value.session_id === "string" &&
+		(value.transcript_path === undefined ||
+			value.transcript_path === null ||
+			typeof value.transcript_path === "string") &&
+		(value.trigger === undefined || typeof value.trigger === "string")
 	);
 }
 
