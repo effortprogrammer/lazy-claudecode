@@ -145,10 +145,10 @@ function detectAgentCLIs(): { hasClaude: boolean; hasCodex: boolean } {
 
 /**
  * Install cross-call agent files to ~/.claude/agents/ and ~/.codex/agents/.
+ * - .md agents → ~/.claude/agents/ (optional reference; commands no longer depend on these)
+ * - .toml agents → ~/.codex/agents/ + register in ~/.codex/config.toml (for Codex native TUI)
  * - If `codex` is installed → install lazycc-delegate (Codex can call Claude Code)
- *   - .md → ~/.claude/agents/ (for LazyCodex plugin compatibility)
- *   - .toml → ~/.codex/agents/ + register in ~/.codex/config.toml (for Codex native TUI)
- * - If `claude` is installed → install lazycodex-delegate.md (Claude Code can call Codex)
+ * - If `claude` is installed → install lazycodex-delegate (Claude Code can call Codex)
  * - Both → install both
  */
 function installCrossCallAgents(root: string): number {
@@ -269,11 +269,11 @@ function installCodexNativeAgents(sourceDir: string, targetDir: string): number 
 
 /**
  * Install slash commands to ~/.claude/commands/.
- * - /lazycc → delegates to Claude Code (via lazycc-delegate agent)
- * - /lazycodex → delegates to Codex (via lazycodex-delegate agent)
+ * - /lazycc → delegates to Claude Code (direct Bash execution, no agent: dependency)
+ * - /lazycodex → delegates to Codex (direct Bash execution, no agent: dependency)
  *
- * Commands are loaded by both Claude Code and Codex (LazyCodex)
- * from ~/.claude/commands/ directory.
+ * Commands use allowed-tools: Bash and invoke CLI directly,
+ * following the codex-plugin-cc pattern for maximum compatibility.
  */
 function installSlashCommands(root: string): number {
 	const { hasClaude, hasCodex } = detectAgentCLIs();
