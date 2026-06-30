@@ -3,6 +3,7 @@
  */
 
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
+import { execSync } from "node:child_process";
 import { getClaudeSettingsPath } from "../utils/paths.ts";
 
 interface HookEntry {
@@ -93,4 +94,50 @@ export async function uninstall(root: string): Promise<void> {
 
   console.log("\n✅ Uninstallation complete.");
   console.log("   You can also remove the LAZY_CLAUDECODE_ROOT environment variable.");
+
+  // Uninstall companion plugins
+  await uninstallCompanionPlugins();
+}
+
+/**
+ * Uninstall companion plugins (lazycc-codex-plugin) from Claude Code.
+ * Non-critical — failures are logged with manual instructions.
+ */
+async function uninstallCompanionPlugins(): Promise<void> {
+  const MARKETPLACE_NAME = "lazycc-codex";
+  const PLUGIN_NAME = "codex";
+
+  // Check if claude CLI is available
+  let hasClaude = false;
+  try {
+    execSync("which claude", { encoding: "utf-8", stdio: "pipe" });
+    hasClaude = true;
+  } catch { /* not found */ }
+
+  if (!hasClaude) {
+    return; // Nothing to clean up
+  }
+
+  console.log("\n📦 Removing Codex companion plugin...");
+
+  try {
+    // Uninstall plugin
+    try {
+      execSync(`claude plugin uninstall ${PLUGIN_NAME}@${MARKETPLACE_NAME}`, { stdio: "pipe" });
+      console.log(`  ✅ Plugin '${PLUGIN_NAME}' uninstalled`);
+    } catch {
+      // Already uninstalled or not found — fine
+    }
+
+    // Remove marketplace
+    try {
+      execSync(`claude plugin marketplace remove ${MARKETPLACE_NAME}`, { stdio: "pipe" });
+      console.log(`  ✅ Marketplace '${MARKETPLACE_NAME}' removed`);
+    } catch {
+      // Already removed or not found — fine
+    }
+  } catch {
+    console.log("  ⚠️  Companion plugin removal failed (non-critical).");
+    console.log(`     Run manually: claude plugin uninstall ${PLUGIN_NAME}@${MARKETPLACE_NAME} && claude plugin marketplace remove ${MARKETPLACE_NAME}`);
+  }
 }

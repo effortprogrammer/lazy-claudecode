@@ -389,4 +389,79 @@ export async function install(root: string): Promise<void> {
     console.log(`\n✅ ${commandCount} slash command(s) installed to ~/.claude/commands/`);
     console.log("   Use /lazycc or /lazycodex to delegate tasks between agents.");
   }
+
+  // 9. Install companion plugins (Codex plugin for Claude Code)
+  await installCompanionPlugins();
+}
+
+/**
+ * Install companion plugins (lazycc-codex-plugin) via Claude Code plugin system.
+ *
+ * Registers the lazycc-codex marketplace and installs the codex plugin,
+ * which provides /codex:review, /codex:rescue, /codex:status, etc.
+ * slash commands inside Claude Code sessions.
+ *
+ * All operations are non-critical — failures are logged with manual
+ * install instructions and do not block the rest of the install flow.
+ */
+async function installCompanionPlugins(): Promise<void> {
+  const MARKETPLACE_NAME = "lazycc-codex";
+  const MARKETPLACE_REPO = "effortprogrammer/lazycc-codex-plugin";
+  const PLUGIN_NAME = "codex";
+
+  const { hasClaude } = detectAgentCLIs();
+  if (!hasClaude) {
+    console.log("\n⏭️  Claude CLI not found — skipping companion plugin installation.");
+    console.log("   Install manually: claude plugin marketplace add effortprogrammer/lazycc-codex-plugin && claude plugin install codex@lazycc-codex");
+    return;
+  }
+
+  console.log("\n📦 Installing Codex companion plugin...");
+
+  try {
+    // Check if marketplace already registered
+    const marketplaceList = execSync("claude plugin marketplace list 2>&1", { encoding: "utf-8" });
+    const hasMarketplace = marketplaceList.includes(MARKETPLACE_NAME);
+
+    if (!hasMarketplace) {
+      console.log(`  Adding marketplace: ${MARKETPLACE_REPO}...`);
+      try {
+        execSync(`claude plugin marketplace add ${MARKETPLACE_REPO}`, { stdio: "pipe" });
+        console.log(`  ✅ Marketplace '${MARKETPLACE_NAME}' added`);
+      } catch {
+        console.log(`  ⚠️  Failed to add marketplace — skipping plugin install.`);
+        console.log(`     Run manually: claude plugin marketplace add ${MARKETPLACE_REPO}`);
+        return;
+      }
+    } else {
+      console.log(`  ✅ Marketplace '${MARKETPLACE_NAME}' already registered`);
+    }
+
+    // Check if plugin already installed
+    const pluginList = execSync("claude plugin list 2>&1", { encoding: "utf-8" });
+    const hasPlugin = pluginList.includes(PLUGIN_NAME) && pluginList.includes(MARKETPLACE_NAME);
+
+    if (!hasPlugin) {
+      console.log(`  Installing plugin: ${PLUGIN_NAME}@${MARKETPLACE_NAME}...`);
+      try {
+        execSync(`claude plugin install ${PLUGIN_NAME}@${MARKETPLACE_NAME}`, { stdio: "pipe" });
+        console.log(`  ✅ Plugin '${PLUGIN_NAME}' installed from '${MARKETPLACE_NAME}'`);
+      } catch {
+        console.log(`  ⚠️  Failed to install plugin.`);
+        console.log(`     Run manually: claude plugin install ${PLUGIN_NAME}@${MARKETPLACE_NAME}`);
+        return;
+      }
+    } else {
+      console.log(`  ✅ Plugin '${PLUGIN_NAME}@${MARKETPLACE_NAME}' already installed`);
+    }
+
+    console.log("\n  Codex companion commands now available in Claude Code:");
+    console.log("    /codex:setup   — Check Codex CLI readiness");
+    console.log("    /codex:review  — Run Codex code review");
+    console.log("    /codex:rescue  — Delegate task to Codex");
+    console.log("    /codex:status  — Check background job status");
+  } catch {
+    console.log("  ⚠️  Companion plugin installation failed (non-critical).");
+    console.log("     Install manually: claude plugin marketplace add effortprogrammer/lazycc-codex-plugin && claude plugin install codex@lazycc-codex");
+  }
 }
