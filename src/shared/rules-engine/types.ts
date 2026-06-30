@@ -77,14 +77,12 @@ export interface LoadedRule extends RuleCandidate {
  */
 export type RuleSource =
 	| ".claude/rules"
-	| ".claude/rules"
+	| ".opencode/rules"
 	| ".cursor/rules"
 	| ".github/instructions"
 	| ".github/copilot-instructions.md"
 	| "CONTEXT.md"
 	| "plugin-bundled"
-	| "~/.claude/rules"
-	| "~/.claude/rules"
 	| "~/.claude/rules"
 	| "~/.opencode/rules";
 
@@ -92,7 +90,11 @@ export type RuleSource =
  * Why a candidate matched the target file. Surfaced in the injection block so
  * the model can attribute its behavior to a specific rule.
  */
-export type MatchReason = "alwaysApply" | "single-file" | { kind: "glob"; pattern: string } | { kind: "no-match" };
+export type MatchReason =
+	| "alwaysApply"
+	| "single-file"
+	| { kind: "glob"; pattern: string }
+	| { kind: "no-match" };
 
 /**
  * Truncation result.

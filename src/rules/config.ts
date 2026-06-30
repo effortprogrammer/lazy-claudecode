@@ -4,36 +4,59 @@ import type { PiRulesConfig, RuleSource } from "../shared/rules-engine/index.ts"
 
 export function configFromEnvironment(env: NodeJS.ProcessEnv = process.env): PiRulesConfig {
 	const config = defaultConfig();
-	const disableBundledRules = isTruthy(firstEnv(env, "CLAUDE_CODE_RULES_DISABLE_BUNDLED", "PI_RULES_DISABLE_BUNDLED"));
+	const disableBundledRules = isTruthy(
+		firstEnv(env, "CLAUDE_CODE_RULES_DISABLE_BUNDLED", "PI_RULES_DISABLE_BUNDLED"),
+	);
 	config.disabled = isTruthy(firstEnv(env, "CLAUDE_CODE_RULES_DISABLED", "PI_RULES_DISABLED"));
 	config.mode = parseMode(firstEnv(env, "CLAUDE_CODE_RULES_MODE", "PI_RULES_MODE")) ?? config.mode;
 	config.maxRuleChars =
-		parsePositiveInteger(firstEnv(env, "CLAUDE_CODE_RULES_MAX_RULE_CHARS", "PI_RULES_MAX_RULE_CHARS")) ??
-		config.maxRuleChars;
+		parsePositiveInteger(
+			firstEnv(env, "CLAUDE_CODE_RULES_MAX_RULE_CHARS", "PI_RULES_MAX_RULE_CHARS"),
+		) ?? config.maxRuleChars;
 	config.maxResultChars =
-		parsePositiveInteger(firstEnv(env, "CLAUDE_CODE_RULES_MAX_RESULT_CHARS", "PI_RULES_MAX_RESULT_CHARS")) ??
-		config.maxResultChars;
+		parsePositiveInteger(
+			firstEnv(env, "CLAUDE_CODE_RULES_MAX_RESULT_CHARS", "PI_RULES_MAX_RESULT_CHARS"),
+		) ?? config.maxResultChars;
 	config.postCompactMaxRuleChars =
 		parsePositiveInteger(
-			firstEnv(env, "CLAUDE_CODE_RULES_POST_COMPACT_MAX_RULE_CHARS", "PI_RULES_POST_COMPACT_MAX_RULE_CHARS"),
+			firstEnv(
+				env,
+				"CLAUDE_CODE_RULES_POST_COMPACT_MAX_RULE_CHARS",
+				"PI_RULES_POST_COMPACT_MAX_RULE_CHARS",
+			),
 		) ?? config.postCompactMaxRuleChars;
 	config.postCompactMaxResultChars =
 		parsePositiveInteger(
-			firstEnv(env, "CLAUDE_CODE_RULES_POST_COMPACT_MAX_RESULT_CHARS", "PI_RULES_POST_COMPACT_MAX_RESULT_CHARS"),
+			firstEnv(
+				env,
+				"CLAUDE_CODE_RULES_POST_COMPACT_MAX_RESULT_CHARS",
+				"PI_RULES_POST_COMPACT_MAX_RESULT_CHARS",
+			),
 		) ?? config.postCompactMaxResultChars;
 	config.dynamicMaxRuleChars =
-		parsePositiveInteger(firstEnv(env, "CLAUDE_CODE_RULES_DYNAMIC_MAX_RULE_CHARS", "PI_RULES_DYNAMIC_MAX_RULE_CHARS")) ??
-		config.dynamicMaxRuleChars;
+		parsePositiveInteger(
+			firstEnv(env, "CLAUDE_CODE_RULES_DYNAMIC_MAX_RULE_CHARS", "PI_RULES_DYNAMIC_MAX_RULE_CHARS"),
+		) ?? config.dynamicMaxRuleChars;
 	config.dynamicMaxResultChars =
 		parsePositiveInteger(
-			firstEnv(env, "CLAUDE_CODE_RULES_DYNAMIC_MAX_RESULT_CHARS", "PI_RULES_DYNAMIC_MAX_RESULT_CHARS"),
+			firstEnv(
+				env,
+				"CLAUDE_CODE_RULES_DYNAMIC_MAX_RESULT_CHARS",
+				"PI_RULES_DYNAMIC_MAX_RESULT_CHARS",
+			),
 		) ?? config.dynamicMaxResultChars;
 	config.promptMaxRuleChars =
-		parsePositiveInteger(firstEnv(env, "CLAUDE_CODE_RULES_PROMPT_MAX_RULE_CHARS", "PI_RULES_PROMPT_MAX_RULE_CHARS")) ??
-		config.promptMaxRuleChars;
+		parsePositiveInteger(
+			firstEnv(env, "CLAUDE_CODE_RULES_PROMPT_MAX_RULE_CHARS", "PI_RULES_PROMPT_MAX_RULE_CHARS"),
+		) ?? config.promptMaxRuleChars;
 	config.promptMaxResultChars =
-		parsePositiveInteger(firstEnv(env, "CLAUDE_CODE_RULES_PROMPT_MAX_RESULT_CHARS", "PI_RULES_PROMPT_MAX_RESULT_CHARS")) ??
-		config.promptMaxResultChars;
+		parsePositiveInteger(
+			firstEnv(
+				env,
+				"CLAUDE_CODE_RULES_PROMPT_MAX_RESULT_CHARS",
+				"PI_RULES_PROMPT_MAX_RESULT_CHARS",
+			),
+		) ?? config.promptMaxResultChars;
 	config.enabledSources = parseEnabledSources(
 		firstEnv(env, "CLAUDE_CODE_RULES_ENABLED_SOURCES", "PI_RULES_ENABLED_SOURCES"),
 		disableBundledRules,
@@ -76,7 +99,10 @@ function parsePositiveInteger(value: string | undefined): number | undefined {
 	return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
 }
 
-function parseEnabledSources(value: string | undefined, disableBundledRules: boolean): RuleSource[] | "auto" {
+function parseEnabledSources(
+	value: string | undefined,
+	disableBundledRules: boolean,
+): RuleSource[] | "auto" {
 	if (value === undefined || value.trim().toLowerCase() === "auto") {
 		return disableBundledRules ? sourcesWithoutBundledRules() : "auto";
 	}
@@ -89,7 +115,9 @@ function parseEnabledSources(value: string | undefined, disableBundledRules: boo
 		}
 		sources.push(source);
 	}
-	const enabledSources = disableBundledRules ? sources.filter((source) => source !== "plugin-bundled") : sources;
+	const enabledSources = disableBundledRules
+		? sources.filter((source) => source !== "plugin-bundled")
+		: sources;
 	return enabledSources;
 }
 
@@ -100,7 +128,7 @@ function sourcesWithoutBundledRules(): RuleSource[] {
 function toRuleSource(value: string): RuleSource | null {
 	switch (value) {
 		case ".claude/rules":
-		case ".claude/rules":
+		case ".opencode/rules":
 		case ".cursor/rules":
 		case ".github/instructions":
 		case ".github/copilot-instructions.md":
@@ -108,7 +136,6 @@ function toRuleSource(value: string): RuleSource | null {
 		case "plugin-bundled":
 		case "~/.claude/rules":
 		case "~/.opencode/rules":
-		case "~/.claude/rules":
 			return value;
 		default:
 			return null;
