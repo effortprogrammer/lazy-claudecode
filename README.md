@@ -69,12 +69,36 @@ Claude will:
 
 ## 🤝 Cross-Call: Claude Code ↔ Codex
 
-If you have both CLIs installed, the installer sets up bidirectional delegation automatically:
+If you have both CLIs installed, the installer sets up bidirectional delegation automatically.
 
-- **In Codex** → `@lazycc-delegate` to hand a task to Claude Code
-- **In Claude Code** → `/lazycodex` to hand a task to Codex
+### Claude Code → Codex
+
+Use the `/lazycodex` slash command inside Claude Code:
+
+```
+/lazycodex refactor the auth module to use dependency injection
+```
+
+### Codex → Claude Code
+
+Use the `$lazycc` skill inside Codex:
+
+```
+$lazycc review this PR for security issues
+```
+
+> **Note:** Claude Code uses `/command` syntax, Codex uses `$skill` syntax — that's just how each tool works.
 
 Each agent runs the other's CLI under the hood and returns the result as-is — no context lost, no copy-paste.
+
+### Requirements
+
+| Direction | You need |
+| --- | --- |
+| Claude Code → Codex | `@openai/codex` installed ([LazyCodex](https://github.com/code-yeongyu/lazycodex) recommended) |
+| Codex → Claude Code | `@anthropic-ai/claude-code` installed |
+
+If the target CLI is missing, the command shows installation instructions instead of failing silently.
 
 ---
 
